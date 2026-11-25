@@ -83,7 +83,8 @@ bun run --cwd apps/atomic e2e
 In CI, [`e2e.yml`](../.github/workflows/e2e.yml) runs them on every change under
 `apps/atomic` or `packages`. It builds a release APK for x86_64 with
 `expo prebuild` and Gradle, so it spends no EAS build, and runs the flows on an
-API 35 emulator. A failed run uploads Maestro's screenshots and logs as the
+API 34 Automated Test Device image, which has no launcher or Google apps to
+stall a loaded runner. A failed run uploads Maestro's screenshots and logs as the
 `maestro` artifact.
 
 ## Lint and format
