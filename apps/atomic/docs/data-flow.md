@@ -56,6 +56,23 @@ how often they repeat, then by the latest. Tapping one records it now with
 `addTransaction` and closes the sheet. They come from the transactions already
 loaded, so there is nothing to set up and nothing extra to sync.
 
+## Home-screen widget
+
+On Android, the **Atomic** widget shows what was spent in the overall budget's
+period and what is left per day, or what was spent this month when there is no
+overall budget ([`widgetSummary`](../src/widget/summary.ts)). `Root` redraws it
+from the snapshot after every change. The launcher asks for it when the widget
+is placed, resized and once an hour, and
+[`widgetHandler`](../src/widget/handler.ts) answers from the store, reading only
+that period's transactions, over the app's connection from `openAppStore`. It
+does not record recurring transactions that came due; they show up once the app
+does.
+
+A tap opens the app. The **+** button opens `atomic://new`, and
+[`useEntryLink`](../src/entry/entryLink.ts) in `Shell` answers it with the entry
+sheet, at launch or while the app runs. The widget draws a light and a dark
+version and the launcher picks the one that matches the system.
+
 ## Searching
 
 The field under Registro's title narrows the log as the person types, from the

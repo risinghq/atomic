@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { BackHandler, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EntryForm } from './entry/EntryForm';
+import { useEntryLink } from './entry/entryLink';
 import { BudgetsScreen } from './screens/BudgetsScreen';
 import { InsightsScreen } from './screens/InsightsScreen';
 import { LogScreen } from './screens/LogScreen';
@@ -28,6 +29,8 @@ export function Shell() {
   const insets = useSafeAreaInsets();
   const [tab, setTab] = useState<TabKey>('log');
   const entry = useSheet<Transaction>();
+
+  useEntryLink(entry.show);
 
   // Android back leaves another tab for Registro before it leaves the app.
   useEffect(() => {
