@@ -1,8 +1,14 @@
 # AGENTS.md
 
-- Before finishing, run `npm run fix`, then `npm run check`. Both must pass.
+- Use bun. Before finishing, run `bun run fix`, then `bun run check` at the
+  repository root. Both must pass.
+- Add a dependency with `bun add` in the workspace that imports it.
 - Format Markdown and TypeScript with `oxfmt`. Do not use Prettier.
 - Interface text is Spanish. Code, comments and documentation are English.
+- A package under `packages/` never imports an app under `apps/`.
+
+In `apps/atomic`:
+
 - Import from `src/` with `@/`.
 - Only `src/services/storageService.ts` imports AsyncStorage.
 - Screens in `app/` use hooks. They do not import `src/api` or `src/services`.

@@ -1,6 +1,6 @@
 version: 2
 updates:
-  - package-ecosystem: npm
+  - package-ecosystem: bun
     directories:
       - /
     schedule:
@@ -28,5 +28,3 @@ updates:
           - major
           - minor
           - patch
-    ignore:
-      - dependency-name: tailwindcss
