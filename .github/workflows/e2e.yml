@@ -65,6 +65,7 @@ jobs:
           api-level: 35
           arch: x86_64
           target: google_apis
+          profile: pixel_7
           emulator-options:
             -no-window -gpu swiftshader_indirect -no-snapshot -noaudio
             -no-boot-anim
