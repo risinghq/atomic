@@ -13,12 +13,14 @@ import {
   useToast,
 } from '@atomic/ui';
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { repeats, type Repeat } from '../choices';
 import { Field } from '../components/Field';
-import { pickable, useData } from '../data/DataProvider';
+import { categoryOf, pickable, useData } from '../data/DataProvider';
 import { formatMoney } from '../format';
+import { useNow } from '../useNow';
+import { frequentEntries, type Frequent } from './frequent';
 
 const kinds = [
   { value: 'expense', label: 'Gasto' },
@@ -32,7 +34,7 @@ const kinds = [
  */
 export function EntryForm({ editing, onDone }: { editing?: Transaction; onDone: () => void }) {
   const { colors } = useTheme();
-  const { categories, settings, write } = useData();
+  const { categories, transactions, settings, write } = useData();
   const toast = useToast();
 
   const [kind, setKind] = useState<Kind>(editing?.kind ?? 'expense');
@@ -42,6 +44,19 @@ export function EntryForm({ editing, onDone }: { editing?: Transaction; onDone: 
   const [repeat, setRepeat] = useState<Repeat>('never');
 
   const cents = parseCents(text) ?? 0;
+
+  const now = useNow();
+  const frequent = useMemo(
+    () => (editing ? [] : frequentEntries(transactions, categories, kind, now.getTime())),
+    [editing, transactions, categories, kind, now]
+  );
+
+  async function record(entry: Frequent) {
+    await write((store) => store.addTransaction({ ...entry, at: Date.now() }));
+
+    toast({ text: kind === 'expense' ? 'Gasto guardado' : 'Ingreso guardado', tone: 'success' });
+    onDone();
+  }
 
   async function save(categoryId: string) {
     const fields = { kind, amount: cents, categoryId, note: note.trim() };
@@ -74,6 +89,26 @@ export function EntryForm({ editing, onDone }: { editing?: Transaction; onDone: 
             tone={text ? 'default' : 'muted'}
           />
         </View>
+
+        {frequent.length > 0 && (
+          <View style={styles.frequent}>
+            {frequent.map((entry) => {
+              const category = categoryOf(categories, entry.categoryId);
+              const name = entry.note || category.name;
+              const amount = formatMoney(entry.amount, settings.currency);
+
+              return (
+                <Button
+                  key={`${entry.amount}|${entry.categoryId}|${entry.note}`}
+                  label={`${category.emoji} ${name} · ${amount}`}
+                  variant="secondary"
+                  size="small"
+                  onPress={() => void record(entry)}
+                />
+              );
+            })}
+          </View>
+        )}
 
         <NumberPad
           onKey={(key) => setText((current) => applyKey(current, key))}
@@ -129,6 +164,7 @@ const styles = StyleSheet.create({
   form: { gap: space.lg },
   center: { alignItems: 'center' },
   amount: { alignItems: 'center', paddingVertical: space.md },
+  frequent: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: space.sm },
   note: {
     borderRadius: radii.lg,
     paddingHorizontal: space.lg,
