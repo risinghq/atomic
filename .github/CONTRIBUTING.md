@@ -33,7 +33,7 @@ the dev server.
 
 - Interface text is Spanish. Code, comments and documentation are English.
 - Add a dependency with `bun add` inside the workspace that imports it.
-- Style with `StyleSheet` and the theme from `@atomic/ui`. See
+- Style with `StyleSheet` and the theme from `@rising/ui`. See
   [UI](../docs/ui.md).
 - Commit subjects read `area: what changed`, such as
   `hooks: reload transactions when the user changes`.

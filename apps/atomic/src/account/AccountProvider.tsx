@@ -1,5 +1,5 @@
-import type { Store } from '@atomic/core';
-import { useToast } from '@atomic/ui';
+import type { Store } from '@rising/core';
+import { useToast } from '@rising/ui';
 import {
   createContext,
   useCallback,

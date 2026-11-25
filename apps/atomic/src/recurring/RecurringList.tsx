@@ -1,5 +1,5 @@
-import { nextOccurrence, type Recurring } from '@atomic/core';
-import { IconTile, ListRow, ListSection } from '@atomic/ui';
+import { nextOccurrence, type Recurring } from '@rising/core';
+import { IconTile, ListRow, ListSection } from '@rising/ui';
 import { useState } from 'react';
 import { ScrollView, useWindowDimensions } from 'react-native';
 import { everyLabel } from '../choices';

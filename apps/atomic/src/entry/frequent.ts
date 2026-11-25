@@ -1,4 +1,4 @@
-import type { Category, Kind, Transaction } from '@atomic/core';
+import type { Category, Kind, Transaction } from '@rising/core';
 
 /** An entry the person records often enough to offer it in one tap. */
 export type Frequent = Pick<Transaction, 'kind' | 'amount' | 'categoryId' | 'note'>;

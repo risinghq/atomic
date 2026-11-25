@@ -7,7 +7,7 @@ import {
   type Settings,
   type Store,
   type Transaction,
-} from '@atomic/core';
+} from '@rising/core';
 import {
   createContext,
   useCallback,

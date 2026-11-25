@@ -1,5 +1,5 @@
-import type { Transaction } from '@atomic/core';
-import { Sheet, TabBar, useTheme, type Tab } from '@atomic/ui';
+import type { Transaction } from '@rising/core';
+import { Sheet, TabBar, useTheme, type Tab } from '@rising/ui';
 import { useEffect, useState } from 'react';
 import { BackHandler, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

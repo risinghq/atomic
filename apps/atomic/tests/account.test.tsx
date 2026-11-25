@@ -1,4 +1,4 @@
-import type { Store } from '@atomic/core';
+import type { Store } from '@rising/core';
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { screen, userEvent, waitFor } from '@testing-library/react-native';
 import { Root } from '../src/Root';

@@ -1,4 +1,4 @@
-import { ListRow, ListSection, Sheet, useToast } from '@atomic/ui';
+import { ListRow, ListSection, Sheet, useToast } from '@rising/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSheet } from '../useSheet';
 import type { Provider } from './api';

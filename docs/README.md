@@ -6,10 +6,10 @@
    import.
 3. [Testing and checks](testing.md): the test, lint and type-check commands and
    how the tests are laid out.
-4. [UI](ui.md): the shared theme and components in `@atomic/ui`, and the catalog
+4. [UI](ui.md): the shared theme and components in `@rising/ui`, and the catalog
    app that shows them.
 5. [Core](core.md): the data model, money and period math, and the SQLite store
-   in `@atomic/core`, with its migrations and the AsyncStorage import.
+   in `@rising/core`, with its migrations and the AsyncStorage import.
 6. [API](api.md): the Worker that signs people in and syncs their records, and
    how it deploys.
 

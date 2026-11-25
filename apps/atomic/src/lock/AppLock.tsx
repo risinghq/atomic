@@ -1,4 +1,4 @@
-import { Button, space, Text, useTheme } from '@atomic/ui';
+import { Button, space, Text, useTheme } from '@rising/ui';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { AppState, Modal, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

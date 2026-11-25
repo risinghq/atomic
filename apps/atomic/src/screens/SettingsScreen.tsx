@@ -1,5 +1,5 @@
 import { currencies, currencyChoice, hapticLevels, weekStartOf, weekStarts } from '../choices';
-import { ListRow, ListSection, SegmentedControl, Sheet, Toggle, useToast } from '@atomic/ui';
+import { ListRow, ListSection, SegmentedControl, Sheet, Toggle, useToast } from '@rising/ui';
 import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AccountSection } from '../account/AccountSection';

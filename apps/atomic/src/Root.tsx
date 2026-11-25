@@ -1,4 +1,4 @@
-import { setHapticLevel } from '@atomic/ui';
+import { setHapticLevel } from '@rising/ui';
 import { useEffect } from 'react';
 import { useData } from './data/DataProvider';
 import { AppLock } from './lock/AppLock';

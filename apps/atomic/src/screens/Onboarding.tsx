@@ -1,4 +1,4 @@
-import { Button, space, Text, SegmentedControl, useTheme, useToast } from '@atomic/ui';
+import { Button, space, Text, SegmentedControl, useTheme, useToast } from '@rising/ui';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

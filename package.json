@@ -1,5 +1,5 @@
 {
-  "name": "atomic-monorepo",
+  "name": "pocket",
   "private": true,
   "workspaces": [
     "apps/*",

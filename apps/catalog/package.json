@@ -10,8 +10,8 @@
     "build": "expo export --platform web"
   },
   "dependencies": {
-    "@atomic/ui": "workspace:*",
     "@expo/vector-icons": "^15.1.1",
+    "@rising/ui": "workspace:*",
     "expo": "^58.0.26",
     "expo-font": "~58.0.12",
     "expo-status-bar": "~58.0.5",

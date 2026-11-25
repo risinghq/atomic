@@ -1,4 +1,4 @@
-import { noChanges as none, type Changes } from '@atomic/core';
+import { noChanges as none, type Changes } from '@rising/core';
 import { describe, expect, it } from 'vitest';
 import { ANA, BETO, send, signIn } from './helpers';
 

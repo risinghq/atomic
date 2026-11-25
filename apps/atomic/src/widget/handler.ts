@@ -1,4 +1,4 @@
-import type { Store } from '@atomic/core';
+import type { Store } from '@rising/core';
 import type { WidgetTaskHandler } from 'react-native-android-widget';
 import { summaryWidget } from './SummaryWidget';
 import { readWidgetData, widgetSummary } from './summary';

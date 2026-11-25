@@ -1,4 +1,4 @@
-import { space, Text, useTheme } from '@atomic/ui';
+import { space, Text, useTheme } from '@rising/ui';
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

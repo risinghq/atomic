@@ -1,5 +1,5 @@
-import type { Store } from '@atomic/core';
-import { fontAssets, ThemeProvider, ToastProvider, type ColorScheme } from '@atomic/ui';
+import type { Store } from '@rising/core';
+import { fontAssets, ThemeProvider, ToastProvider, type ColorScheme } from '@rising/ui';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';

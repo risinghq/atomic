@@ -1,6 +1,6 @@
 # Architecture
 
-The atomic app is one state-driven shell over `@atomic/ui` and `@atomic/core`.
+The atomic app is one state-driven shell over `@rising/ui` and `@rising/core`.
 It has no router. A screen reads one shared snapshot of the store and writes
 back through one function.
 
@@ -12,7 +12,7 @@ index.ts ─► App ─► DataProvider ─► AccountProvider ─► Root ─�
                      │                  │                               SettingsScreen
                      │                  │                               EntryForm (sheet)
                      │                  └─ the Worker (apps/api), over fetch
-                     └─ Store (@atomic/core, expo-sqlite)
+                     └─ Store (@rising/core, expo-sqlite)
 ```
 
 ## Code map
@@ -67,7 +67,7 @@ active tab is mounted.
   network.
 - Money stays in integer cents until it reaches a ui component, which takes
   `fromCents(amount)`.
-- Period and total math comes from `@atomic/core`. `src/format.ts` only turns
+- Period and total math comes from `@rising/core`. `src/format.ts` only turns
   results into text.
 - Interface text is Spanish.
 

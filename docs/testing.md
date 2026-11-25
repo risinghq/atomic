@@ -54,7 +54,7 @@ Layout in the atomic app:
   `dropsAfterSignIn`, `pageSize`, `signingInAs` or `providersSetUp` to shape
   what the app meets.
 - [`tests/render.tsx`](../apps/atomic/tests/render.tsx) opens a real store on
-  `memoryDatabase` from `@atomic/core/testing` and wraps a screen in the theme,
+  `memoryDatabase` from `@rising/core/testing` and wraps a screen in the theme,
   toast, data and account providers.
 - The `test` script pins `TZ=America/Lima`, because day and period labels depend
   on the local time zone.

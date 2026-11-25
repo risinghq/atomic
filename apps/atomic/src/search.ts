@@ -1,4 +1,4 @@
-import { fromCents, type Transaction } from '@atomic/core';
+import { fromCents, type Transaction } from '@rising/core';
 
 /** Lowercase, without accents, so "cafe" finds "Café". */
 function fold(text: string): string {

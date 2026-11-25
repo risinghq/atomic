@@ -1,5 +1,5 @@
-import type { Category, Kind } from '@atomic/core';
-import { IconTile, ListRow, ListSection, SegmentedControl, space } from '@atomic/ui';
+import type { Category, Kind } from '@rising/core';
+import { IconTile, ListRow, ListSection, SegmentedControl, space } from '@rising/ui';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useData } from '../data/DataProvider';
