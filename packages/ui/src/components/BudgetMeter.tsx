@@ -47,6 +47,7 @@ export function BudgetMeter({ segments, tick, height = 14, label }: BudgetMeterP
 
   return (
     <View
+      accessible
       accessibilityRole="progressbar"
       accessibilityLabel={label}
       aria-valuemin={0}

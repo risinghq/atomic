@@ -1,42 +1,29 @@
-import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { shareCsv } from '../src/data/shareCsv';
+import { describe, expect, it, type jest } from '@jest/globals';
+import { screen, userEvent, waitFor } from '@testing-library/react-native';
+import { File } from 'expo-file-system';
+// The native module behind expo-sharing. jest-expo stands it in with a recorder,
+// so this is the call the OS share sheet would receive.
+import nativeSharing from 'expo-sharing/build/SharingNativeModule';
 import { Root } from '../src/Root';
 import { freshStore, renderWith } from './render';
 
-// The native share sheet needs the Expo runtime.
-vi.mock('../src/data/shareCsv', () => ({ shareCsv: vi.fn(async () => {}) }));
-
-afterEach(() => {
-  cleanup();
-  vi.clearAllMocks();
-});
-
-function press(name: string) {
-  fireEvent.click(screen.getByRole('button', { name }));
-}
-
-// React Native Web fires onLongPress once a press, here a held mouse button, outlasts its delay.
-async function longPress(element: HTMLElement) {
-  fireEvent.mouseDown(element, { button: 0, buttons: 1 });
-  await new Promise((resolve) => setTimeout(resolve, 600));
-  fireEvent.mouseUp(element, { button: 0 });
-}
-
-function typeAmount(digits: string) {
-  for (const digit of digits) press(digit);
+async function typeAmount(user: ReturnType<typeof userEvent.setup>, digits: string) {
+  // A user presses the keys one after another; the pad reads them in order.
+  // oxlint-disable-next-line no-await-in-loop
+  for (const digit of digits) await user.press(screen.getByRole('button', { name: digit }));
 }
 
 describe('onboarding', () => {
   it('saves the chosen currency and week start, then opens the app', async () => {
+    const user = userEvent.setup();
     const store = await freshStore({ onboarded: false });
-    renderWith(store, <Root />);
+    await renderWith(store, <Root />);
 
-    fireEvent.click(await screen.findByRole('tab', { name: '$ Dólares' }));
-    fireEvent.click(screen.getByRole('tab', { name: 'Domingo' }));
-    press('Empezar');
+    await user.press(await screen.findByRole('tab', { name: '$ Dólares' }));
+    await user.press(screen.getByRole('tab', { name: 'Domingo' }));
+    await user.press(screen.getByRole('button', { name: 'Empezar' }));
 
-    expect(await screen.findByRole('heading', { name: 'Registro' })).toBeTruthy();
+    expect(await screen.findByRole('header', { name: 'Registro' })).toBeOnTheScreen();
     expect(await store.settings()).toEqual({
       onboarded: true,
       currency: 'USD',
@@ -48,19 +35,17 @@ describe('onboarding', () => {
 
 describe('entry', () => {
   it('records an expense with the amount, a note and a category', async () => {
+    const user = userEvent.setup();
     const store = await freshStore();
-    renderWith(store, <Root />);
+    await renderWith(store, <Root />);
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Agregar' }));
-    typeAmount('18');
-    press('Confirmar');
+    await user.press(await screen.findByRole('button', { name: 'Agregar' }));
+    await typeAmount(user, '18');
+    await user.press(screen.getByRole('button', { name: 'Confirmar' }));
+    await user.type(screen.getByPlaceholderText('Nota (opcional)'), ' Menú ');
+    await user.press(screen.getByRole('radio', { name: 'Comida' }));
 
-    fireEvent.change(screen.getByPlaceholderText('Nota (opcional)'), {
-      target: { value: ' Menú ' },
-    });
-    fireEvent.click(screen.getByRole('radio', { name: 'Comida' }));
-
-    expect(await screen.findByRole('button', { name: 'Menú' })).toBeTruthy();
+    expect(await screen.findByRole('button', { name: 'Menú' })).toBeOnTheScreen();
 
     const [saved] = await store.transactions();
     expect(saved).toMatchObject({
@@ -72,6 +57,7 @@ describe('entry', () => {
   });
 
   it('deletes a transaction after a long press and a confirmation', async () => {
+    const user = userEvent.setup();
     const store = await freshStore();
     await store.addTransaction({
       kind: 'expense',
@@ -80,28 +66,29 @@ describe('entry', () => {
       note: '',
       at: Date.now(),
     });
-    renderWith(store, <Root />);
+    await renderWith(store, <Root />);
 
-    await longPress(await screen.findByRole('button', { name: 'Transporte' }));
-    fireEvent.click(await screen.findByRole('button', { name: 'Borrar' }));
+    await user.longPress(await screen.findByRole('button', { name: 'Transporte' }));
+    await user.press(await screen.findByRole('button', { name: 'Borrar' }));
 
-    await waitFor(async () => expect(await store.transactions()).toEqual([]));
-    expect(await screen.findByText('Aún no hay movimientos')).toBeTruthy();
+    expect(await screen.findByText('Aún no hay movimientos')).toBeOnTheScreen();
+    expect(await store.transactions()).toEqual([]);
   });
 });
 
 describe('budgets', () => {
   it('creates a monthly budget for one category', async () => {
+    const user = userEvent.setup();
     const store = await freshStore();
-    renderWith(store, <Root />);
+    await renderWith(store, <Root />);
 
-    fireEvent.click(await screen.findByRole('tab', { name: 'Presupuestos' }));
-    press('Crear presupuesto');
-    fireEvent.click(screen.getByRole('radio', { name: 'Comida' }));
-    typeAmount('300');
-    press('Confirmar');
+    await user.press(await screen.findByRole('tab', { name: 'Presupuestos' }));
+    await user.press(screen.getByRole('button', { name: 'Crear presupuesto' }));
+    await user.press(screen.getByRole('radio', { name: 'Comida' }));
+    await typeAmount(user, '300');
+    await user.press(screen.getByRole('button', { name: 'Confirmar' }));
 
-    expect(await screen.findByRole('button', { name: 'Comida' })).toBeTruthy();
+    expect(await screen.findByRole('button', { name: 'Comida' })).toBeOnTheScreen();
     expect(await store.budgets()).toMatchObject([
       { categoryId: 'food', amount: 30000, period: 'month' },
     ]);
@@ -109,7 +96,8 @@ describe('budgets', () => {
 });
 
 describe('settings', () => {
-  it('exports the transactions as CSV', async () => {
+  it('opens the share sheet on a dated CSV file', async () => {
+    const user = userEvent.setup();
     const store = await freshStore();
     await store.addTransaction({
       kind: 'expense',
@@ -118,19 +106,21 @@ describe('settings', () => {
       note: 'Menú',
       at: Date.now(),
     });
-    renderWith(store, <Root />);
+    await renderWith(store, <Root />);
 
-    fireEvent.click(await screen.findByRole('tab', { name: 'Ajustes' }));
-    press('Exportar CSV');
+    await user.press(await screen.findByRole('tab', { name: 'Ajustes' }));
+    await user.press(screen.getByRole('button', { name: 'Exportar CSV' }));
 
-    await waitFor(() => expect(shareCsv).toHaveBeenCalledOnce());
+    await waitFor(() => expect(nativeSharing.shareAsync).toHaveBeenCalledTimes(1));
 
-    const [name, csv] = vi.mocked(shareCsv).mock.lastCall ?? [];
-    expect(name).toMatch(/^atomic-\d{4}-\d{2}-\d{2}\.csv$/);
-    expect(csv).toContain(',gasto,Comida,Menú,12.50\r\n');
+    const [uri, options] = (nativeSharing.shareAsync as jest.Mock).mock.lastCall ?? [];
+    expect(uri).toMatch(/\/atomic-\d{4}-\d{2}-\d{2}\.csv$/);
+    expect(options).toMatchObject({ mimeType: 'text/csv' });
+    expect(new File(String(uri)).textSync()).toContain(',gasto,Comida,Menú,12.50\r\n');
   });
 
   it('erases every record after a confirmation and returns to onboarding', async () => {
+    const user = userEvent.setup();
     const store = await freshStore();
     await store.addTransaction({
       kind: 'expense',
@@ -140,13 +130,13 @@ describe('settings', () => {
       at: Date.now(),
     });
     await store.setBudget({ categoryId: null, amount: 10000, period: 'month' });
-    renderWith(store, <Root />);
+    await renderWith(store, <Root />);
 
-    fireEvent.click(await screen.findByRole('tab', { name: 'Ajustes' }));
-    press('Borrar todos los datos');
-    fireEvent.click(await screen.findByRole('button', { name: 'Borrar todo' }));
+    await user.press(await screen.findByRole('tab', { name: 'Ajustes' }));
+    await user.press(screen.getByRole('button', { name: 'Borrar todos los datos' }));
+    await user.press(await screen.findByRole('button', { name: 'Borrar todo' }));
 
-    expect(await screen.findByRole('button', { name: 'Empezar' })).toBeTruthy();
+    expect(await screen.findByRole('button', { name: 'Empezar' })).toBeOnTheScreen();
     expect(await store.transactions()).toEqual([]);
     expect(await store.budgets()).toEqual([]);
     expect((await store.categories()).length).toBeGreaterThan(0);

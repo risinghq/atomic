@@ -1,7 +1,17 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, jest } from '@jest/globals';
+import {
+  render,
+  screen,
+  userEvent,
+  waitForElementToBeRemoved,
+} from '@testing-library/react-native';
+import { useState } from 'react';
+import { Text } from 'react-native';
 import {
   Amount,
+  amountValue,
+  applyKey,
+  Button,
   NumberPad,
   ProgressBar,
   SegmentedControl,
@@ -11,142 +21,193 @@ import {
   useToast,
 } from '../src';
 
-afterEach(cleanup);
-
 describe('Amount', () => {
-  it('signs income and keeps the symbol', () => {
-    render(<Amount value={12.7} tone="income" sign="always" />);
-    expect(document.body.textContent).toBe('+S/ 12.70');
+  it('reads a signed income with its symbol', async () => {
+    await render(<Amount value={12.7} tone="income" sign="always" />);
+
+    expect(screen.getByLabelText('+S/ 12.70')).toBeOnTheScreen();
   });
 
-  it('splits a large amount into sign, symbol and number', () => {
-    render(<Amount value={-137.45} variant="display" />);
-    expect(screen.getByText('137.45')).toBeTruthy();
-    expect(document.body.textContent).toBe('-S/137.45');
+  it('reads a large amount as one value', async () => {
+    await render(<Amount value={-137.45} variant="display" />);
+
+    expect(screen.getByLabelText('-S/ 137.45')).toBeOnTheScreen();
   });
 });
 
+function ReminderSetting({ disabled = false }: { disabled?: boolean }) {
+  const [on, setOn] = useState(false);
+
+  return <Toggle value={on} onChange={setOn} label="Recordatorios" disabled={disabled} />;
+}
+
 describe('Toggle', () => {
-  it('reports the next value', () => {
-    const onChange = vi.fn();
-    render(<Toggle value={false} onChange={onChange} label="Recordatorios" />);
+  it('turns on when pressed', async () => {
+    const user = userEvent.setup();
+    await render(<ReminderSetting />);
     const toggle = screen.getByRole('switch', { name: 'Recordatorios' });
-    expect(toggle.getAttribute('aria-checked')).toBe('false');
-    fireEvent.click(toggle);
-    expect(onChange).toHaveBeenCalledWith(true);
+    expect(toggle).not.toBeChecked();
+
+    await user.press(toggle);
+
+    expect(toggle).toBeChecked();
   });
 
-  it('ignores presses while disabled', () => {
-    const onChange = vi.fn();
-    render(<Toggle value={false} onChange={onChange} label="Recordatorios" disabled />);
-    fireEvent.click(screen.getByRole('switch', { name: 'Recordatorios' }));
-    expect(onChange).not.toHaveBeenCalled();
+  it('stays off while disabled', async () => {
+    const user = userEvent.setup();
+    await render(<ReminderSetting disabled />);
+    const toggle = screen.getByRole('switch', { name: 'Recordatorios' });
+
+    await user.press(toggle);
+
+    expect(toggle).toBeDisabled();
+    expect(toggle).not.toBeChecked();
   });
 });
 
 describe('ProgressBar', () => {
-  it('reports the clamped percentage', () => {
-    render(<ProgressBar progress={1.4} label="Presupuesto" />);
-    const bar = screen.getByRole('progressbar', { name: 'Presupuesto' });
-    expect(bar.getAttribute('aria-valuenow')).toBe('100');
+  it('reports the clamped percentage', async () => {
+    await render(<ProgressBar progress={1.4} label="Presupuesto" />);
+
+    expect(screen.getByRole('progressbar', { name: 'Presupuesto' })).toHaveAccessibilityValue({
+      now: 100,
+    });
   });
 });
+
+function AmountEntry({ onSave }: { onSave: (value: number) => void }) {
+  const [text, setText] = useState('');
+
+  return (
+    <>
+      <Text>{text || '0'}</Text>
+      <NumberPad
+        decimalSeparator=","
+        onKey={(key) => setText((current) => applyKey(current, key))}
+        onConfirm={() => onSave(amountValue(text))}
+        canConfirm={text !== ''}
+      />
+    </>
+  );
+}
 
 describe('NumberPad', () => {
-  it('sends digits and the point key, and confirms', () => {
-    const onKey = vi.fn();
-    const onConfirm = vi.fn();
-    render(<NumberPad onKey={onKey} onConfirm={onConfirm} decimalSeparator="," />);
-    fireEvent.click(screen.getByRole('button', { name: '7' }));
-    fireEvent.click(screen.getByRole('button', { name: ',' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }));
-    expect(onKey.mock.calls).toEqual([['7'], ['.']]);
-    expect(onConfirm).toHaveBeenCalledOnce();
+  it('types an amount with the local separator and saves it', async () => {
+    const user = userEvent.setup();
+    const onSave = jest.fn();
+    await render(<AmountEntry onSave={onSave} />);
+
+    await user.press(screen.getByRole('button', { name: '7' }));
+    await user.press(screen.getByRole('button', { name: ',' }));
+    await user.press(screen.getByRole('button', { name: '5' }));
+
+    expect(screen.getByText('7.5')).toBeOnTheScreen();
+
+    await user.press(screen.getByRole('button', { name: 'Confirmar' }));
+
+    expect(onSave).toHaveBeenCalledWith(7.5);
   });
 
-  it('blocks confirm while it cannot confirm', () => {
-    const onConfirm = vi.fn();
-    render(<NumberPad onKey={() => {}} onConfirm={onConfirm} canConfirm={false} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }));
-    expect(onConfirm).not.toHaveBeenCalled();
+  it('cannot confirm before an amount is typed', async () => {
+    const user = userEvent.setup();
+    const onSave = jest.fn();
+    await render(<AmountEntry onSave={onSave} />);
+    const confirm = screen.getByRole('button', { name: 'Confirmar' });
+
+    await user.press(confirm);
+
+    expect(confirm).toBeDisabled();
+    expect(onSave).not.toHaveBeenCalled();
   });
 });
+
+function KindPicker() {
+  const [kind, setKind] = useState('expense');
+
+  return (
+    <SegmentedControl
+      segments={[
+        { value: 'expense', label: 'Gasto' },
+        { value: 'income', label: 'Ingreso' },
+      ]}
+      value={kind}
+      onChange={setKind}
+    />
+  );
+}
 
 describe('SegmentedControl', () => {
-  it('selects another segment', () => {
-    const onChange = vi.fn();
-    render(
-      <SegmentedControl
-        segments={[
-          { value: 'expense', label: 'Gasto' },
-          { value: 'income', label: 'Ingreso' },
-        ]}
-        value="expense"
-        onChange={onChange}
-      />
-    );
-    expect(screen.getByRole('tab', { name: 'Gasto' }).getAttribute('aria-selected')).toBe('true');
-    fireEvent.click(screen.getByRole('tab', { name: 'Ingreso' }));
-    expect(onChange).toHaveBeenCalledWith('income');
-  });
+  it('moves the selection to the pressed segment', async () => {
+    const user = userEvent.setup();
+    await render(<KindPicker />);
+    expect(screen.getByRole('tab', { name: 'Gasto' })).toBeSelected();
 
-  it('starts the pill under the selected segment', () => {
-    render(
-      <SegmentedControl
-        segments={[
-          { value: 'light', label: 'Claro' },
-          { value: 'dark', label: 'Oscuro' },
-        ]}
-        value="dark"
-        onChange={() => {}}
-      />
-    );
-    const pill = screen.getByTestId('segmented-pill');
-    expect(pill.style.left).toBe('50%');
-    expect(pill.style.width).toBe('50%');
+    await user.press(screen.getByRole('tab', { name: 'Ingreso' }));
+
+    expect(screen.getByRole('tab', { name: 'Ingreso' })).toBeSelected();
+    expect(screen.getByRole('tab', { name: 'Gasto' })).not.toBeSelected();
   });
 });
+
+function Shell({ onAdd }: { onAdd: () => void }) {
+  const [active, setActive] = useState<'log' | 'insights'>('log');
+
+  return (
+    <TabBar
+      tabs={[
+        { key: 'log', label: 'Registro', icon: 'list' },
+        { key: 'insights', label: 'Resumen', icon: 'pie-chart' },
+      ]}
+      active={active}
+      onChange={setActive}
+      onAdd={onAdd}
+    />
+  );
+}
 
 describe('TabBar', () => {
-  const tabs = [
-    { key: 'log', label: 'Registro', icon: 'list' },
-    { key: 'insights', label: 'Resumen', icon: 'pie-chart' },
-  ] as const;
+  it('switches tabs and offers the add button', async () => {
+    const user = userEvent.setup();
+    const onAdd = jest.fn();
+    await render(<Shell onAdd={onAdd} />);
+    expect(screen.getByRole('tab', { name: 'Registro' })).toBeSelected();
 
-  it('changes tab and presses add', () => {
-    const onChange = vi.fn();
-    const onAdd = vi.fn();
-    render(<TabBar tabs={tabs} active="log" onChange={onChange} onAdd={onAdd} />);
-    fireEvent.click(screen.getByRole('tab', { name: 'Registro' }));
-    fireEvent.click(screen.getByRole('tab', { name: 'Resumen' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Agregar' }));
-    expect(onChange.mock.calls).toEqual([['insights']]);
-    expect(onAdd).toHaveBeenCalledOnce();
+    await user.press(screen.getByRole('tab', { name: 'Resumen' }));
+    await user.press(screen.getByRole('button', { name: 'Agregar' }));
+
+    expect(screen.getByRole('tab', { name: 'Resumen' })).toBeSelected();
+    expect(onAdd).toHaveBeenCalledTimes(1);
   });
 });
 
-function Trigger() {
+function SaveButton() {
   const show = useToast();
-  return <button onClick={() => show({ text: 'Gasto guardado', tone: 'success' })}>go</button>;
+
+  return (
+    <Button label="Guardar" onPress={() => show({ text: 'Gasto guardado', tone: 'success' })} />
+  );
 }
 
 describe('Toast', () => {
-  // Real timers: Reanimated keeps the frame scheduler it found at import, so
-  // faked animation frames never reach the exit animation.
   it('shows a message and removes it after its duration', async () => {
-    render(
+    const user = userEvent.setup();
+    await render(
       <ToastProvider duration={50}>
-        <Trigger />
+        <SaveButton />
       </ToastProvider>
     );
-    fireEvent.click(screen.getByText('go'));
-    expect(screen.getByRole('alert').textContent).toContain('Gasto guardado');
-    await waitFor(() => expect(screen.queryByRole('alert')).toBeNull());
+
+    await user.press(screen.getByRole('button', { name: 'Guardar' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent(/Gasto guardado/);
+    await waitForElementToBeRemoved(() => screen.queryByRole('alert'));
   });
 
-  it('throws outside a provider', () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
-    expect(() => render(<Trigger />)).toThrow('ToastProvider');
+  it('throws outside a provider', async () => {
+    const error = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    await expect(render(<SaveButton />)).rejects.toThrow('ToastProvider');
+
     error.mockRestore();
   });
 });

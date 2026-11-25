@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from '@jest/globals';
 import { font, textStyle, tracking } from './typography';
 
 describe('font', () => {

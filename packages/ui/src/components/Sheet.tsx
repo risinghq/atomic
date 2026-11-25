@@ -86,6 +86,7 @@ export function Sheet({
         <Animated.View
           accessibilityViewIsModal
           aria-modal
+          onAccessibilityEscape={onClose}
           style={[
             styles.panel,
             { backgroundColor: colors.background, paddingBottom: bottomInset + space.lg },

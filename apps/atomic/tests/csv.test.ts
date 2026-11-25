@@ -1,5 +1,5 @@
 import { defaultCategories, type Transaction } from '@atomic/core';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from '@jest/globals';
 import { bom, csvName, toCsv } from '../src/data/csv';
 
 const categories = defaultCategories;

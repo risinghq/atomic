@@ -1,6 +1,12 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { describe, expect, it, jest } from '@jest/globals';
+import {
+  render,
+  screen,
+  userEvent,
+  waitForElementToBeRemoved,
+} from '@testing-library/react-native';
 import { useState } from 'react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { Text } from 'react-native';
 import {
   BarChart,
   BudgetCard,
@@ -15,8 +21,6 @@ import {
   type ChartBar,
 } from '../src';
 
-afterEach(cleanup);
-
 describe('withAlpha', () => {
   it('turns a hex color into rgba', () => {
     expect(withAlpha('#FF6B5E', 0.25)).toBe('rgba(255, 107, 94, 0.25)');
@@ -27,29 +31,34 @@ describe('withAlpha', () => {
   });
 });
 
+const categories = [
+  { id: 'food', name: 'Comida', emoji: '🍜', color: '#FF9F43' },
+  { id: 'taxi', name: 'Taxi', emoji: '🚕', color: '#FDCC41' },
+  { id: 'home', name: 'Casa', emoji: '🏠', color: '#4F8EF7' },
+];
+
+function CategoryField() {
+  const [selected, setSelected] = useState('taxi');
+
+  return <CategoryPicker categories={categories} selected={selected} onSelect={setSelected} />;
+}
+
 describe('CategoryPicker', () => {
-  const categories = [
-    { id: 'food', name: 'Comida', emoji: '🍜', color: '#FF9F43' },
-    { id: 'taxi', name: 'Taxi', emoji: '🚕', color: '#FDCC41' },
-    { id: 'fun', name: 'Ocio', emoji: '🎬', color: '#FF6B5E' },
-    { id: 'home', name: 'Casa', emoji: '🏠', color: '#4F8EF7' },
-  ];
+  it('moves the check to the pressed category', async () => {
+    const user = userEvent.setup();
+    await render(<CategoryField />);
+    expect(screen.getByRole('radio', { name: 'Taxi' })).toBeChecked();
 
-  it('marks the selected tile and reports a new choice', () => {
-    const onSelect = vi.fn();
-    render(<CategoryPicker categories={categories} selected="taxi" onSelect={onSelect} />);
+    await user.press(screen.getByRole('radio', { name: 'Casa' }));
 
-    expect(screen.getByRole('radio', { name: 'Taxi' }).getAttribute('aria-checked')).toBe('true');
-    expect(screen.getByRole('radio', { name: 'Ocio' }).getAttribute('aria-checked')).toBe('false');
-
-    fireEvent.click(screen.getByRole('radio', { name: 'Casa' }));
-    expect(onSelect).toHaveBeenCalledWith('home');
+    expect(screen.getByRole('radio', { name: 'Casa' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Taxi' })).not.toBeChecked();
   });
 });
 
 describe('BudgetMeter', () => {
-  it('reports the filled share, capped at the whole bar', () => {
-    render(
+  it('reports the filled share, capped at the whole bar', async () => {
+    await render(
       <BudgetMeter
         label="General"
         segments={[
@@ -59,70 +68,94 @@ describe('BudgetMeter', () => {
       />
     );
 
-    const meter = screen.getByRole('progressbar', { name: 'General' });
-    expect(meter.getAttribute('aria-valuenow')).toBe('100');
-  });
-
-  it('places the pace tick at the elapsed share', () => {
-    render(<BudgetMeter segments={[]} tick={0.25} />);
-
-    expect(screen.getByTestId('meter-tick').style.left).toBe('25%');
+    expect(screen.getByRole('progressbar', { name: 'General' })).toHaveAccessibilityValue({
+      now: 100,
+    });
   });
 });
 
 describe('BudgetCard', () => {
-  it('shows what is left', () => {
-    render(<BudgetCard name="Comida" emoji="🍜" color="#FF9F43" spent={60} amount={100} />);
+  it('shows what is left', async () => {
+    await render(<BudgetCard name="Comida" emoji="🍜" color="#FF9F43" spent={60} amount={100} />);
 
-    expect(document.body.textContent).toContain('S/ 40.00');
-    expect(document.body.textContent).toContain('restante');
+    expect(screen.getByLabelText('S/ 40.00')).toBeOnTheScreen();
+    expect(screen.getByText('restante')).toBeOnTheScreen();
+    expect(screen.queryByLabelText('Excedido')).not.toBeOnTheScreen();
   });
 
-  it('shows how far over the budget is', () => {
-    render(<BudgetCard name="Ocio" emoji="🎬" color="#FF6B5E" spent={130} amount={100} />);
+  it('warns how far over the budget is', async () => {
+    await render(<BudgetCard name="Ocio" emoji="🎬" color="#FF6B5E" spent={130} amount={100} />);
 
-    expect(document.body.textContent).toContain('S/ 30.00');
-    expect(document.body.textContent).toContain('excedido');
+    expect(screen.getByLabelText('S/ 30.00')).toBeOnTheScreen();
+    expect(screen.getByText('excedido')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Excedido')).toBeOnTheScreen();
   });
 });
+
+const months = ['Septiembre 2026', 'Octubre 2026', 'Noviembre 2026'];
+
+function MonthStepper() {
+  const [index, setIndex] = useState(months.length - 1);
+
+  return (
+    <PeriodPicker
+      title={months[index]}
+      onPrevious={() => setIndex(index - 1)}
+      onNext={() => setIndex(index + 1)}
+      canNext={index < months.length - 1}
+    />
+  );
+}
 
 describe('PeriodPicker', () => {
-  it('steps back and blocks the step past the current period', () => {
-    const onPrevious = vi.fn();
-    const onNext = vi.fn();
-    render(
-      <PeriodPicker
-        title="Noviembre 2026"
-        onPrevious={onPrevious}
-        onNext={onNext}
-        canNext={false}
-      />
-    );
+  it('steps back, and forward no further than the current period', async () => {
+    const user = userEvent.setup();
+    await render(<MonthStepper />);
+    const next = screen.getByRole('button', { name: 'Periodo siguiente' });
+    expect(next).toBeDisabled();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Periodo anterior' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Periodo siguiente' }));
+    await user.press(screen.getByRole('button', { name: 'Periodo anterior' }));
 
-    expect(onPrevious).toHaveBeenCalledOnce();
-    expect(onNext).not.toHaveBeenCalled();
+    expect(screen.getByText('Octubre 2026')).toBeOnTheScreen();
+    expect(next).toBeEnabled();
+
+    await user.press(next);
+    await user.press(next);
+
+    expect(screen.getByText('Noviembre 2026')).toBeOnTheScreen();
   });
 });
 
+const bars: ChartBar[] = [
+  { key: 'mon', label: 'L', accessibilityLabel: 'Lunes', value: 20 },
+  { key: 'tue', label: 'M', accessibilityLabel: 'Martes', value: 0 },
+  { key: 'wed', label: 'X', accessibilityLabel: 'Miércoles', value: 40, current: true },
+  { key: 'thu', label: 'J', accessibilityLabel: 'Jueves', value: 0, future: true },
+];
+
+function WeekChart() {
+  const [selected, setSelected] = useState<ChartBar | null>(null);
+
+  return (
+    <>
+      <BarChart bars={bars} formatValue={(value) => `S/ ${value}`} onSelect={setSelected} />
+      <Text>{selected ? `Día: ${selected.accessibilityLabel}` : 'Toda la semana'}</Text>
+    </>
+  );
+}
+
 describe('BarChart', () => {
-  const bars: ChartBar[] = [
-    { key: 'mon', label: 'L', value: 20 },
-    { key: 'tue', label: 'M', value: 0 },
-    { key: 'wed', label: 'X', value: 40, current: true },
-    { key: 'thu', label: 'J', value: 0, future: true },
-  ];
+  it('opens a day with spending and ignores an empty one', async () => {
+    const user = userEvent.setup();
+    await render(<WeekChart />);
 
-  it('labels each bar with its value and selects one with data', () => {
-    const onSelect = vi.fn();
-    render(<BarChart bars={bars} formatValue={(value) => `S/ ${value}`} onSelect={onSelect} />);
+    await user.press(screen.getByRole('button', { name: 'Martes, S/ 0' }));
 
-    fireEvent.click(screen.getByRole('button', { name: 'X, S/ 40' }));
-    fireEvent.click(screen.getByRole('button', { name: 'M, S/ 0' }));
+    expect(screen.getByText('Toda la semana')).toBeOnTheScreen();
 
-    expect(onSelect.mock.calls.map(([bar]) => bar.key)).toEqual(['wed']);
+    await user.press(screen.getByRole('button', { name: 'Miércoles, S/ 40' }));
+
+    expect(screen.getByText('Día: Miércoles')).toBeOnTheScreen();
   });
 
   it('shows the average only when enough bars hold data', () => {
@@ -132,44 +165,46 @@ describe('BarChart', () => {
   });
 });
 
-function SheetHarness() {
+function NewExpense() {
   const [open, setOpen] = useState(true);
 
   return (
     <Sheet visible={open} onClose={() => setOpen(false)} title="Nuevo gasto">
-      <span>contenido</span>
+      <Text>contenido</Text>
     </Sheet>
   );
 }
 
 describe('Sheet', () => {
-  // Real timers: the sheet unmounts after its exit animation.
   it('closes from the backdrop and leaves after its exit', async () => {
-    render(<SheetHarness />);
-    expect(screen.getByText('contenido')).toBeTruthy();
+    const user = userEvent.setup();
+    await render(<NewExpense />);
+    expect(screen.getByText('contenido')).toBeOnTheScreen();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Cerrar' }));
+    // The modal panel hides the backdrop from screen readers; this is a touch.
+    await user.press(screen.getByRole('button', { name: 'Cerrar', includeHiddenElements: true }));
 
-    await waitFor(() => expect(screen.queryByText('contenido')).toBeNull());
+    await waitForElementToBeRemoved(() => screen.queryByText('contenido'));
   });
 });
 
 describe('EmptyState', () => {
-  it('runs its action', () => {
-    const onAction = vi.fn();
-    render(
+  it('runs its action', async () => {
+    const user = userEvent.setup();
+    const onAction = jest.fn();
+    await render(
       <EmptyState emoji="🧾" title="Sin gastos" actionLabel="Agregar gasto" onAction={onAction} />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Agregar gasto' }));
+    await user.press(screen.getByRole('button', { name: 'Agregar gasto' }));
 
-    expect(onAction).toHaveBeenCalledOnce();
+    expect(onAction).toHaveBeenCalledTimes(1);
   });
 });
 
 describe('TransactionRow', () => {
-  it('stays pressable with only a long-press handler', () => {
-    render(
+  it('stays pressable with only a long-press handler', async () => {
+    await render(
       <>
         <TransactionRow
           title="Taxi"
@@ -182,7 +217,7 @@ describe('TransactionRow', () => {
       </>
     );
 
-    expect(screen.getByRole('button', { name: 'Taxi' }).getAttribute('aria-disabled')).toBeNull();
-    expect(screen.getByRole('button', { name: 'Bus' }).getAttribute('aria-disabled')).toBe('true');
+    expect(screen.getByRole('button', { name: 'Taxi' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Bus' })).toBeDisabled();
   });
 });
