@@ -79,7 +79,9 @@ write ─► writes + 1 ─► sync ─► POST /sync ─► completeSync ─►
    start route in a browser session with a PKCE challenge
    ([API](../../../docs/api.md#signing-in)) and trades the returned code for a
    session. Closing the browser cancels and changes nothing.
-2. `AccountProvider` saves the session in the keystore and syncs.
+2. `AccountProvider` syncs once, then saves the session in the keystore. The
+   first sync tells a returning account from a new one, so when it fails the
+   sign-in fails: the device forgets the session and shows the connection error.
 3. A sync runs once the session loads, after every `write` (the `writes` count
    in `DataProvider`) and when the app returns to the foreground. One sync runs
    at a time; a request made during a sync runs one more after it.

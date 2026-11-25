@@ -48,8 +48,9 @@ Layout in the atomic app:
   sync, sign-out, account deletion and erasing while signed in.
 - [`tests/cloud.ts`](../apps/atomic/tests/cloud.ts) holds `FakeCloud`, the
   Worker's contract from [API](api.md) in memory: PKCE sign-in, the newer record
-  wins, paged pulls and the delete routes. A test sets `online`, `pageSize`,
-  `signingInAs` or `providersSetUp` to shape what the app meets.
+  wins, paged pulls and the delete routes. A test sets `online`,
+  `dropsAfterSignIn`, `pageSize`, `signingInAs` or `providersSetUp` to shape
+  what the app meets.
 - [`tests/render.tsx`](../apps/atomic/tests/render.tsx) opens a real store on
   `memoryDatabase` from `@atomic/core/testing` and wraps a screen in the theme,
   toast, data and account providers.
