@@ -17,3 +17,13 @@ name: Start a timeboxed task and see the next chime
 
 - tapOn: 'Hoy'
 - assertVisible: 'correo'
+
+- tapOn: 'Ahora'
+- scrollUntilVisible:
+    element: 'Dice la hora en voz alta.*'
+- tapOn:
+    text: 'Voz'
+    checked: false
+- assertVisible:
+    text: 'Voz'
+    checked: true

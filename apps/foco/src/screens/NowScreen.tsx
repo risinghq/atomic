@@ -11,6 +11,7 @@ import {
   useTheme,
 } from '@rising/ui';
 import { StyleSheet, View } from 'react-native';
+import { speakNow, voiceSupported } from '../chimes';
 import { Field } from '../components/Field';
 import { Screen } from '../components/Screen';
 import { useFoco } from '../data/FocoProvider';
@@ -76,6 +77,22 @@ export function NowScreen({ onStart, onSwitch }: { onStart: () => void; onSwitch
             />
           }
         />
+        {voiceSupported && (
+          <ListRow
+            title="Voz"
+            subtitle="Dice la hora en voz alta, salvo en silencio"
+            trailing={
+              <Toggle
+                label="Voz"
+                value={settings.voice}
+                onChange={(voice) => {
+                  void changePlan({ voice });
+                  if (voice) void speakNow(settings, Date.now());
+                }}
+              />
+            }
+          />
+        )}
         <ListRow
           title="Horario"
           subtitle="Avisa solo en los días y horas que elijas"

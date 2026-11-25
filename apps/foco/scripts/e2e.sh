@@ -18,3 +18,8 @@ maestro test .maestro
 alarms=$("$adb" shell dumpsys alarm | grep -c "$app" || true)
 echo "$alarms alarm lines for $app"
 test "$alarms" -gt 0
+
+# The flows turn on Voz, which arms one spoken alarm per chime.
+voices=$("$adb" shell dumpsys alarm | grep -c "VoiceReceiver" || true)
+echo "$voices spoken alarms"
+test "$voices" -gt 0

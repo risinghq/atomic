@@ -12,6 +12,8 @@ export interface FocusEvent {
 }
 
 export interface Settings extends Plan {
+  /** Whether each chime also speaks; Android only. */
+  voice: boolean;
   active: boolean;
   focus: Focus | null;
 }
@@ -20,6 +22,7 @@ export const defaultSettings: Settings = {
   interval: 5,
   jitter: false,
   schedule: null,
+  voice: false,
   active: false,
   focus: null,
 };
