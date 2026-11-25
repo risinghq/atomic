@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { act } from '@testing-library/react-native';
-import { AppState, type AppStateStatus } from 'react-native';
+import { AppState, Linking, type AppStateStatus } from 'react-native';
 import { dirname, join } from 'node:path';
 
 export type Recorder = jest.Mock<(...args: any[]) => any>;
@@ -28,5 +28,24 @@ export async function appGoes(state: AppStateStatus) {
 
   await act(async () => {
     for (const { call } of live) call[1](state);
+  });
+}
+
+/** Starts the next app launch from `url`, as tapping a link to the app does. */
+export function launchFrom(url: string) {
+  (Linking.getInitialURL as unknown as Recorder).mockResolvedValueOnce(url);
+}
+
+/** Delivers `url` to the running app: every live Linking listener hears it. */
+export async function linkArrives(url: string) {
+  const addListener = Linking.addEventListener as unknown as Recorder;
+  const live = addListener.mock.calls
+    .map((call, index) => ({ call, subscription: addListener.mock.results[index]?.value }))
+    .filter(
+      ({ call, subscription }) => call[0] === 'url' && !subscription.remove.mock.calls.length
+    );
+
+  await act(async () => {
+    for (const { call } of live) call[1]({ url });
   });
 }
