@@ -29,6 +29,7 @@ describe('onboarding', () => {
       currency: 'USD',
       weekStart: 0,
       haptics: true,
+      lock: false,
     });
   });
 });

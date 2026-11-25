@@ -4,18 +4,8 @@ import { jest } from '@jest/globals';
 // device's keystore, its browser and its hash function.
 import nativeKeystore from 'expo-secure-store/build/ExpoSecureStore';
 import { createHash } from 'node:crypto';
-import { dirname, join } from 'node:path';
 import { API_URL, type Session } from '../src/account/api';
-
-type Recorder = jest.Mock<(...args: any[]) => any>;
-
-/**
- * The recorder a package's own code holds. Two packages hide their native file
- * behind an export map, so it is reached by path next to their entry file.
- */
-function recorderOf<Name extends string>(pkg: string, file: string): Record<Name, Recorder> {
-  return require(join(dirname(require.resolve(pkg)), file)).default;
-}
+import { recorderOf } from './native';
 
 const nativeCrypto = recorderOf<'digestStringAsync'>('expo-crypto', 'ExpoCrypto');
 const nativeBrowser = recorderOf<'openAuthSessionAsync'>('expo-web-browser', 'ExpoWebBrowser');

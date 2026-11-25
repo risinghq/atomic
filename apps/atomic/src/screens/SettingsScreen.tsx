@@ -1,5 +1,6 @@
 import { currencies, currencyChoice, weekStartOf, weekStarts } from '../choices';
 import { ListRow, ListSection, SegmentedControl, Sheet, Toggle, useToast } from '@atomic/ui';
+import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AccountSection } from '../account/AccountSection';
 import { useAccount } from '../account/AccountProvider';
@@ -9,10 +10,11 @@ import { Screen } from '../components/Screen';
 import { csvName, toCsv } from '../data/csv';
 import { useData } from '../data/DataProvider';
 import { shareCsv } from '../data/shareCsv';
+import { canLock, unlock } from '../lock/deviceAuth';
 import { RecurringList } from '../recurring/RecurringList';
 import { useSheet } from '../useSheet';
 
-/** The currency, the first day of the week, categories, recurring transactions, haptics, the account, and the export and erasing of the data. */
+/** The currency, the first day of the week, categories, recurring transactions, haptics, the app lock, the account, and the export and erasing of the data. */
 export function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { settings, transactions, categories, write } = useData();
@@ -34,6 +36,18 @@ export function SettingsScreen() {
     } catch {
       toast({ text: 'No se pudo exportar', tone: 'error' });
     }
+  }
+
+  // Turning the lock on asks for the screen lock once, so nobody locks out a device they cannot unlock.
+  async function setLock(on: boolean) {
+    if (on && !(await canLock())) {
+      toast({ text: 'Configura un bloqueo de pantalla en tu dispositivo.', tone: 'error' });
+      return;
+    }
+
+    if (on && !(await unlock())) return;
+
+    await write((store) => store.updateSettings({ lock: on }));
   }
 
   async function eraseAll() {
@@ -87,6 +101,18 @@ export function SettingsScreen() {
             />
           }
         />
+        {Platform.OS === 'web' ? null : (
+          <ListRow
+            title="Bloquear la app"
+            trailing={
+              <Toggle
+                label="Bloquear la app"
+                value={settings.lock}
+                onChange={(on) => void setLock(on)}
+              />
+            }
+          />
+        )}
       </ListSection>
 
       <AccountSection />

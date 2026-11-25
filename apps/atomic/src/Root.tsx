@@ -1,10 +1,11 @@
 import { setHapticsEnabled } from '@atomic/ui';
 import { useEffect } from 'react';
 import { useData } from './data/DataProvider';
+import { AppLock } from './lock/AppLock';
 import { Onboarding } from './screens/Onboarding';
 import { Shell } from './Shell';
 
-/** The setup screen until the user finishes it, then the app. */
+/** The setup screen until the user finishes it, then the app behind its lock. */
 export function Root() {
   const { settings } = useData();
 
@@ -12,5 +13,11 @@ export function Root() {
     setHapticsEnabled(settings.haptics);
   }, [settings.haptics]);
 
-  return settings.onboarded ? <Shell /> : <Onboarding />;
+  if (!settings.onboarded) return <Onboarding />;
+
+  return (
+    <AppLock>
+      <Shell />
+    </AppLock>
+  );
 }
