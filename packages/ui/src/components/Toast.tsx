@@ -17,7 +17,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { haptic } from '../theme/haptics';
+import { haptic, type HapticKind } from '../theme/haptics';
 import { radii, space } from '../theme/layout';
 import { durations, springs } from '../theme/motion';
 import { useTheme } from '../theme/ThemeProvider';
@@ -40,6 +40,12 @@ const icons: Record<ToastTone, ComponentProps<typeof Ionicons>['name'] | null> =
   error: 'alert-circle',
 };
 
+const toneHaptics: Record<ToastTone, HapticKind> = {
+  neutral: 'light',
+  success: 'success',
+  error: 'error',
+};
+
 export function ToastProvider({
   children,
   bottomOffset = 96,
@@ -55,7 +61,7 @@ export function ToastProvider({
   const nextId = useRef(0);
 
   const show = useCallback<ShowToast>((next) => {
-    haptic(next.tone === 'error' ? 'error' : 'light');
+    haptic(toneHaptics[next.tone ?? 'neutral']);
     nextId.current += 1;
     setMessage({ ...next, id: nextId.current });
   }, []);

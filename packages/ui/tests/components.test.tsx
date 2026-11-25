@@ -1,10 +1,11 @@
-import { describe, expect, it, jest } from '@jest/globals';
+import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import {
   render,
   screen,
   userEvent,
   waitForElementToBeRemoved,
 } from '@testing-library/react-native';
+import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
 import { Text } from 'react-native';
 import {
@@ -17,8 +18,10 @@ import {
   SegmentedControl,
   TabBar,
   ToastProvider,
+  setHapticLevel,
   Toggle,
   useToast,
+  type HapticLevel,
 } from '../src';
 
 describe('Amount', () => {
@@ -209,5 +212,54 @@ describe('Toast', () => {
     await expect(render(<SaveButton />)).rejects.toThrow('ToastProvider');
 
     error.mockRestore();
+  });
+});
+
+async function pressToggleThenSave(level: HapticLevel) {
+  const user = userEvent.setup();
+  setHapticLevel(level);
+
+  await render(
+    <ToastProvider duration={50}>
+      <ReminderSetting />
+      <SaveButton />
+    </ToastProvider>
+  );
+
+  await user.press(screen.getByRole('switch', { name: 'Recordatorios' }));
+  await user.press(screen.getByRole('button', { name: 'Guardar' }));
+}
+
+describe('haptics', () => {
+  // Records the calls expo-haptics receives and lets each one through to the
+  // native module jest-expo stands in.
+  const impact = jest.spyOn(Haptics, 'impactAsync');
+  const notification = jest.spyOn(Haptics, 'notificationAsync');
+
+  afterEach(() => {
+    setHapticLevel('essential');
+    impact.mockClear();
+    notification.mockClear();
+  });
+
+  it('plays only the outcome of an action at the essential level', async () => {
+    await pressToggleThenSave('essential');
+
+    expect(impact).not.toHaveBeenCalled();
+    expect(notification).toHaveBeenCalledWith(Haptics.NotificationFeedbackType.Success);
+  });
+
+  it('plays every switch too at the all level', async () => {
+    await pressToggleThenSave('all');
+
+    expect(impact).toHaveBeenCalledTimes(1);
+    expect(notification).toHaveBeenCalledTimes(1);
+  });
+
+  it('plays nothing when off', async () => {
+    await pressToggleThenSave('off');
+
+    expect(impact).not.toHaveBeenCalled();
+    expect(notification).not.toHaveBeenCalled();
   });
 });

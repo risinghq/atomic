@@ -6,13 +6,13 @@ Expo or React Native, so its tests run in Node.
 
 ## Model
 
-| Type          | Holds                                                                                                                                                                           |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Category`    | A name, an emoji and a `#RRGGBB` color, for expenses or income. `position` orders the pickers. An archived one leaves them.                                                     |
-| `Transaction` | A positive `amount` in cents, its `kind`, a category, a note and `at` in epoch milliseconds.                                                                                    |
-| `Budget`      | An amount per `week` or `month`, for one category or, with a null `categoryId`, for every expense.                                                                              |
-| `Recurring`   | A transaction to record on `start` and again every `day`, `week`, `month` or `year` after it.                                                                                   |
-| `Settings`    | The first day of the week, the currency code, whether onboarding is done, whether haptics play and whether the app lock is on. `defaultSettings` fills in what was never saved. |
+| Type          | Holds                                                                                                                                                                                                       |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Category`    | A name, an emoji and a `#RRGGBB` color, for expenses or income. `position` orders the pickers. An archived one leaves them.                                                                                 |
+| `Transaction` | A positive `amount` in cents, its `kind`, a category, a note and `at` in epoch milliseconds.                                                                                                                |
+| `Budget`      | An amount per `week` or `month`, for one category or, with a null `categoryId`, for every expense.                                                                                                          |
+| `Recurring`   | A transaction to record on `start` and again every `day`, `week`, `month` or `year` after it.                                                                                                               |
+| `Settings`    | The first day of the week, the currency code, whether onboarding is done, which haptics play (`off`, `essential` or `all`) and whether the app lock is on. `defaultSettings` fills in what was never saved. |
 
 Money is a whole number of cents everywhere. `parseCents` reads what the number
 pad typed, and `fromCents` gives the value `Amount` displays. `toCents` exists

@@ -56,13 +56,15 @@ export type Budget = {
 /** The first day of a week, as `Date.getDay()` numbers it: 0 Sunday, 1 Monday. */
 export type WeekStart = 0 | 1;
 
+/** Which haptics play: none, only the outcome of an action (a save, an error), or also every switch and press. */
+export type HapticLevel = 'off' | 'essential' | 'all';
+
 export type Settings = {
   weekStart: WeekStart;
   /** An ISO 4217 code. */
   currency: string;
   onboarded: boolean;
-  /** Whether saving, switching tabs and toggling play a haptic. */
-  haptics: boolean;
+  haptics: HapticLevel;
   /** Whether the app asks for the device's screen lock to open. Each device keeps its own. */
   lock: boolean;
 };
@@ -71,6 +73,6 @@ export const defaultSettings: Settings = {
   weekStart: 1,
   currency: 'PEN',
   onboarded: false,
-  haptics: true,
+  haptics: 'essential',
   lock: false,
 };

@@ -1,4 +1,4 @@
-import { setHapticsEnabled } from '@atomic/ui';
+import { setHapticLevel } from '@atomic/ui';
 import { useEffect } from 'react';
 import { useData } from './data/DataProvider';
 import { AppLock } from './lock/AppLock';
@@ -10,7 +10,7 @@ export function Root() {
   const { settings } = useData();
 
   useEffect(() => {
-    setHapticsEnabled(settings.haptics);
+    setHapticLevel(settings.haptics);
   }, [settings.haptics]);
 
   if (!settings.onboarded) return <Onboarding />;

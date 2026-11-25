@@ -94,13 +94,15 @@ active category, so the form offers no **Archivar** for the last one.
 
 Ajustes writes a change with `updateSettings` as soon as a segment is picked.
 The currency formats every amount. The week start moves every week period, in
-Resumen and in weekly budgets.
+Resumen and in weekly budgets. **Vibración** (Apagada, Esencial or Toda) sets
+`haptics`, which `Root` passes to `setHapticLevel`. Each device keeps its own,
+and the web, which has no haptics, does not show it.
 
 **Exportar CSV** offers this month, last month, this year or everything
 ([`exportChoices`](../src/data/csv.ts)). A period's file is named for it, such
 as `atomic-2026-11.csv` or `atomic-2026.csv`; everything is named for the day,
-such as `atomic-2026-11-25.csv`. A period with no transactions shows a toast
-and exports nothing. [`toCsv`](../src/data/csv.ts) builds the file: one row per
+such as `atomic-2026-11-25.csv`. A period with no transactions shows a toast and
+exports nothing. [`toCsv`](../src/data/csv.ts) builds the file: one row per
 transaction, oldest first, with the date, `gasto` or `ingreso`, the category,
 the note and the amount with a dot decimal. The file starts with a UTF-8 byte
 order mark so Excel reads the accents. On iOS and Android,

@@ -5,6 +5,7 @@ export {
   type BudgetPeriod,
   type Category,
   type Every,
+  type HapticLevel,
   type Kind,
   type Recurring,
   type Settings,

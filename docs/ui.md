@@ -59,8 +59,16 @@ to any amount so its digits keep the same width.
 
 A haptic marks a commit, not a touch. Confirming an amount, switching tabs,
 opening the add screen, changing a segment or a toggle, and a toast play one. A
-plain press on a row, card or key plays none. `setHapticsEnabled(false)` turns
-them all off; the app calls it from the user's Vibración setting.
+plain press on a row, card or key plays none.
+
+`setHapticLevel` picks which play, and the app sets it from the user's Vibración
+setting:
+
+| Level       | Plays                                                                        |
+| ----------- | ---------------------------------------------------------------------------- |
+| `off`       | Nothing.                                                                     |
+| `essential` | Outcomes only: `success`, `warning` and `error`, so a saved or failed toast. |
+| `all`       | Outcomes, and every switch, segment, tab and confirm too.                    |
 
 ### Springs
 

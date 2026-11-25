@@ -53,7 +53,7 @@ export function NumberPad({
         {key('0')}
         <PressableScale
           accessibilityLabel="Confirmar"
-          feedback="success"
+          feedback="medium"
           disabled={!canConfirm}
           onPress={onConfirm}
           style={[styles.key, { backgroundColor: colors.accent }, !canConfirm && styles.disabled]}>

@@ -1,4 +1,4 @@
-import type { Every, WeekStart } from '@atomic/core';
+import type { Every, HapticLevel, WeekStart } from '@atomic/core';
 
 /** How often a new transaction repeats. Daily repeats are left out: nobody pays rent daily. */
 export const repeats = [
@@ -30,6 +30,12 @@ export const weekStarts = [
   { value: '1', label: 'Lunes' },
   { value: '0', label: 'Domingo' },
 ] as const;
+
+export const hapticLevels = [
+  { value: 'off', label: 'Apagada' },
+  { value: 'essential', label: 'Esencial' },
+  { value: 'all', label: 'Toda' },
+] as const satisfies readonly { value: HapticLevel; label: string }[];
 
 export function weekStartOf(value: string): WeekStart {
   return value === '0' ? 0 : 1;

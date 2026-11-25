@@ -20,13 +20,31 @@ describe('opening', () => {
     await expect(openStore(db, { newId: () => 'again' })).resolves.toBeDefined();
   });
 
+  it.each([
+    ['false', 'off'],
+    ['true', 'essential'],
+  ])('turns haptics stored as %s into the %s level', async (stored, level) => {
+    const old = memoryDatabase();
+    const before = migrations.length - 1;
+
+    await old.execAsync(migrations.slice(0, before).join('\n'));
+    await old.execAsync(`
+      PRAGMA user_version = ${before};
+      INSERT INTO settings (key, value) VALUES ('haptics', '${stored}');
+    `);
+
+    const opened = await openStore(old, { newId: () => 'unused' });
+
+    expect(await opened.settings()).toMatchObject({ haptics: level });
+  });
+
   it('starts empty, with default settings', async () => {
     expect(await store.categories()).toEqual([]);
     expect(await store.settings()).toEqual({
       weekStart: 1,
       currency: 'PEN',
       onboarded: false,
-      haptics: true,
+      haptics: 'essential',
       lock: false,
     });
   });
@@ -163,7 +181,7 @@ describe('settings and erasing', () => {
       weekStart: 0,
       currency: 'USD',
       onboarded: false,
-      haptics: true,
+      haptics: 'essential',
       lock: false,
     });
   });

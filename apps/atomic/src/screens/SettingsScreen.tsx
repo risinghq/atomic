@@ -1,4 +1,4 @@
-import { currencies, currencyChoice, weekStartOf, weekStarts } from '../choices';
+import { currencies, currencyChoice, hapticLevels, weekStartOf, weekStarts } from '../choices';
 import { ListRow, ListSection, SegmentedControl, Sheet, Toggle, useToast } from '@atomic/ui';
 import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -95,19 +95,19 @@ export function SettingsScreen() {
         />
       </Field>
 
+      {Platform.OS === 'web' ? null : (
+        <Field label="Vibración">
+          <SegmentedControl
+            segments={hapticLevels}
+            value={settings.haptics}
+            onChange={(haptics) => void write((store) => store.updateSettings({ haptics }))}
+          />
+        </Field>
+      )}
+
       <ListSection>
         <ListRow title="Categorías" onPress={() => manageCategories.show()} />
         <ListRow title="Recurrentes" onPress={() => manageRecurring.show()} />
-        <ListRow
-          title="Vibración"
-          trailing={
-            <Toggle
-              label="Vibración"
-              value={settings.haptics}
-              onChange={(haptics) => void write((store) => store.updateSettings({ haptics }))}
-            />
-          }
-        />
         {Platform.OS === 'web' ? null : (
           <ListRow
             title="Bloquear la app"

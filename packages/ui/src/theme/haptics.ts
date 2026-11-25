@@ -3,6 +3,11 @@ import { Platform } from 'react-native';
 
 export type HapticKind = 'selection' | 'light' | 'medium' | 'success' | 'warning' | 'error';
 
+/** None, only the outcome of an action, or also every switch and press. */
+export type HapticLevel = 'off' | 'essential' | 'all';
+
+const outcomes: ReadonlySet<HapticKind> = new Set(['success', 'warning', 'error']);
+
 function play(kind: HapticKind): Promise<void> {
   switch (kind) {
     case 'selection':
@@ -20,19 +25,25 @@ function play(kind: HapticKind): Promise<void> {
   }
 }
 
-let enabled = true;
+let level: HapticLevel = 'essential';
 
-/** Turns every haptic on or off; the app sets it from the user's setting. */
-export function setHapticsEnabled(on: boolean): void {
-  enabled = on;
+/** Sets which haptics play; the app sets it from the user's setting. */
+export function setHapticLevel(next: HapticLevel): void {
+  level = next;
+}
+
+function plays(kind: HapticKind): boolean {
+  if (level === 'all') return true;
+
+  return level === 'essential' && outcomes.has(kind);
 }
 
 /**
- * Plays a haptic and never throws: a device without a haptic engine, or the
- * web, feels nothing.
+ * Plays a haptic the level allows and never throws: a device without a haptic
+ * engine, or the web, feels nothing.
  */
 export function haptic(kind: HapticKind = 'light'): void {
-  if (!enabled || Platform.OS === 'web') return;
+  if (!plays(kind) || Platform.OS === 'web') return;
 
   play(kind).catch(() => {});
 }
