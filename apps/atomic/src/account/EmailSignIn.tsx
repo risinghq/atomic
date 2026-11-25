@@ -96,6 +96,7 @@ function CodeForm({ onSignedIn }: { onSignedIn: (result: SignInResult) => void }
       <View style={styles.form}>
         <TextInput
           accessibilityLabel="Correo"
+          autoFocus
           value={email}
           onChangeText={setEmail}
           placeholder="tu@correo.com"
@@ -122,6 +123,7 @@ function CodeForm({ onSignedIn }: { onSignedIn: (result: SignInResult) => void }
       </Text>
       <TextInput
         accessibilityLabel="Código"
+        autoFocus
         value={code}
         onChangeText={(typed) => setCode(typed.replace(/\D/g, '').slice(0, CODE_LENGTH))}
         placeholder="000000"
