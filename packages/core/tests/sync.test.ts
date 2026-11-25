@@ -177,6 +177,27 @@ describe('sync', () => {
     ]);
   });
 
+  it('hands everything to the next account after leaving one', async () => {
+    const work = referenceServer();
+    const home = referenceServer();
+    const phone = await device('phone');
+
+    phone.tick(100);
+    const added = await phone.store.addTransaction(lunch);
+    await phone.store.updateSettings({ currency: 'USD' });
+    await sync(work, phone);
+
+    await phone.store.forgetSync();
+    await sync(home, phone);
+
+    const tablet = await device('tablet');
+
+    await sync(home, tablet);
+
+    expect(await tablet.store.transactions()).toEqual([added]);
+    expect(await tablet.store.settings()).toMatchObject({ currency: 'USD' });
+  });
+
   it('marks records saved before sync existed as unsent', async () => {
     const db = memoryDatabase();
 

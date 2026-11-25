@@ -94,6 +94,8 @@ await store.completeSync({ pushed, pulled, cursor });
 - A budget's id is `budgetId(categoryId)`, so two devices that set the budget of
   one category write the same record.
 - `eraseAll` deletes the rows outright and forgets the cursor.
+- `forgetSync` marks every row dirty and forgets the cursor, so the next account
+  the device signs in to receives everything it holds.
 
 ### Migrations
 

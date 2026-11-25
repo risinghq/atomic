@@ -315,6 +315,20 @@ export async function openStore(db: Database, { newId, now = Date.now }: StoreOp
     });
   }
 
+  /**
+   * Leaves the account this device synced with: forgets the server position
+   * and marks every record unsent, so the next account it syncs with receives
+   * all of it.
+   */
+  async function forgetSync(): Promise<void> {
+    await db.withTransactionAsync(async () => {
+      await db.execAsync(
+        `UPDATE categories SET dirty = 1; UPDATE transactions SET dirty = 1;
+         UPDATE budgets SET dirty = 1; UPDATE settings SET dirty = 1; DELETE FROM sync;`
+      );
+    });
+  }
+
   /** The records this device changed since they were last sent. */
   async function pendingChanges(): Promise<Changes> {
     const [categoryRows, transactionRows, budgetRows, settingRows] = await Promise.all([
@@ -505,6 +519,7 @@ export async function openStore(db: Database, { newId, now = Date.now }: StoreOp
     updateSettings,
     importRecords,
     eraseAll,
+    forgetSync,
     pendingChanges,
     syncCursor,
     completeSync,

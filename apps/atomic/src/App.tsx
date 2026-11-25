@@ -5,6 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AccountProvider } from './account/AccountProvider';
 import { DataProvider } from './data/DataProvider';
 import { openAppStore } from './data/openAppStore';
 import { Root } from './Root';
@@ -44,7 +45,9 @@ export function App() {
         <ToastProvider>
           <StatusBar style="auto" />
           <DataProvider store={store}>
-            <Root />
+            <AccountProvider store={store}>
+              <Root />
+            </AccountProvider>
           </DataProvider>
         </ToastProvider>
       </ThemeProvider>
