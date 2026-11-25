@@ -46,4 +46,14 @@ Ajustes writes a change with `updateSettings` as soon as a segment is picked.
 The currency formats every amount. The week start moves every week period, in
 Resumen and in weekly budgets.
 
-To return to onboarding, clear the app's storage or uninstall the app.
+**Exportar CSV** builds the file with [`toCsv`](../src/data/csv.ts): one row per
+transaction, oldest first, with the date, `gasto` or `ingreso`, the category,
+the note and the amount with a dot decimal. The file starts with a UTF-8 byte
+order mark so Excel reads the accents. On iOS and Android,
+[`shareCsv`](../src/data/shareCsv.ts) writes it to the cache and opens the share
+sheet. On the web, [`shareCsv.web.ts`](../src/data/shareCsv.web.ts) downloads
+it.
+
+**Borrar todos los datos** asks for confirmation, then calls `eraseAll` and
+seeds the default categories again in one `write`. Erasing clears the settings,
+so `onboarded` is false and `Root` shows onboarding.

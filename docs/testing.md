@@ -28,8 +28,10 @@ cd apps/atomic && TZ=America/Lima bunx vitest run tests/app.test.tsx
 Layout in the atomic app:
 
 - Tests live in [`tests/`](../apps/atomic/tests). `app.test.tsx` drives the real
-  screens: onboarding, adding and deleting an entry, and creating a budget.
-  `format.test.ts` covers the labels in `src/format.ts`.
+  screens: onboarding, adding and deleting an entry, creating a budget, the CSV
+  export and erasing the data. It mocks `shareCsv`, which needs the Expo
+  runtime. `format.test.ts` covers the labels in `src/format.ts`, and
+  `csv.test.ts` the CSV in `src/data/csv.ts`.
 - The tests render through react-native-web under jsdom
   ([`vitest.config.mts`](../apps/atomic/vitest.config.mts)), so they query the
   DOM by role and label.

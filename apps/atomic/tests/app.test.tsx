@@ -1,9 +1,16 @@
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { shareCsv } from '../src/data/shareCsv';
 import { Root } from '../src/Root';
 import { freshStore, renderWith } from './render';
 
-afterEach(cleanup);
+// The native share sheet needs the Expo runtime.
+vi.mock('../src/data/shareCsv', () => ({ shareCsv: vi.fn(async () => {}) }));
+
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
 
 function press(name: string) {
   fireEvent.click(screen.getByRole('button', { name }));
@@ -93,5 +100,50 @@ describe('budgets', () => {
     expect(await store.budgets()).toMatchObject([
       { categoryId: 'food', amount: 30000, period: 'month' },
     ]);
+  });
+});
+
+describe('settings', () => {
+  it('exports the transactions as CSV', async () => {
+    const store = await freshStore();
+    await store.addTransaction({
+      kind: 'expense',
+      amount: 1250,
+      categoryId: 'food',
+      note: 'Menú',
+      at: Date.now(),
+    });
+    renderWith(store, <Root />);
+
+    fireEvent.click(await screen.findByRole('tab', { name: 'Ajustes' }));
+    press('Exportar CSV');
+
+    await waitFor(() => expect(shareCsv).toHaveBeenCalledOnce());
+
+    const [name, csv] = vi.mocked(shareCsv).mock.lastCall ?? [];
+    expect(name).toMatch(/^atomic-\d{4}-\d{2}-\d{2}\.csv$/);
+    expect(csv).toContain(',gasto,Comida,Menú,12.50\r\n');
+  });
+
+  it('erases every record after a confirmation and returns to onboarding', async () => {
+    const store = await freshStore();
+    await store.addTransaction({
+      kind: 'expense',
+      amount: 500,
+      categoryId: 'transport',
+      note: '',
+      at: Date.now(),
+    });
+    await store.setBudget({ categoryId: null, amount: 10000, period: 'month' });
+    renderWith(store, <Root />);
+
+    fireEvent.click(await screen.findByRole('tab', { name: 'Ajustes' }));
+    press('Borrar todos los datos');
+    fireEvent.click(await screen.findByRole('button', { name: 'Borrar todo' }));
+
+    expect(await screen.findByRole('button', { name: 'Empezar' })).toBeTruthy();
+    expect(await store.transactions()).toEqual([]);
+    expect(await store.budgets()).toEqual([]);
+    expect((await store.categories()).length).toBeGreaterThan(0);
   });
 });

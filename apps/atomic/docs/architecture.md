@@ -22,6 +22,8 @@ index.ts ─► App ─► DataProvider ─► Root ─┬─► Onboarding
 | [`src/App.tsx`](../src/App.tsx)                               | Holds the splash screen until the fonts and the store are ready, then mounts the providers.     |
 | [`src/data/openAppStore.ts`](../src/data/openAppStore.ts)     | Opens `atomic.db`, runs the AsyncStorage import and seeds the default categories.               |
 | [`src/data/DataProvider.tsx`](../src/data/DataProvider.tsx)   | Loads the snapshot and exposes it with `write` through `useData()`.                             |
+| [`src/data/csv.ts`](../src/data/csv.ts)                       | Turns the transactions into the CSV that Ajustes exports.                                       |
+| [`src/data/shareCsv.ts`](../src/data/shareCsv.ts)             | Hands the CSV to the share sheet, or to a download on the web (`shareCsv.web.ts`).              |
 | [`src/Root.tsx`](../src/Root.tsx)                             | Shows `Onboarding` until `settings.onboarded`, then `Shell`.                                    |
 | [`src/Shell.tsx`](../src/Shell.tsx)                           | The tab bar, the active tab and the entry sheet. Android back returns to Registro first.        |
 | [`src/screens/`](../src/screens)                              | One file per tab, plus `Onboarding`.                                                            |
@@ -34,12 +36,12 @@ index.ts ─► App ─► DataProvider ─► Root ─┬─► Onboarding
 
 ## Tabs
 
-| Tab          | Screen           | Shows                                                                           |
-| ------------ | ---------------- | ------------------------------------------------------------------------------- |
-| Registro     | `LogScreen`      | This month's net and every transaction by day. Tap edits, long press deletes.   |
-| Resumen      | `InsightsScreen` | Spending or income per week, month or year: a bar chart and a list by category. |
-| Presupuestos | `BudgetsScreen`  | The overall budget split by category, then one card per category budget.        |
-| Ajustes      | `SettingsScreen` | The currency and the first day of the week.                                     |
+| Tab          | Screen           | Shows                                                                             |
+| ------------ | ---------------- | --------------------------------------------------------------------------------- |
+| Registro     | `LogScreen`      | This month's net and every transaction by day. Tap edits, long press deletes.     |
+| Resumen      | `InsightsScreen` | Spending or income per week, month or year: a bar chart and a list by category.   |
+| Presupuestos | `BudgetsScreen`  | The overall budget split by category, then one card per category budget.          |
+| Ajustes      | `SettingsScreen` | The currency, the first day of the week, the CSV export and erasing every record. |
 
 The add button in the tab bar opens the entry sheet from every tab. Only the
 active tab is mounted.

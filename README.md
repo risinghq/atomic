@@ -38,8 +38,8 @@ week. **Empezar** lands on Registro.
   the share of each category.
 - **Presupuestos.** An overall budget split by category, and budgets per
   category, each per week or per month, with what is left per day.
-- **Ajustes.** The currency (soles, dollars or euros) and the first day of the
-  week.
+- **Ajustes.** The currency (soles, dollars or euros), the first day of the
+  week, a CSV export of every transaction, and erasing all data.
 - **Local storage.** Data lives in SQLite on the device. There is no server and
   no account.
 - **Exact money arithmetic.** Amounts are stored and summed in integer cents.

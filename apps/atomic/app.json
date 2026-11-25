@@ -17,7 +17,8 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-sharing"
     ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -33,7 +34,10 @@
       },
       "package": "com.empiricalhq.atomic"
     },
-    "web": { "bundler": "metro", "output": "single" },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
     "extra": {
       "eas": {
         "projectId": "e99143d8-7b52-4f07-afca-c4dad8cc4b0c"
