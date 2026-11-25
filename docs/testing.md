@@ -80,6 +80,13 @@ bun run --cwd apps/atomic e2e
 `build-preview` builds the APK on EAS and prints its download link; save it as
 `atomic.apk`. `bun run check` does not run these flows.
 
+In CI, [`e2e.yml`](../.github/workflows/e2e.yml) runs them on every change under
+`apps/atomic` or `packages`. It builds a release APK for x86_64 with
+`expo prebuild` and Gradle, so it spends no EAS build, and runs the flows on an
+API 34 Automated Test Device image, a system image stripped of the apps that
+tests do not need. A failed run uploads Maestro's screenshots and logs as the
+`maestro` artifact.
+
 ## Lint and format
 
 `bun run lint` runs `oxlint --deny-warnings` and then `oxfmt --check` over the
