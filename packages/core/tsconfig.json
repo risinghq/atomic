@@ -11,5 +11,5 @@
     "target": "ESNext",
     "types": []
   },
-  "include": ["src", "tests", "vitest.config.mts"]
+  "include": ["src", "testing", "tests", "vitest.config.mts"]
 }

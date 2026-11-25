@@ -13,11 +13,9 @@
 
 The atomic app has its own manual:
 
-1. [Architecture](../apps/atomic/docs/architecture.md): the code map, the layers
+1. [Architecture](../apps/atomic/docs/architecture.md): the code map, the tabs
    and the boundaries between them.
-2. [Data flow](../apps/atomic/docs/data-flow.md): how a transaction travels from
-   storage to the home screen and back.
-3. [The user](../apps/atomic/docs/user.md): how the current user is loaded,
-   created and updated, and how it gates navigation.
+2. [Data flow](../apps/atomic/docs/data-flow.md): how the app starts, and how an
+   entry travels from the number pad to the store and every screen.
 
 [CONTRIBUTING.md](../.github/CONTRIBUTING.md) covers sending a change.

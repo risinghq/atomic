@@ -6,11 +6,8 @@ Thank you for considering a contribution to atomic.
 
 [Repository layout](../docs/architecture.md) lists the workspaces and what each
 may import. In the atomic app,
-[Architecture](../apps/atomic/docs/architecture.md) maps the code: screens go in
-`app/`, data loading in `src/hooks/`, rules over stored data in `src/api/`, and
-storage access in `src/services/storageService.ts`. The architecture page also
-lists the [boundaries](../apps/atomic/docs/architecture.md#boundaries) a change
-must keep.
+[Architecture](../apps/atomic/docs/architecture.md) maps the code and lists the
+[boundaries](../apps/atomic/docs/architecture.md#boundaries) a change must keep.
 
 ## Set up
 
@@ -36,9 +33,8 @@ the dev server.
 
 - Interface text is Spanish. Code, comments and documentation are English.
 - Add a dependency with `bun add` inside the workspace that imports it.
-- In the atomic app, import from `src/` with the `@/` alias. Style with
-  NativeWind class names, and combine conditional classes with `cn` from
-  [`src/utils/cn.ts`](../apps/atomic/src/utils/cn.ts).
+- Style with `StyleSheet` and the theme from `@atomic/ui`. See
+  [UI](../docs/ui.md).
 - Commit subjects read `area: what changed`, such as
   `hooks: reload transactions when the user changes`.
 - Markdown is formatted by `oxfmt`, which `bun run lint` checks.

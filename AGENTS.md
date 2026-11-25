@@ -11,8 +11,8 @@
 
 In `apps/atomic`:
 
-- Import from `src/` with `@/`.
-- Only `src/services/storageService.ts` imports AsyncStorage.
-- Screens in `app/` use hooks. They do not import `src/api` or `src/services`.
-- Read and write the current user through `useUser()`.
-- Sum and subtract money with `src/utils/money.ts`.
+- Read data with `useData()` and change it through its `write`. Only
+  `src/data/openAppStore.ts` opens the database.
+- Keep money in integer cents. Convert with `fromCents` only where a ui
+  component takes the amount.
+- Build screens from `@atomic/ui` components and theme values.

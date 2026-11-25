@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { convertLegacy, importLegacy, openStore, type LegacyStorage, type Store } from '../src';
-import { memoryDatabase } from './sqlite';
+import { memoryDatabase } from '../testing/memory-database';
 
 const user = { id: 'u', name: 'Ana', settings: { currency: 'USD' } };
 

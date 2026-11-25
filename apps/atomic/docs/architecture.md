@@ -1,86 +1,57 @@
 # Architecture
 
-The atomic app lives in `apps/atomic`. Screens are routes under
-[`app/`](../app). They read state from hooks, the hooks call services, and one
-service module talks to AsyncStorage. The current user and the transaction list
-are shared state, each held in a React context.
+The atomic app is one state-driven shell over `@atomic/ui` and `@atomic/core`.
+It has no router. A screen reads one shared snapshot of the store and writes
+back through one function.
 
 ```text
-app/ screens ──► src/hooks ──► src/api ──► src/services/storageService.ts ──► AsyncStorage
-     │               │
-     │               └──► src/contexts (current user, transactions)
-     └──► src/components
+index.ts ─► App ─► DataProvider ─► Root ─┬─► Onboarding
+                     │                    └─► Shell ─► LogScreen
+                     │                                InsightsScreen
+                     │                                BudgetsScreen
+                     │                                SettingsScreen
+                     │                                EntryForm (sheet)
+                     └─ Store (@atomic/core, expo-sqlite)
 ```
-
-The `main` field of [`package.json`](../package.json) is `expo-router/entry`,
-which registers `app/` as the route tree.
-[`app/_layout.tsx`](../app/_layout.tsx) wraps the tree in `SafeAreaProvider`,
-`UserProvider` and `TransactionsProvider`, then renders
-[`RootNavigator`](../src/navigation/RootNavigator.tsx).
 
 ## Code map
 
-| Path                                   | Owns                                                                                                                 |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| [`app/`](../app)                       | Routes. The file tree is the route tree. Screens compose components and hooks and hold local UI state.               |
-| [`app/(tabs)/`](<../app/(tabs)>)       | The three tabs: `index` (home), `budget`, `reports`. `_layout.tsx` sets the tab bar.                                 |
-| [`src/navigation/`](../src/navigation) | `RootNavigator`: the stack and the guards that gate screens on the user state.                                       |
-| [`src/contexts/`](../src/contexts)     | `UserContext`: loads, creates and updates the current user. `TransactionsContext`: loads and adds transactions.      |
-| [`src/hooks/`](../src/hooks)           | `useUser`, `useTransactions`, `useBudget`, `useReports`: expose the current user's data to screens.                  |
-| [`src/api/`](../src/api)               | Services with the rules over stored data: sorting and summaries, duplicate budgets, default settings.                |
-| [`src/services/`](../src/services)     | `storageService`: the only module that calls AsyncStorage.                                                           |
-| [`src/components/`](../src/components) | Presentational components, grouped by feature (`budget`, `transactions`, ...) plus `common`, `layout`, `navigation`. |
-| [`src/constants/`](../src/constants)   | Expense and income categories, settings rows, theme values.                                                          |
-| [`src/types/`](../src/types)           | Shared TypeScript types: `User`, `Transaction`, `BudgetCategory`.                                                    |
-| [`src/utils/`](../src/utils)           | Pure helpers: money arithmetic, budget and report periods, category lookup, formatters, `cn`.                        |
-| [`tests/screens/`](../tests/screens)   | Screen-level tests. Other tests sit beside the file they cover.                                                      |
+| Path                                                          | Owns                                                                                            |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| [`index.ts`](../index.ts)                                     | Registers `App` as the root component.                                                          |
+| [`src/App.tsx`](../src/App.tsx)                               | Holds the splash screen until the fonts and the store are ready, then mounts the providers.     |
+| [`src/data/openAppStore.ts`](../src/data/openAppStore.ts)     | Opens `atomic.db`, runs the AsyncStorage import and seeds the default categories.               |
+| [`src/data/DataProvider.tsx`](../src/data/DataProvider.tsx)   | Loads the snapshot and exposes it with `write` through `useData()`.                             |
+| [`src/Root.tsx`](../src/Root.tsx)                             | Shows `Onboarding` until `settings.onboarded`, then `Shell`.                                    |
+| [`src/Shell.tsx`](../src/Shell.tsx)                           | The tab bar, the active tab and the entry sheet. Android back returns to Registro first.        |
+| [`src/screens/`](../src/screens)                              | One file per tab, plus `Onboarding`.                                                            |
+| [`src/entry/EntryForm.tsx`](../src/entry/EntryForm.tsx)       | The entry sheet: kind, number pad, then note and category. Saving the category saves the entry. |
+| [`src/budgets/BudgetForm.tsx`](../src/budgets/BudgetForm.tsx) | The budget sheet: what the budget covers, then its period and amount.                           |
+| [`src/format.ts`](../src/format.ts)                           | Spanish (es-PE) money, day, period and budget labels.                                           |
+| [`src/choices.ts`](../src/choices.ts)                         | The currency and week-start options that onboarding and Ajustes share.                          |
+| [`src/useSheet.ts`](../src/useSheet.ts)                       | A sheet's open state, the record it shows and a session key that starts its form fresh.         |
+| [`src/useNow.ts`](../src/useNow.ts)                           | The current time, refreshed every minute and when the app returns to the foreground.            |
 
-`@/` resolves to `src/` ([`tsconfig.json`](../tsconfig.json)).
+## Tabs
 
-## Layers
+| Tab          | Screen           | Shows                                                                           |
+| ------------ | ---------------- | ------------------------------------------------------------------------------- |
+| Registro     | `LogScreen`      | This month's net and every transaction by day. Tap edits, long press deletes.   |
+| Resumen      | `InsightsScreen` | Spending or income per week, month or year: a bar chart and a list by category. |
+| Presupuestos | `BudgetsScreen`  | The overall budget split by category, then one card per category budget.        |
+| Ajustes      | `SettingsScreen` | The currency and the first day of the week.                                     |
 
-**Screens and components** render and handle input. Screens in `app/` call
-hooks. They do not import `src/api` or `src/services`. Components under
-`src/components/` take props and callbacks.
-
-**Hooks** expose the loading, error and data state for one feature.
-[`useTransactions`](../src/hooks/useTransactions.ts) reads the list from
-`TransactionsProvider`. [`useReports`](../src/hooks/useReports.ts) derives the
-report from that list. [`useBudget`](../src/hooks/useBudget.ts) loads its own
-budgets and transactions. `TransactionsProvider` and `useBudget` read the
-current user from `useUser` and reload when it changes.
-
-**Services in `src/api/`** apply rules to stored data and return domain objects.
-`transactionService` sorts newest first, assigns ids and builds the summary.
-`budgetService` rejects a second budget for the same category. `userService`
-creates the anonymous user with default settings and merges settings and profile
-updates.
-
-**`storageService`** reads and writes the three AsyncStorage keys `user`,
-`transactions` and `budgetCategories` as JSON, and filters records by user id.
-It converts `User.createdAt` and `Transaction.date` back to `Date` on read.
-Writes to a key run one at a time, and a read-modify-write (`updateUser`,
-`addBudgetCategory`) runs inside that queue, on the record it reads there.
-
-## State
-
-| Scope                                          | Where                                                                    |
-| ---------------------------------------------- | ------------------------------------------------------------------------ |
-| Form input, modal visibility                   | `useState` in the screen or component.                                   |
-| Transactions                                   | `TransactionsContext`, shared by every screen through `useTransactions`. |
-| Budgets                                        | `useState` inside `useBudget`, one copy per hook call.                   |
-| Current user (and its loading and error state) | `UserContext`, shared by every screen through `useUser`.                 |
+The add button in the tab bar opens the entry sheet from every tab. Only the
+active tab is mounted.
 
 ## Boundaries
 
-- Only `storageService` imports AsyncStorage.
-- Only `UserProvider` holds the user. Screens read it through `useUser`, which
-  throws outside a provider. See [The user](user.md).
-- Only `TransactionsProvider` holds the shared transaction list. Screens read it
-  through `useTransactions`.
-- Money is summed and subtracted in integer cents through
-  [`src/utils/money.ts`](../src/utils/money.ts).
-- `RootNavigator` is the only place that decides which screens a missing user
-  can reach.
+- Screens read data with `useData()` and change it with `write`. Only
+  `openAppStore` opens the database.
+- Money stays in integer cents until it reaches a ui component, which takes
+  `fromCents(amount)`.
+- Period and total math comes from `@atomic/core`. `src/format.ts` only turns
+  results into text.
+- Interface text is Spanish.
 
-The request path for one screen is in [Data flow](data-flow.md).
+[Data flow](data-flow.md) follows one entry from the number pad to the screens.
