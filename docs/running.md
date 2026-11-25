@@ -28,20 +28,25 @@ bun run --cwd apps/atomic dev
 
 Run these inside an app directory, or from the root with `--cwd apps/<name>`.
 
-| Script          | Runs                                                           |
-| --------------- | -------------------------------------------------------------- |
-| `ios`           | `expo start --ios`                                             |
-| `android`       | `expo start --android`                                         |
-| `build`         | `expo export`, which bundles iOS, Android and web into `dist/` |
-| `build-preview` | `eas build -p android --profile preview`                       |
-| `doctor`        | `expo-doctor`, then `expo install --check`                     |
+| Script          | Runs                                                          |
+| --------------- | ------------------------------------------------------------- |
+| `ios`           | `expo run:ios`, a native build on a simulator                 |
+| `android`       | `expo run:android`, a native build on an emulator or device   |
+| `apk`           | a release APK for x86_64 emulators, built locally with Gradle |
+| `emulator`      | starts the headless test emulator, creating it on first use   |
+| `build`         | `expo export --platform web` into `dist/`                     |
+| `build-preview` | `eas build -p android --profile preview`                      |
+| `doctor`        | `expo-doctor`, then `expo install --check`                    |
 
 `bun run reset` at the root deletes every `node_modules` and `.expo` and
 installs again.
 
 `npx expo prebuild` generates `ios/` and `android/`, which are git-ignored.
-`mise install` installs `eas` and `expo-doctor` at the versions in
-[`mise.toml`](../mise.toml). `build` needs no Expo account. The checks (`lint`,
+`mise install` installs `eas`, `expo-doctor`, the JDK, Google's
+[Android CLI](https://developer.android.com/tools/agents/android-cli) and
+Maestro at the versions in [`mise.toml`](../mise.toml). mise sets `ANDROID_HOME`
+to `~/Android/Sdk` unless it is already set; `emulator` installs the SDK
+packages it needs there. `build` needs no Expo account. The checks (`lint`,
 `fix`, `typecheck`, `test`, `check`) are in [Testing and checks](testing.md).
 
 ## Preview builds
