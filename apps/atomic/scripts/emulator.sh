@@ -6,6 +6,10 @@ set -eu
 avd=atomic-e2e
 image=system-images/android-37.0/aosp_atd/x86_64
 
+# avdmanager writes AVDs under $XDG_CONFIG_HOME/.android when that variable is
+# set, as on GitHub's runners, but the Android CLI reads only ~/.android.
+export ANDROID_USER_HOME="${ANDROID_USER_HOME:-$HOME/.android}"
+
 android --no-metrics sdk install platform-tools emulator cmdline-tools/latest "$image"
 
 if ! android --no-metrics emulator list | grep -qx "$avd"; then
@@ -13,7 +17,4 @@ if ! android --no-metrics emulator list | grep -qx "$avd"; then
     --name "$avd" --package "$(echo "$image" | tr / ';')" --device pixel_7
 fi
 
-android --no-metrics -v emulator list --long
-"$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" list avd
-ls -la ~/.android ~/.android/avd || true
-android --no-metrics -v emulator start --headless "$avd"
+android --no-metrics emulator start --headless "$avd"
