@@ -5,7 +5,6 @@
     "version": "1.0.0",
     "scheme": "atomic",
     "plugins": [
-      "@react-native-async-storage/expo-with-async-storage",
       [
         "expo-splash-screen",
         {
@@ -18,7 +17,17 @@
           }
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "useDayNightTheme": true
+          }
+        }
+      ]
     ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",

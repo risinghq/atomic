@@ -51,6 +51,10 @@ profiles: `development` (a development client, internal distribution), `preview`
 (internal distribution) and `production` (auto-incrementing version). Building
 needs an [Expo](https://expo.dev) account with access to the project.
 
+Android release builds run R8 and shrink unused resources. The
+`expo-build-properties` entry in [`app.json`](../apps/atomic/app.json) sets
+both.
+
 ## Resetting local data
 
 The atomic app keeps its data in a SQLite database on the device. **Borrar todos

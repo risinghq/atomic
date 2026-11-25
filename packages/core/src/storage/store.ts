@@ -56,6 +56,12 @@ export async function openStore(db: Database, { newId }: StoreOptions) {
   // A connection starts with foreign keys off, and the pragma does nothing
   // inside a transaction, so it is set here before any migration runs.
   await db.execAsync('PRAGMA foreign_keys = ON');
+
+  // WAL syncs the disk at checkpoints instead of twice per commit, and NORMAL
+  // keeps every commit across an app crash. A VFS without WAL, like the web
+  // build's OPFS, keeps its rollback journal.
+  await db.execAsync('PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL');
+
   await migrate(db);
 
   async function categories({ archived = false } = {}): Promise<Category[]> {

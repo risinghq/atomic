@@ -32,7 +32,7 @@ index.ts ─► App ─► DataProvider ─► Root ─┬─► Onboarding
 | [`src/format.ts`](../src/format.ts)                           | Spanish (es-PE) money, day, period and budget labels.                                           |
 | [`src/choices.ts`](../src/choices.ts)                         | The currency and week-start options that onboarding and Ajustes share.                          |
 | [`src/useSheet.ts`](../src/useSheet.ts)                       | A sheet's open state, the record it shows and a session key that starts its form fresh.         |
-| [`src/useNow.ts`](../src/useNow.ts)                           | The current time, refreshed every minute and when the app returns to the foreground.            |
+| [`src/useNow.ts`](../src/useNow.ts)                           | The current day, refreshed at midnight and when the app returns to the foreground.              |
 
 ## Tabs
 
