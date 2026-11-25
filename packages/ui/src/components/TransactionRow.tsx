@@ -17,6 +17,8 @@ export type TransactionRowProps = {
   amount: number;
   format?: Omit<AmountFormat, 'sign'>;
   onPress?: () => void;
+  /** Opens the row's actions, such as delete. */
+  onLongPress?: () => void;
 };
 
 /** One transaction: category tile, title and time, and the signed amount. */
@@ -28,14 +30,18 @@ export function TransactionRow({
   amount,
   format,
   onPress,
+  onLongPress,
 }: TransactionRowProps) {
   const income = amount > 0;
+  const interactive = !!(onPress || onLongPress);
+
   return (
     <PressableScale
       accessibilityLabel={title}
       onPress={onPress}
-      disabled={!onPress}
-      feedback={onPress ? 'light' : false}
+      onLongPress={onLongPress}
+      disabled={!interactive}
+      feedback={interactive ? 'light' : false}
       scaleTo={0.98}
       style={styles.row}>
       <IconTile icon={emoji} color={color} size={40} />

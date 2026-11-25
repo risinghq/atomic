@@ -3,15 +3,22 @@ import {
   Amount,
   amountValue,
   applyKey,
+  BarChart,
+  BudgetCard,
+  BudgetSummaryCard,
   Button,
+  CategoryPicker,
   DayHeader,
+  EmptyState,
   fontAssets,
   IconTile,
   ListRow,
   ListSection,
   NumberPad,
+  PeriodPicker,
   ProgressBar,
   SegmentedControl,
+  Sheet,
   space,
   TabBar,
   Text,
@@ -22,6 +29,8 @@ import {
   TransactionRow,
   useTheme,
   useToast,
+  type CategoryOption,
+  type ChartBar,
   type ColorScheme,
   type Tab,
 } from '@atomic/ui';
@@ -97,7 +106,11 @@ function Catalog({
         </View>
         <LogDemo />
         <EntryDemo />
+        <CategoryDemo />
+        <ChartDemo />
         <BudgetDemo />
+        <SheetDemo />
+        <EmptyDemo />
         <SettingsDemo />
         <Demo title="Botones">
           <Button
@@ -140,6 +153,9 @@ function Demo({ title, children }: { title: string; children: ReactNode }) {
 }
 
 function LogDemo() {
+  const toast = useToast();
+  const remove = () => toast({ text: 'Gasto borrado', tone: 'success' });
+
   return (
     <Demo title="Registro">
       <View style={styles.total}>
@@ -156,6 +172,7 @@ function LogDemo() {
           emoji="🍜"
           color={tints.orange}
           amount={-18.5}
+          onLongPress={remove}
         />
         <TransactionRow
           title="Taxi"
@@ -226,27 +243,153 @@ function EntryDemo() {
   );
 }
 
+const categories: CategoryOption[] = [
+  { id: 'food', name: 'Comida', emoji: '🍜', color: tints.orange },
+  { id: 'transport', name: 'Transporte', emoji: '🚕', color: tints.yellow },
+  { id: 'fun', name: 'Ocio', emoji: '🎬', color: tints.red },
+  { id: 'home', name: 'Casa', emoji: '🏠', color: tints.blue },
+  { id: 'health', name: 'Salud', emoji: '💊', color: tints.green },
+];
+
+function CategoryDemo() {
+  const [selected, setSelected] = useState('food');
+
+  return (
+    <Demo title="Categorías">
+      <CategoryPicker categories={categories} selected={selected} onSelect={setSelected} />
+    </Demo>
+  );
+}
+
+const week: ChartBar[] = [
+  { key: 'mon', label: 'L', value: 42 },
+  { key: 'tue', label: 'M', value: 18.5 },
+  { key: 'wed', label: 'X', value: 0 },
+  { key: 'thu', label: 'J', value: 64.2 },
+  { key: 'fri', label: 'V', value: 31, current: true },
+  { key: 'sat', label: 'S', value: 0, future: true },
+  { key: 'sun', label: 'D', value: 0, future: true },
+];
+
+function ChartDemo() {
+  const toast = useToast();
+  const [offset, setOffset] = useState(0);
+
+  const spent = week.reduce((sum, bar) => sum + bar.value, 0);
+  const elapsed = week.filter((bar) => !bar.future).length;
+
+  return (
+    <Demo title="Resumen">
+      <PeriodPicker
+        title={offset === 0 ? 'Esta semana' : `Hace ${-offset} semana${offset < -1 ? 's' : ''}`}
+        onPrevious={() => setOffset((current) => current - 1)}
+        onNext={() => setOffset((current) => current + 1)}
+        canNext={offset < 0}
+      />
+      <View style={styles.total}>
+        <Amount value={spent} variant="amount" sign="never" />
+      </View>
+      <BarChart
+        bars={week}
+        average={spent / elapsed}
+        formatValue={(value) => `S/ ${value.toFixed(2)}`}
+        onSelect={(bar) => toast({ text: `${bar.label}: S/ ${bar.value.toFixed(2)}` })}
+      />
+    </Demo>
+  );
+}
+
 function BudgetDemo() {
-  const { colors } = useTheme();
+  const budgets = [
+    { ...categories[0]!, spent: 186.4, amount: 400 },
+    { ...categories[1]!, spent: 142, amount: 180 },
+    { ...categories[2]!, spent: 131.5, amount: 120 },
+  ];
+  const total = budgets.reduce((sum, budget) => sum + budget.amount, 0);
+  const spent = budgets.reduce((sum, budget) => sum + budget.spent, 0);
+  // Day 25 of a 30-day month.
+  const tick = 25 / 30;
+
   return (
     <Demo title="Presupuestos">
-      {[
-        { name: 'Comida', spent: 0.42, color: undefined },
-        { name: 'Transporte', spent: 0.78, color: colors.warning },
-        { name: 'Ocio', spent: 1.1, color: colors.overBudget },
-      ].map((budget) => (
-        <View key={budget.name} style={styles.budget}>
-          <View style={styles.spread}>
-            <Text variant="callout" weight="medium">
-              {budget.name}
-            </Text>
-            <Text variant="footnote" color="textMuted" tabular>
-              {Math.round(budget.spent * 100)}%
-            </Text>
-          </View>
-          <ProgressBar progress={budget.spent} color={budget.color} label={budget.name} />
-        </View>
-      ))}
+      <BudgetSummaryCard
+        trailing="Noviembre"
+        spent={spent}
+        amount={total}
+        tick={tick}
+        segments={budgets.map((budget) => ({
+          key: budget.id,
+          share: budget.spent / total,
+          color: budget.color,
+        }))}
+        status={`Gastaste S/ ${spent.toFixed(2)} de S/ ${total} · se renueva en 5 días`}
+      />
+      <View style={styles.tiles}>
+        {budgets.map((budget) => (
+          <BudgetCard
+            key={budget.id}
+            name={budget.name}
+            emoji={budget.emoji}
+            color={budget.color}
+            spent={budget.spent}
+            amount={budget.amount}
+            tick={tick}
+            status={
+              budget.spent > budget.amount
+                ? 'Se renueva en 5 días'
+                : `S/ ${((budget.amount - budget.spent) / 5).toFixed(2)} por día`
+            }
+          />
+        ))}
+      </View>
+      <View style={styles.budget}>
+        <Text variant="footnote" color="textMuted">
+          ProgressBar
+        </Text>
+        <ProgressBar progress={0.42} label="Ahorro" />
+      </View>
+    </Demo>
+  );
+}
+
+function SheetDemo() {
+  const insets = useSafeAreaInsets();
+  const toast = useToast();
+  const [open, setOpen] = useState(false);
+  const [category, setCategory] = useState('food');
+
+  const save = () => {
+    setOpen(false);
+    toast({ text: 'Gasto guardado', tone: 'success' });
+  };
+
+  return (
+    <Demo title="Hoja">
+      <Button label="Abrir hoja" variant="secondary" onPress={() => setOpen(true)} />
+      <Sheet
+        visible={open}
+        onClose={() => setOpen(false)}
+        title="Nuevo gasto"
+        bottomInset={insets.bottom}>
+        <CategoryPicker categories={categories} selected={category} onSelect={setCategory} />
+        <Button label="Guardar" onPress={save} />
+      </Sheet>
+    </Demo>
+  );
+}
+
+function EmptyDemo() {
+  const toast = useToast();
+
+  return (
+    <Demo title="Vacío">
+      <EmptyState
+        emoji="🧾"
+        title="Aún no hay gastos"
+        message="Registra tu primer gasto y aparecerá aquí."
+        actionLabel="Agregar gasto"
+        onAction={() => toast({ text: 'Nuevo gasto' })}
+      />
     </Demo>
   );
 }
@@ -313,5 +456,5 @@ const styles = StyleSheet.create({
   center: { alignItems: 'center' },
   entryAmount: { alignItems: 'center', paddingVertical: space.xl },
   budget: { gap: space.sm },
-  spread: { flexDirection: 'row', justifyContent: 'space-between' },
+  tiles: { gap: space.md },
 });
