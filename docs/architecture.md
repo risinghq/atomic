@@ -1,13 +1,14 @@
 # Repository layout
 
 atomic is a [bun workspace](https://bun.sh/docs/install/workspaces). Each app
-under `apps/` is an Expo app. Code that more than one app uses lives in a
-package under `packages/`.
+under `apps/` is an Expo app, except `apps/api`, a Cloudflare Worker. Code that
+more than one app uses lives in a package under `packages/`.
 
 | Workspace                               | Package        | Owns                                                               |
 | --------------------------------------- | -------------- | ------------------------------------------------------------------ |
 | [`apps/atomic`](../apps/atomic)         | `atomic`       | The expense tracker. Its manual is in `apps/atomic/docs/`.         |
 | [`apps/catalog`](../apps/catalog)       | `catalog`      | A gallery of every shared component. See [UI](ui.md#catalog).      |
+| [`apps/api`](../apps/api/src)           | `api`          | Sign-in and sync on Cloudflare. See [API](api.md).                 |
 | [`packages/ui`](../packages/ui/src)     | `@atomic/ui`   | The theme and components the apps share. See [UI](ui.md).          |
 | [`packages/core`](../packages/core/src) | `@atomic/core` | The data model, period math and SQLite store. See [Core](core.md). |
 
