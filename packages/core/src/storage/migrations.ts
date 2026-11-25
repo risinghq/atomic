@@ -40,6 +40,33 @@ export const migrations: readonly string[] = [
     value TEXT NOT NULL
   );
   `,
+
+  // Sync: every record carries when it last changed, a tombstone and whether
+  // this device still has to send it. Records from before sync are all unsent.
+  // A budget's id becomes `budgetId(category)`, so devices agree on it.
+  `
+  ALTER TABLE categories ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0;
+  ALTER TABLE categories ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0;
+  ALTER TABLE categories ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+
+  ALTER TABLE transactions ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0;
+  ALTER TABLE transactions ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0;
+  ALTER TABLE transactions ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+
+  ALTER TABLE budgets ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0;
+  ALTER TABLE budgets ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0;
+  ALTER TABLE budgets ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+
+  ALTER TABLE settings ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0;
+  ALTER TABLE settings ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+
+  UPDATE budgets SET id = 'budget:' || ifnull(category_id, 'all');
+
+  CREATE TABLE sync (
+    key TEXT PRIMARY KEY NOT NULL,
+    value TEXT NOT NULL
+  );
+  `,
 ];
 
 /** Brings the schema to the latest version. SQLite's `user_version` holds the current one. */

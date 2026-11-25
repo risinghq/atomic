@@ -9,10 +9,20 @@ import {
   type Transaction,
 } from '../model';
 import type { Span } from '../period';
+import {
+  budgetId,
+  syncedSettings,
+  type Changes,
+  type SettingChange,
+  type Stamp,
+  type SyncResult,
+} from '../sync';
 import type { Database, SqlValue } from './database';
 import { migrate } from './migrations';
 
-type CategoryRow = {
+type StampRow = { updated_at: number; deleted: number };
+
+type CategoryRow = StampRow & {
   id: string;
   name: string;
   emoji: string;
@@ -22,7 +32,7 @@ type CategoryRow = {
   archived: number;
 };
 
-type TransactionRow = {
+type TransactionRow = StampRow & {
   id: string;
   kind: Kind;
   amount: number;
@@ -31,7 +41,14 @@ type TransactionRow = {
   at: number;
 };
 
-type BudgetRow = { id: string; category_id: string | null; amount: number; period: BudgetPeriod };
+type BudgetRow = StampRow & {
+  id: string;
+  category_id: string | null;
+  amount: number;
+  period: BudgetPeriod;
+};
+
+type SettingRow = { key: string; value: string; updated_at: number };
 
 export type NewCategory = Pick<Category, 'name' | 'emoji' | 'color' | 'kind'>;
 export type NewTransaction = Omit<Transaction, 'id'>;
@@ -47,12 +64,67 @@ export type ImportRecords = {
 export type StoreOptions = {
   /** Makes the id of a new record; the app passes `expo-crypto`'s `randomUUID`. */
   newId: () => string;
+
+  /** The time a write is stamped with, in epoch milliseconds. */
+  now?: () => number;
 };
 
 export type Store = Awaited<ReturnType<typeof openStore>>;
 
-/** Prepares the database and returns the reads and writes the app uses. */
-export async function openStore(db: Database, { newId }: StoreOptions) {
+/**
+ * How each synced table maps a record to its columns. Every table also holds
+ * `updated_at`, `deleted` and `dirty`, which the store writes itself.
+ */
+const categoryTable = {
+  name: 'categories',
+  columns: ['id', 'name', 'emoji', 'color', 'kind', 'position', 'archived'],
+  values: (category: Category): SqlValue[] => [
+    category.id,
+    category.name,
+    category.emoji,
+    category.color,
+    category.kind,
+    category.position,
+    category.archived ? 1 : 0,
+  ],
+};
+
+const transactionTable = {
+  name: 'transactions',
+  columns: ['id', 'kind', 'amount', 'category_id', 'note', 'at'],
+  values: (transaction: Transaction): SqlValue[] => [
+    transaction.id,
+    transaction.kind,
+    transaction.amount,
+    transaction.categoryId,
+    transaction.note,
+    transaction.at,
+  ],
+};
+
+const budgetTable = {
+  name: 'budgets',
+  columns: ['id', 'category_id', 'amount', 'period'],
+  values: (budget: Budget): SqlValue[] => [
+    budget.id,
+    budget.categoryId,
+    budget.amount,
+    budget.period,
+  ],
+};
+
+type Table<T> = { name: string; columns: readonly string[]; values: (record: T) => SqlValue[] };
+
+const stampColumns = ['updated_at', 'deleted', 'dirty'];
+
+/**
+ * Prepares the database and returns the reads and writes the app uses.
+ *
+ * Reads skip deleted records. Every write stamps the record with `now` and
+ * marks it dirty, so the next sync sends it. A deletion keeps the record as a
+ * tombstone, so the deletion reaches the other devices.
+ */
+export async function openStore(db: Database, { newId, now = Date.now }: StoreOptions) {
   // A connection starts with foreign keys off, and the pragma does nothing
   // inside a transaction, so it is set here before any migration runs.
   await db.execAsync('PRAGMA foreign_keys = ON');
@@ -66,7 +138,8 @@ export async function openStore(db: Database, { newId }: StoreOptions) {
 
   async function categories({ archived = false } = {}): Promise<Category[]> {
     const rows = await db.getAllAsync<CategoryRow>(
-      `SELECT * FROM categories ${archived ? '' : 'WHERE archived = 0'} ORDER BY position, id`,
+      `SELECT * FROM categories WHERE deleted = 0 ${archived ? '' : 'AND archived = 0'}
+       ORDER BY position, id`,
       []
     );
 
@@ -80,14 +153,15 @@ export async function openStore(db: Database, { newId }: StoreOptions) {
     );
     const category: Category = { ...input, id: newId(), position: row?.next ?? 0, archived: false };
 
-    await insertCategories([category]);
+    await insertRecords(categoryTable, [category], edited());
 
     return category;
   }
 
   async function updateCategory(category: Category): Promise<void> {
     await db.runAsync(
-      `UPDATE categories SET name = ?, emoji = ?, color = ?, kind = ?, position = ?, archived = ?
+      `UPDATE categories SET name = ?, emoji = ?, color = ?, kind = ?, position = ?, archived = ?,
+       updated_at = ?, dirty = 1
        WHERE id = ?`,
       [
         category.name,
@@ -96,29 +170,16 @@ export async function openStore(db: Database, { newId }: StoreOptions) {
         category.kind,
         category.position,
         category.archived ? 1 : 0,
+        now(),
         category.id,
       ]
     );
   }
 
-  async function insertCategories(list: readonly Category[]): Promise<void> {
-    await insertRows(
-      'INSERT',
-      'categories',
-      ['id', 'name', 'emoji', 'color', 'kind', 'position', 'archived'],
-      list.map((category) => [
-        category.id,
-        category.name,
-        category.emoji,
-        category.color,
-        category.kind,
-        category.position,
-        category.archived ? 1 : 0,
-      ])
-    );
-  }
-
-  /** Adds the default categories when there are none. */
+  /**
+   * Adds the default categories when there are none. Every device seeds the
+   * same ids, so the defaults are not sent until someone edits them.
+   */
   async function seedCategories(): Promise<void> {
     const row = await db.getFirstAsync<{ count: number }>(
       'SELECT count(*) AS count FROM categories',
@@ -126,14 +187,19 @@ export async function openStore(db: Database, { newId }: StoreOptions) {
     );
     if ((row?.count ?? 0) > 0) return;
 
-    await insertCategories(defaultCategories);
+    await insertRecords(categoryTable, defaultCategories, {
+      updatedAt: 0,
+      deleted: false,
+      dirty: false,
+    });
   }
 
   /** Transactions inside the span, or all of them, newest first. */
   async function transactions(span?: Span): Promise<Transaction[]> {
     const params: SqlValue[] = span ? [span.start.getTime(), span.end.getTime()] : [];
     const rows = await db.getAllAsync<TransactionRow>(
-      `SELECT * FROM transactions ${span ? 'WHERE at >= ? AND at < ?' : ''} ORDER BY at DESC, id`,
+      `SELECT * FROM transactions WHERE deleted = 0 ${span ? 'AND at >= ? AND at < ?' : ''}
+       ORDER BY at DESC, id`,
       params
     );
 
@@ -143,48 +209,35 @@ export async function openStore(db: Database, { newId }: StoreOptions) {
   async function addTransaction(input: NewTransaction): Promise<Transaction> {
     const transaction: Transaction = { ...input, id: newId() };
 
-    await insertTransactions([transaction]);
+    await insertRecords(transactionTable, [transaction], edited());
 
     return transaction;
   }
 
-  async function insertTransactions(list: readonly Transaction[], verb = 'INSERT'): Promise<void> {
-    await insertRows(
-      verb,
-      'transactions',
-      ['id', 'kind', 'amount', 'category_id', 'note', 'at'],
-      list.map((transaction) => [
-        transaction.id,
-        transaction.kind,
-        transaction.amount,
-        transaction.categoryId,
-        transaction.note,
-        transaction.at,
-      ])
-    );
-  }
-
   async function updateTransaction(transaction: Transaction): Promise<void> {
     await db.runAsync(
-      'UPDATE transactions SET kind = ?, amount = ?, category_id = ?, note = ?, at = ? WHERE id = ?',
+      `UPDATE transactions SET kind = ?, amount = ?, category_id = ?, note = ?, at = ?,
+       updated_at = ?, dirty = 1
+       WHERE id = ?`,
       [
         transaction.kind,
         transaction.amount,
         transaction.categoryId,
         transaction.note,
         transaction.at,
+        now(),
         transaction.id,
       ]
     );
   }
 
   async function deleteTransaction(id: string): Promise<void> {
-    await db.runAsync('DELETE FROM transactions WHERE id = ?', [id]);
+    await bury('transactions', id);
   }
 
   async function budgets(): Promise<Budget[]> {
     const rows = await db.getAllAsync<BudgetRow>(
-      'SELECT * FROM budgets ORDER BY category_id IS NOT NULL, id',
+      'SELECT * FROM budgets WHERE deleted = 0 ORDER BY category_id IS NOT NULL, id',
       []
     );
 
@@ -193,29 +246,15 @@ export async function openStore(db: Database, { newId }: StoreOptions) {
 
   /** Sets the budget of a category, or the overall one, replacing any it had. */
   async function setBudget(input: NewBudget): Promise<Budget> {
-    const budget: Budget = { ...input, id: newId() };
+    const budget: Budget = { ...input, id: budgetId(input.categoryId) };
 
-    await db.withTransactionAsync(async () => {
-      await db.runAsync("DELETE FROM budgets WHERE ifnull(category_id, '') = ?", [
-        budget.categoryId ?? '',
-      ]);
-      await insertBudgets([budget]);
-    });
+    await insertRecords(budgetTable, [budget], edited(), upsert(budgetTable.columns));
 
     return budget;
   }
 
-  async function insertBudgets(list: readonly Budget[], verb = 'INSERT'): Promise<void> {
-    await insertRows(
-      verb,
-      'budgets',
-      ['id', 'category_id', 'amount', 'period'],
-      list.map((budget) => [budget.id, budget.categoryId, budget.amount, budget.period])
-    );
-  }
-
   async function deleteBudget(id: string): Promise<void> {
-    await db.runAsync('DELETE FROM budgets WHERE id = ?', [id]);
+    await bury('budgets', id);
   }
 
   async function settings(): Promise<Settings> {
@@ -229,17 +268,18 @@ export async function openStore(db: Database, { newId }: StoreOptions) {
   }
 
   async function updateSettings(patch: Partial<Settings>): Promise<Settings> {
+    const updatedAt = now();
     const rows = Object.entries(patch)
       .filter(([, value]) => value !== undefined)
-      .map(([key, value]) => [key, JSON.stringify(value)]);
+      .map(([key, value]): SqlValue[] => [key, JSON.stringify(value), updatedAt, 1]);
 
-    if (rows.length > 0) {
-      await db.runAsync(
-        `INSERT INTO settings (key, value) VALUES ${rows.map(() => '(?, ?)').join(', ')}
-         ON CONFLICT (key) DO UPDATE SET value = excluded.value`,
-        rows.flat()
-      );
-    }
+    await insertRows(
+      'INSERT',
+      'settings',
+      ['key', 'value', 'updated_at', 'dirty'],
+      rows,
+      'ON CONFLICT (key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at, dirty = 1'
+    );
 
     return settings();
   }
@@ -250,23 +290,180 @@ export async function openStore(db: Database, { newId }: StoreOptions) {
    * import that ran before can run again.
    */
   async function importRecords(records: ImportRecords): Promise<void> {
+    const imported = records.budgets.map((budget) => ({
+      ...budget,
+      id: budgetId(budget.categoryId),
+    }));
+
     await db.withTransactionAsync(async () => {
       await seedCategories();
 
-      await insertTransactions(records.transactions, 'INSERT OR IGNORE');
-      await insertBudgets(records.budgets, 'INSERT OR IGNORE');
+      await insertRecords(transactionTable, records.transactions, edited(), '', 'INSERT OR IGNORE');
+      await insertRecords(budgetTable, imported, edited(), '', 'INSERT OR IGNORE');
 
       await updateSettings(records.settings);
     });
   }
 
-  /** Deletes every record and setting, leaving an empty database. */
+  /** Deletes every record and setting, and forgets the sync position. */
   async function eraseAll(): Promise<void> {
     await db.withTransactionAsync(async () => {
       await db.execAsync(
-        'DELETE FROM budgets; DELETE FROM transactions; DELETE FROM categories; DELETE FROM settings;'
+        `DELETE FROM budgets; DELETE FROM transactions; DELETE FROM categories;
+         DELETE FROM settings; DELETE FROM sync;`
       );
     });
+  }
+
+  /** The records this device changed since they were last sent. */
+  async function pendingChanges(): Promise<Changes> {
+    const [categoryRows, transactionRows, budgetRows, settingRows] = await Promise.all([
+      db.getAllAsync<CategoryRow>('SELECT * FROM categories WHERE dirty = 1', []),
+      db.getAllAsync<TransactionRow>('SELECT * FROM transactions WHERE dirty = 1', []),
+      db.getAllAsync<BudgetRow>('SELECT * FROM budgets WHERE dirty = 1', []),
+      db.getAllAsync<SettingRow>(
+        `SELECT key, value, updated_at FROM settings
+         WHERE dirty = 1 AND key IN (${syncedSettings.map(() => '?').join(', ')})`,
+        [...syncedSettings]
+      ),
+    ]);
+
+    return {
+      categories: categoryRows.map((row) => Object.assign(toCategory(row), toStamp(row))),
+      transactions: transactionRows.map((row) => Object.assign(toTransaction(row), toStamp(row))),
+      budgets: budgetRows.map((row) => Object.assign(toBudget(row), toStamp(row))),
+      settings: settingRows.map((row) => ({
+        key: row.key,
+        value: row.value,
+        updatedAt: row.updated_at,
+      })),
+    };
+  }
+
+  /** The server position the last sync ended at, or null before the first one. */
+  async function syncCursor(): Promise<string | null> {
+    const row = await db.getFirstAsync<{ value: string }>(
+      "SELECT value FROM sync WHERE key = 'cursor'",
+      []
+    );
+
+    return row?.value ?? null;
+  }
+
+  /**
+   * Records a finished sync in one transaction. A sent record stays dirty when
+   * it changed again while the sync ran. A received record replaces the local
+   * one only when it is newer, so the later edit wins on every device.
+   */
+  async function completeSync({ pushed, pulled, cursor }: SyncResult): Promise<void> {
+    await db.withTransactionAsync(async () => {
+      await markSent(
+        'categories',
+        'id',
+        pushed.categories.map((record) => [record.id, record.updatedAt])
+      );
+      await markSent(
+        'transactions',
+        'id',
+        pushed.transactions.map((record) => [record.id, record.updatedAt])
+      );
+      await markSent(
+        'budgets',
+        'id',
+        pushed.budgets.map((record) => [record.id, record.updatedAt])
+      );
+      await markSent(
+        'settings',
+        'key',
+        pushed.settings.map((setting) => [setting.key, setting.updatedAt])
+      );
+
+      // Categories go first: transactions and budgets reference them.
+      await mergeRecords(categoryTable, pulled.categories);
+      await mergeRecords(transactionTable, pulled.transactions);
+      await mergeRecords(budgetTable, pulled.budgets);
+      await mergeSettings(pulled.settings);
+
+      await db.runAsync(
+        `INSERT INTO sync (key, value) VALUES ('cursor', ?)
+         ON CONFLICT (key) DO UPDATE SET value = excluded.value`,
+        [cursor]
+      );
+    });
+  }
+
+  type Mark = { updatedAt: number; deleted: boolean; dirty: boolean };
+
+  function edited(): Mark {
+    return { updatedAt: now(), deleted: false, dirty: true };
+  }
+
+  async function bury(table: string, id: string): Promise<void> {
+    await db.runAsync(`UPDATE ${table} SET deleted = 1, updated_at = ?, dirty = 1 WHERE id = ?`, [
+      now(),
+      id,
+    ]);
+  }
+
+  async function insertRecords<T>(
+    table: Table<T>,
+    records: readonly T[],
+    mark: Mark,
+    conflict = '',
+    verb = 'INSERT'
+  ): Promise<void> {
+    const stamp = [mark.updatedAt, mark.deleted ? 1 : 0, mark.dirty ? 1 : 0];
+
+    await insertRows(
+      verb,
+      table.name,
+      [...table.columns, ...stampColumns],
+      records.map((record) => [...table.values(record), ...stamp]),
+      conflict
+    );
+  }
+
+  async function mergeRecords<T>(table: Table<T>, records: readonly (T & Stamp)[]): Promise<void> {
+    await insertRows(
+      'INSERT',
+      table.name,
+      [...table.columns, ...stampColumns],
+      records.map((record) => [
+        ...table.values(record),
+        record.updatedAt,
+        record.deleted ? 1 : 0,
+        0,
+      ]),
+      `${upsert(table.columns)} WHERE excluded.updated_at > ${table.name}.updated_at`
+    );
+  }
+
+  async function mergeSettings(list: readonly SettingChange[]): Promise<void> {
+    const synced: readonly string[] = syncedSettings;
+
+    await insertRows(
+      'INSERT',
+      'settings',
+      ['key', 'value', 'updated_at', 'dirty'],
+      list
+        .filter((setting) => synced.includes(setting.key))
+        .map((setting) => [setting.key, setting.value, setting.updatedAt, 0]),
+      `ON CONFLICT (key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at,
+       dirty = 0 WHERE excluded.updated_at > settings.updated_at`
+    );
+  }
+
+  /** Clears `dirty` on each `[key, updatedAt]` pair that still holds that stamp. */
+  async function markSent(table: string, key: string, sent: readonly SqlValue[][]): Promise<void> {
+    const statements = chunk(sent, ROWS_PER_INSERT).map((part) =>
+      db.runAsync(
+        `UPDATE ${table} SET dirty = 0
+         WHERE (${key}, updated_at) IN (VALUES ${part.map(() => '(?, ?)').join(', ')})`,
+        part.flat()
+      )
+    );
+
+    await Promise.all(statements);
   }
 
   /**
@@ -277,12 +474,14 @@ export async function openStore(db: Database, { newId }: StoreOptions) {
     verb: string,
     table: string,
     columns: readonly string[],
-    rows: readonly SqlValue[][]
+    rows: readonly SqlValue[][],
+    conflict = ''
   ): Promise<void> {
     const row = `(${columns.map(() => '?').join(', ')})`;
     const statements = chunk(rows, ROWS_PER_INSERT).map((part) =>
       db.runAsync(
-        `${verb} INTO ${table} (${columns.join(', ')}) VALUES ${part.map(() => row).join(', ')}`,
+        `${verb} INTO ${table} (${columns.join(', ')}) VALUES ${part.map(() => row).join(', ')}
+         ${conflict}`,
         part.flat()
       )
     );
@@ -306,12 +505,24 @@ export async function openStore(db: Database, { newId }: StoreOptions) {
     updateSettings,
     importRecords,
     eraseAll,
+    pendingChanges,
+    syncCursor,
+    completeSync,
   };
 }
 
 // SQLite binds at most 32766 values in one statement. Rows here have at most
-// seven columns, so 500 rows stay well under it.
+// ten columns, so 500 rows stay well under it.
 const ROWS_PER_INSERT = 500;
+
+/** An upsert that overwrites every column with the incoming row. */
+function upsert(columns: readonly string[]): string {
+  const assignments = [...columns, ...stampColumns]
+    .filter((column) => column !== 'id')
+    .map((column) => `${column} = excluded.${column}`);
+
+  return `ON CONFLICT (id) DO UPDATE SET ${assignments.join(', ')}`;
+}
 
 function chunk<T>(items: readonly T[], size: number): T[][] {
   const parts: T[][] = [];
@@ -323,8 +534,20 @@ function chunk<T>(items: readonly T[], size: number): T[][] {
   return parts;
 }
 
+function toStamp(row: StampRow): Stamp {
+  return { updatedAt: row.updated_at, deleted: row.deleted === 1 };
+}
+
 function toCategory(row: CategoryRow): Category {
-  return { ...row, archived: row.archived === 1 };
+  return {
+    id: row.id,
+    name: row.name,
+    emoji: row.emoji,
+    color: row.color,
+    kind: row.kind,
+    position: row.position,
+    archived: row.archived === 1,
+  };
 }
 
 function toTransaction(row: TransactionRow): Transaction {

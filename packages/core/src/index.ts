@@ -40,4 +40,14 @@ export {
   type Store,
   type StoreOptions,
 } from './storage/store';
+export {
+  budgetId,
+  countChanges,
+  noChanges,
+  syncedSettings,
+  type Changes,
+  type SettingChange,
+  type Stamp,
+  type SyncResult,
+} from './sync';
 export { convertLegacy, importLegacy, legacyKeys, type LegacyStorage } from './storage/legacy';
