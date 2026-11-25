@@ -32,6 +32,12 @@ export class FakeCloud {
   /** When false, sign-in starts answer as a deploy without OAuth secrets does. */
   providersSetUp = true;
 
+  /** The live sign-in code emailed to each address. */
+  readonly inbox = new Map<string, string>();
+
+  /** When false, email codes answer as a deploy without a Resend key does. */
+  mailSetUp = true;
+
   /** When false, every request fails as if the phone had no connection. */
   online = true;
 
@@ -153,6 +159,32 @@ export class FakeCloud {
       if (this.dropsAfterSignIn) this.online = false;
 
       return { status: 200, body: this.session(login.email) };
+    }
+
+    if (method === 'POST' && path === '/auth/email/start') {
+      const email = String(body.email).trim().toLowerCase();
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return { status: 400, body: { error: 'invalid email' } };
+      }
+
+      if (!this.mailSetUp) return { status: 503, body: { error: 'unavailable' } };
+
+      this.inbox.set(email, String(100000 + (this.next += 1)));
+
+      return { status: 204 };
+    }
+
+    if (method === 'POST' && path === '/auth/email/verify') {
+      const email = String(body.email).trim().toLowerCase();
+      const code = this.inbox.get(email);
+
+      if (!code) return { status: 400, body: { error: 'expired' } };
+      if (code !== body.code) return { status: 400, body: { error: 'invalid code' } };
+
+      this.inbox.delete(email);
+
+      return { status: 200, body: this.session(email) };
     }
 
     const email = token ? this.sessions.get(token) : undefined;

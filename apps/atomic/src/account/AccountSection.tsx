@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSheet } from '../useSheet';
 import type { Provider } from './api';
 import { useAccount, type SyncStatus } from './AccountProvider';
+import { EmailSignIn } from './EmailSignIn';
 import { SignInFailed } from './signIn';
 
 const statusLabel: Record<SyncStatus, string> = {
@@ -28,6 +29,7 @@ export function AccountSection() {
   const account = useAccount();
   const toast = useToast();
   const confirmDelete = useSheet();
+  const emailSignIn = useSheet();
 
   if (!account.supported) return null;
 
@@ -52,12 +54,17 @@ export function AccountSection() {
 
   if (!account.email) {
     return (
-      <ListSection
-        title="Cuenta"
-        footer="Guarda una copia en la nube y usa tus datos en otro dispositivo.">
-        <ListRow title="Continuar con Google" onPress={() => void signIn('google')} />
-        <ListRow title="Continuar con GitHub" onPress={() => void signIn('github')} />
-      </ListSection>
+      <>
+        <ListSection
+          title="Cuenta"
+          footer="Guarda una copia en la nube y usa tus datos en otro dispositivo.">
+          <ListRow title="Continuar con Google" onPress={() => void signIn('google')} />
+          <ListRow title="Continuar con GitHub" onPress={() => void signIn('github')} />
+          <ListRow title="Continuar con correo" onPress={() => emailSignIn.show()} />
+        </ListSection>
+
+        <EmailSignIn sheet={emailSignIn} onSignedIn={() => toast({ text: 'Sesión iniciada' })} />
+      </>
     );
   }
 

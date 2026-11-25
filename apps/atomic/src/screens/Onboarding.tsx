@@ -2,12 +2,14 @@ import { Button, space, Text, SegmentedControl, useTheme, useToast } from '@atom
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAccount } from '../account/AccountProvider';
+import { useAccount, type SignInResult } from '../account/AccountProvider';
 import { signInError } from '../account/AccountSection';
 import type { Provider } from '../account/api';
+import { EmailSignIn } from '../account/EmailSignIn';
 import { currencies, currencyChoice, weekStartOf, weekStarts } from '../choices';
 import { Field } from '../components/Field';
 import { useData } from '../data/DataProvider';
+import { useSheet } from '../useSheet';
 
 const points = [
   'Anota un gasto o un ingreso en dos toques.',
@@ -29,6 +31,7 @@ export function Onboarding() {
   const [currency, setCurrency] = useState(currencyChoice(settings.currency));
   const [weekStart, setWeekStart] = useState(String(settings.weekStart) as '0' | '1');
   const [busy, setBusy] = useState(false);
+  const emailSignIn = useSheet();
 
   function start() {
     void write((store) =>
@@ -36,15 +39,17 @@ export function Onboarding() {
     );
   }
 
+  async function finish(result: SignInResult) {
+    // An account that already holds data brings its own currency and week start.
+    if (result === 'returning') await write((store) => store.updateSettings({ onboarded: true }));
+    if (result === 'new') start();
+  }
+
   async function signIn(provider: Provider) {
     setBusy(true);
 
     try {
-      const result = await account.signIn(provider);
-
-      // An account that already holds data brings its own currency and week start.
-      if (result === 'returning') await write((store) => store.updateSettings({ onboarded: true }));
-      if (result === 'new') start();
+      await finish(await account.signIn(provider));
     } catch (error) {
       toast({ text: signInError(error), tone: 'error' });
     } finally {
@@ -110,9 +115,17 @@ export function Onboarding() {
               onPress={() => void signIn('github')}
               disabled={busy}
             />
+            <Button
+              label="Continuar con correo"
+              variant="secondary"
+              onPress={() => emailSignIn.show()}
+              disabled={busy}
+            />
           </>
         ) : null}
       </View>
+
+      <EmailSignIn sheet={emailSignIn} onSignedIn={(result) => void finish(result)} />
     </ScrollView>
   );
 }

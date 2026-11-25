@@ -17,7 +17,7 @@ bun run check
 fails. `apps/atomic` and `packages/ui` run Jest with the `jest-expo` preset
 ([`jest.config.js`](../apps/atomic/jest.config.js)). `packages/core` holds no
 React Native code and runs Vitest. `apps/api` runs Vitest inside workerd against
-a local D1; its tests replace only the Google and GitHub servers (see
+a local D1; its tests replace only the Google, GitHub and Resend servers (see
 [API](api.md)).
 
 One workspace, one file or one directory:

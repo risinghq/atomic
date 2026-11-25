@@ -28,6 +28,10 @@ export type Account = {
   email: string | null;
   status: SyncStatus;
   signIn: (provider: api.Provider) => Promise<SignInResult>;
+
+  /** Emails a sign-in code to the address. */
+  sendCode: (email: string) => Promise<void>;
+  signInWithCode: (email: string, code: string) => Promise<SignInResult>;
   signOut: () => Promise<void>;
   deleteAccount: () => Promise<void>;
 
@@ -133,12 +137,9 @@ export function AccountProvider({ store, children }: { store: Store; children: R
     return () => subscription.remove();
   }, [token, sync]);
 
-  const signIn = useCallback(
-    async (provider: api.Provider): Promise<SignInResult> => {
-      const started = await browserSignIn(provider);
-
-      if (!started) return 'cancelled';
-
+  /** Keeps a new session once its first sync has answered. */
+  const begin = useCallback(
+    async (started: api.Session): Promise<SignInResult> => {
       // Whether the account already holds data decides what onboarding keeps,
       // so the sign-in only counts once the first sync has answered.
       const received = await sync(started.token);
@@ -155,6 +156,21 @@ export function AccountProvider({ store, children }: { store: Store; children: R
       return received > 0 ? 'returning' : 'new';
     },
     [sync, leave]
+  );
+
+  const signIn = useCallback(
+    async (provider: api.Provider): Promise<SignInResult> => {
+      const started = await browserSignIn(provider);
+
+      return started ? begin(started) : 'cancelled';
+    },
+    [begin]
+  );
+
+  const signInWithCode = useCallback(
+    async (email: string, code: string): Promise<SignInResult> =>
+      begin(await api.verifyEmailCode(email, code)),
+    [begin]
   );
 
   const signOut = useCallback(async () => {
@@ -182,11 +198,13 @@ export function AccountProvider({ store, children }: { store: Store; children: R
       email: session?.email ?? null,
       status,
       signIn,
+      sendCode: api.requestEmailCode,
+      signInWithCode,
       signOut,
       deleteAccount,
       eraseCloud,
     }),
-    [session, status, signIn, signOut, deleteAccount, eraseCloud]
+    [session, status, signIn, signInWithCode, signOut, deleteAccount, eraseCloud]
   );
 
   return <AccountContext.Provider value={account}>{children}</AccountContext.Provider>;

@@ -46,6 +46,20 @@ async function openSettings(store: Store) {
   return user;
 }
 
+type User = ReturnType<typeof userEvent.setup>;
+
+async function askForCode(user: User, address: string) {
+  await user.press(await screen.findByRole('button', { name: 'Continuar con correo' }));
+  await user.type(screen.getByLabelText('Correo'), address);
+  await user.press(screen.getByRole('button', { name: 'Enviar código' }));
+}
+
+async function enterCode(user: User, code: string) {
+  await user.clear(await screen.findByLabelText('Código'));
+  await user.type(screen.getByLabelText('Código'), code);
+  await user.press(screen.getByRole('button', { name: 'Entrar' }));
+}
+
 describe('signing in', () => {
   it('signs in from Ajustes and sends what the device already holds', async () => {
     const store = await freshStore();
@@ -139,6 +153,86 @@ describe('signing in', () => {
       await screen.findByText('Este inicio de sesión aún no está disponible.')
     ).toBeOnTheScreen();
     expect(keystore.has('session')).toBe(false);
+  });
+});
+
+describe('signing in with an emailed code', () => {
+  it('signs in from Ajustes with the code from the inbox', async () => {
+    const store = await freshStore();
+    const added = await store.addTransaction({ ...lunch, note: 'Taxi' });
+    const user = await openSettings(store);
+
+    await askForCode(user, 'Ana@Example.com');
+
+    expect(
+      await screen.findByText('Te enviamos un código de 6 dígitos a Ana@Example.com.')
+    ).toBeOnTheScreen();
+    await enterCode(user, cloud.inbox.get(ANA)!);
+
+    expect(await screen.findByText(ANA)).toBeOnTheScreen();
+    expect(await screen.findByText('Sincronizado')).toBeOnTheScreen();
+    expect(cloud.held(ANA).transactions).toMatchObject([{ id: added.id, note: 'Taxi' }]);
+    expect(keystore.has('session')).toBe(true);
+  });
+
+  it('brings a returning account into onboarding', async () => {
+    const user = userEvent.setup();
+    const store = await freshStore({ onboarded: false });
+
+    cloud.push(ANA, {
+      transactions: [lunch],
+      settings: [{ key: 'currency', value: '"USD"', updatedAt: 50 }],
+    });
+    await renderWith(store, <Root />);
+
+    await askForCode(user, ANA);
+    await enterCode(user, cloud.inbox.get(ANA)!);
+
+    expect(await screen.findByText('Menú del día')).toBeOnTheScreen();
+    expect(await store.settings()).toMatchObject({ onboarded: true, currency: 'USD' });
+  });
+
+  it('says a wrong code is wrong and takes the right one after', async () => {
+    const store = await freshStore();
+    const user = await openSettings(store);
+
+    await askForCode(user, ANA);
+    await enterCode(user, '999999');
+
+    expect(await screen.findByText('El código no es correcto.')).toBeOnTheScreen();
+    expect(keystore.has('session')).toBe(false);
+
+    await enterCode(user, cloud.inbox.get(ANA)!);
+
+    expect(await screen.findByText('Sincronizado')).toBeOnTheScreen();
+  });
+
+  it('sends a new code that replaces the last one', async () => {
+    const store = await freshStore();
+    const user = await openSettings(store);
+
+    await askForCode(user, ANA);
+
+    const first = cloud.inbox.get(ANA)!;
+
+    await user.press(await screen.findByRole('button', { name: 'Enviar otro código' }));
+    await waitFor(() => expect(cloud.inbox.get(ANA)).not.toBe(first));
+    await enterCode(user, first);
+
+    expect(await screen.findByText('El código no es correcto.')).toBeOnTheScreen();
+  });
+
+  it('says so when email codes are not set up yet', async () => {
+    const store = await freshStore();
+    cloud.mailSetUp = false;
+    const user = await openSettings(store);
+
+    await askForCode(user, ANA);
+
+    expect(
+      await screen.findByText('Este inicio de sesión aún no está disponible.')
+    ).toBeOnTheScreen();
+    expect(cloud.inbox.size).toBe(0);
   });
 });
 
