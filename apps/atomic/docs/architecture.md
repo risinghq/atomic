@@ -36,6 +36,7 @@ index.ts ─► App ─► DataProvider ─► AccountProvider ─► Root ─�
 | [`src/Shell.tsx`](../src/Shell.tsx)                                     | The tab bar, the active tab and the entry sheet. Android back returns to Registro first.         |
 | [`src/screens/`](../src/screens)                                        | One file per tab, plus `Onboarding`.                                                             |
 | [`src/entry/EntryForm.tsx`](../src/entry/EntryForm.tsx)                 | The entry sheet: kind, number pad, then note, repeat and category. The category saves the entry. |
+| [`src/entry/frequent.ts`](../src/entry/frequent.ts)                     | The repeated entries the number pad offers in one tap.                                           |
 | [`src/budgets/BudgetForm.tsx`](../src/budgets/BudgetForm.tsx)           | The budget sheet: what the budget covers, then its period and amount.                            |
 | [`src/categories/`](../src/categories)                                  | Ajustes' category sheet: the list per kind, and the form that adds, edits, archives or restores. |
 | [`src/recurring/RecurringList.tsx`](../src/recurring/RecurringList.tsx) | Ajustes' recurring sheet: each rule with its next date, and stopping one.                        |

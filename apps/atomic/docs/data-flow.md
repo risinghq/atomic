@@ -47,6 +47,15 @@ Deleting and budgets take the same path: a long press opens a confirm sheet, and
 [`BudgetForm`](../src/budgets/BudgetForm.tsx) saves with `setBudget`, which
 replaces the budget that category had.
 
+## Frequent entries
+
+A new entry's number pad shows up to three entries of the chosen kind that the
+person recorded at least twice in the last 90 days with the same amount,
+category and note. [`frequentEntries`](../src/entry/frequent.ts) ranks them by
+how often they repeat, then by the latest. Tapping one records it now with
+`addTransaction` and closes the sheet. They come from the transactions already
+loaded, so there is nothing to set up and nothing extra to sync.
+
 ## Searching
 
 The field under Registro's title narrows the log as the person types, from the
