@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   KeyboardAvoidingView,
   Modal,
@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import Animated, {
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -25,6 +26,8 @@ export type SheetProps = {
   /** Space under the content for the home indicator. */
   bottomInset?: number;
   closeLabel?: string;
+  /** Runs once the panel has slid in. Android shows no keyboard for a field focused before then. */
+  onShown?: () => void;
   children: ReactNode;
 };
 
@@ -38,6 +41,7 @@ export function Sheet({
   title,
   bottomInset = 0,
   closeLabel = 'Cerrar',
+  onShown,
   children,
 }: SheetProps) {
   const { colors, scheme } = useTheme();
@@ -46,10 +50,18 @@ export function Sheet({
   const [mounted, setMounted] = useState(visible);
   const shown = useSharedValue(0);
 
+  const onShownRef = useRef(onShown);
+  onShownRef.current = onShown;
+
   useEffect(() => {
     if (visible) {
       setMounted(true);
-      shown.value = withSpring(1, springs.smooth);
+
+      const settle = () => onShownRef.current?.();
+      shown.value = withSpring(1, springs.smooth, (finished) => {
+        if (finished) runOnJS(settle)();
+      });
+
       return undefined;
     }
 

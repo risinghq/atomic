@@ -1,5 +1,5 @@
 import { Button, radii, Sheet, space, Text, textStyle, useTheme } from '@atomic/ui';
-import { useState } from 'react';
+import { useRef, useState, type ComponentRef, type RefObject } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { SheetState } from '../useSheet';
@@ -30,19 +30,28 @@ type Props = { sheet: SheetState<undefined>; onSignedIn: (result: SignInResult) 
 /** A sheet that signs in with a code emailed to the address the person types. */
 export function EmailSignIn({ sheet, onSignedIn }: Props) {
   const insets = useSafeAreaInsets();
+  const emailField = useRef<Field>(null);
 
   return (
     <Sheet
       visible={sheet.open}
       onClose={sheet.hide}
+      onShown={() => emailField.current?.focus()}
       title="Continuar con correo"
       bottomInset={insets.bottom}>
-      <CodeForm key={sheet.session} onSignedIn={onSignedIn} />
+      <CodeForm key={sheet.session} emailField={emailField} onSignedIn={onSignedIn} />
     </Sheet>
   );
 }
 
-function CodeForm({ onSignedIn }: { onSignedIn: (result: SignInResult) => void }) {
+type Field = ComponentRef<typeof TextInput>;
+
+type FormProps = {
+  emailField: RefObject<Field | null>;
+  onSignedIn: (result: SignInResult) => void;
+};
+
+function CodeForm({ emailField, onSignedIn }: FormProps) {
   const { colors } = useTheme();
   const account = useAccount();
 
@@ -95,6 +104,7 @@ function CodeForm({ onSignedIn }: { onSignedIn: (result: SignInResult) => void }
     return (
       <View style={styles.form}>
         <TextInput
+          ref={emailField}
           accessibilityLabel="Correo"
           value={email}
           onChangeText={setEmail}
@@ -122,6 +132,7 @@ function CodeForm({ onSignedIn }: { onSignedIn: (result: SignInResult) => void }
       </Text>
       <TextInput
         accessibilityLabel="Código"
+        autoFocus
         value={code}
         onChangeText={(typed) => setCode(typed.replace(/\D/g, '').slice(0, CODE_LENGTH))}
         placeholder="000000"
