@@ -31,7 +31,8 @@ index.ts ─► App ─► DataProvider ─► AccountProvider ─► Root ─�
 | [`src/account/syncStore.ts`](../src/account/syncStore.ts)               | One sync: sends the store's changes and applies the Worker's, page by page.                      |
 | [`src/account/AccountSection.tsx`](../src/account/AccountSection.tsx)   | Ajustes' Cuenta rows: sign in, or the email, sign out and account deletion.                      |
 | [`src/data/shareCsv.ts`](../src/data/shareCsv.ts)                       | Hands the CSV to the share sheet, or to a download on the web (`shareCsv.web.ts`).               |
-| [`src/Root.tsx`](../src/Root.tsx)                                       | Shows `Onboarding` until `settings.onboarded`, then `Shell`.                                     |
+| [`src/Root.tsx`](../src/Root.tsx)                                       | Shows `Onboarding` until `settings.onboarded`, then `Shell` behind `AppLock`.                    |
+| [`src/lock/`](../src/lock)                                              | The lock screen over the app, and the device's screen lock it asks for.                          |
 | [`src/Shell.tsx`](../src/Shell.tsx)                                     | The tab bar, the active tab and the entry sheet. Android back returns to Registro first.         |
 | [`src/screens/`](../src/screens)                                        | One file per tab, plus `Onboarding`.                                                             |
 | [`src/entry/EntryForm.tsx`](../src/entry/EntryForm.tsx)                 | The entry sheet: kind, number pad, then note, repeat and category. The category saves the entry. |
@@ -45,12 +46,12 @@ index.ts ─► App ─► DataProvider ─► AccountProvider ─► Root ─�
 
 ## Tabs
 
-| Tab          | Screen           | Shows                                                                                                     |
-| ------------ | ---------------- | --------------------------------------------------------------------------------------------------------- |
-| Registro     | `LogScreen`      | This month's net and every transaction by day. Tap edits, long press deletes.                             |
-| Resumen      | `InsightsScreen` | Spending or income per week, month or year: a bar chart and a list by category.                           |
-| Presupuestos | `BudgetsScreen`  | The overall budget split by category, then one card per category budget.                                  |
-| Ajustes      | `SettingsScreen` | The account, the currency, the week start, categories, recurring entries, the CSV export and erasing all. |
+| Tab          | Screen           | Shows                                                                                                                   |
+| ------------ | ---------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Registro     | `LogScreen`      | This month's net and every transaction by day. Tap edits, long press deletes.                                           |
+| Resumen      | `InsightsScreen` | Spending or income per week, month or year: a bar chart and a list by category.                                         |
+| Presupuestos | `BudgetsScreen`  | The overall budget split by category, then one card per category budget.                                                |
+| Ajustes      | `SettingsScreen` | The account, the currency, the week start, categories, recurring entries, the app lock, the CSV export and erasing all. |
 
 The add button in the tab bar opens the entry sheet from every tab. Only the
 active tab is mounted.

@@ -63,6 +63,8 @@ export type Settings = {
   onboarded: boolean;
   /** Whether saving, switching tabs and toggling play a haptic. */
   haptics: boolean;
+  /** Whether the app asks for the device's screen lock to open. Each device keeps its own. */
+  lock: boolean;
 };
 
 export const defaultSettings: Settings = {
@@ -70,4 +72,5 @@ export const defaultSettings: Settings = {
   currency: 'PEN',
   onboarded: false,
   haptics: true,
+  lock: false,
 };

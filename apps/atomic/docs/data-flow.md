@@ -18,7 +18,9 @@
    false. **Empezar** saves the chosen currency and week start with
    `onboarded: true`, and the reloaded snapshot switches `Root` to the shell.
    Signing in from onboarding instead keeps the account's currency and week
-   start when the account already holds data.
+   start when the account already holds data. Past onboarding, `Root` puts the
+   shell behind [`AppLock`](../src/lock/AppLock.tsx) (see
+   [App lock](#app-lock)).
 
 ## Adding an expense
 
@@ -90,6 +92,22 @@ seeds the default categories again in one `write`. Erasing clears the settings,
 so `onboarded` is false and `Root` shows onboarding. When signed in, it first
 erases the account's copy with `DELETE /data`; if that fails, it erases nothing,
 since the next sync would bring the data back.
+
+## App lock
+
+**Bloquear la app** in Ajustes sets `lock`, a setting each device keeps for
+itself. Turning it on first asks for the device's screen lock through
+[`deviceAuth.ts`](../src/lock/deviceAuth.ts), so nobody turns on a lock they
+cannot pass. A device with no screen lock gets a toast instead. Turning it off
+asks for nothing. The row is hidden on the web.
+
+[`AppLock`](../src/lock/AppLock.tsx) covers the app with a full-screen `Modal`
+while locked. The `Modal` also covers a sheet left open, and Android back does
+not close it. The app stays mounted under it, so an entry half typed survives.
+It locks at a cold start, and on a return from the background after `LOCK_AFTER`
+(30 seconds). The share sheet, the sign-in browser and the system's own PIN
+screen all leave the app for less than that. Each lock prompts once;
+**Desbloquear** prompts again.
 
 ## Account and sync
 

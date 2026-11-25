@@ -27,6 +27,7 @@ describe('opening', () => {
       currency: 'PEN',
       onboarded: false,
       haptics: true,
+      lock: false,
     });
   });
 });
@@ -163,6 +164,7 @@ describe('settings and erasing', () => {
       currency: 'USD',
       onboarded: false,
       haptics: true,
+      lock: false,
     });
   });
 

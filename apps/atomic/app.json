@@ -29,7 +29,13 @@
         }
       ],
       "expo-web-browser",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Atomic usa Face ID para abrirse cuando activas el bloqueo."
+        }
+      ]
     ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
