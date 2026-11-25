@@ -89,6 +89,22 @@ describe('SegmentedControl', () => {
     fireEvent.click(screen.getByRole('tab', { name: 'Ingreso' }));
     expect(onChange).toHaveBeenCalledWith('income');
   });
+
+  it('starts the pill under the selected segment', () => {
+    render(
+      <SegmentedControl
+        segments={[
+          { value: 'light', label: 'Claro' },
+          { value: 'dark', label: 'Oscuro' },
+        ]}
+        value="dark"
+        onChange={() => {}}
+      />
+    );
+    const pill = screen.getByTestId('segmented-pill');
+    expect(pill.style.left).toBe('50%');
+    expect(pill.style.width).toBe('50%');
+  });
 });
 
 describe('TabBar', () => {
