@@ -49,6 +49,12 @@
     "web": {
       "bundler": "metro",
       "output": "single"
+    },
+    "owner": "risinghq",
+    "extra": {
+      "eas": {
+        "projectId": "a72f9cc1-d6ed-40c9-9e0a-a0afb85ddbae"
+      }
     }
   }
 }
