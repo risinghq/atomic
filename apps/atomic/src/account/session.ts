@@ -3,9 +3,6 @@ import type { Session } from './api';
 
 const KEY = 'session';
 
-/** Whether this platform can keep a session. */
-export const accountsSupported = true;
-
 /** The session in the platform's keystore, or null when signed out. */
 export async function loadSession(): Promise<Session | null> {
   const stored = await getItemAsync(KEY);

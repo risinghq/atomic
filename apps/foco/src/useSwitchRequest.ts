@@ -1,12 +1,12 @@
 import * as Notifications from 'expo-notifications';
 import { useEffect, useRef } from 'react';
-import { supported, switchAction } from './chimes';
+import { switchAction } from './chimes';
 
 /**
  * Calls `onSwitch` when the person answers a chime with "Cambié", whether the
  * answer launched the app or reached it while it ran.
  */
-function useChimeAnswer(onSwitch: () => void) {
+export function useSwitchRequest(onSwitch: () => void) {
   const handled = useRef<string | null>(null);
   const callback = useRef(onSwitch);
   callback.current = onSwitch;
@@ -24,8 +24,3 @@ function useChimeAnswer(onSwitch: () => void) {
     if (last.actionIdentifier === switchAction) callback.current();
   }, [last]);
 }
-
-// The web has no notification responses, and asking for the last one throws.
-export const useSwitchRequest: (onSwitch: () => void) => void = supported
-  ? useChimeAnswer
-  : () => {};

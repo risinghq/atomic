@@ -112,8 +112,7 @@ active category, so the form offers no **Archivar** for the last one.
 Ajustes writes a change with `updateSettings` as soon as a segment is picked.
 The currency formats every amount. The week start moves every week period, in
 Resumen and in weekly budgets. **Vibración** (Apagada, Esencial or Toda) sets
-`haptics`, which `Root` passes to `setHapticLevel`. Each device keeps its own,
-and the web, which has no haptics, does not show it.
+`haptics`, which `Root` passes to `setHapticLevel`. Each device keeps its own.
 
 **Exportar CSV** offers this month, last month, this year or everything
 ([`exportChoices`](../src/data/csv.ts)). A period's file is named for it, such
@@ -122,10 +121,8 @@ such as `atomic-2026-11-25.csv`. A period with no transactions shows a toast and
 exports nothing. [`toCsv`](../src/data/csv.ts) builds the file: one row per
 transaction, oldest first, with the date, `gasto` or `ingreso`, the category,
 the note and the amount with a dot decimal. The file starts with a UTF-8 byte
-order mark so Excel reads the accents. On iOS and Android,
-[`shareCsv`](../src/data/shareCsv.ts) writes it to the cache and opens the share
-sheet. On the web, [`shareCsv.web.ts`](../src/data/shareCsv.web.ts) downloads
-it.
+order mark so Excel reads the accents. [`shareCsv`](../src/data/shareCsv.ts)
+writes it to the cache and opens the share sheet.
 
 **Borrar todos los datos** asks for confirmation, then calls `eraseAll` and
 seeds the default categories again in one `write`. Erasing clears the settings,
@@ -139,7 +136,7 @@ since the next sync would bring the data back.
 itself. Turning it on first asks for the device's screen lock through
 [`deviceAuth.ts`](../src/lock/deviceAuth.ts), so nobody turns on a lock they
 cannot pass. A device with no screen lock gets a toast instead. Turning it off
-asks for nothing. The row is hidden on the web.
+asks for nothing.
 
 [`AppLock`](../src/lock/AppLock.tsx) covers the app with a full-screen `Modal`
 while locked. The `Modal` also covers a sheet left open, and Android back does
@@ -182,7 +179,3 @@ write ─► writes + 1 ─► sync ─► POST /sync ─► completeSync ─►
 and calls `forgetSync`, so the data stays on the device and reaches the next
 account in full. **Eliminar cuenta** asks for confirmation, deletes the account
 at the Worker and signs out the same way.
-
-The web build has no keystore and its redirect targets the app scheme, so
-[`session.web.ts`](../src/account/session.web.ts) turns accounts off there and
-Ajustes shows no Cuenta section.

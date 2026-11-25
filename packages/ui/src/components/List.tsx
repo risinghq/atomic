@@ -1,6 +1,6 @@
 import { Children, Fragment, isValidElement, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { radii, space } from '../theme/layout';
 import { useTheme } from '../theme/ThemeProvider';
 import { PressableScale } from './PressableScale';

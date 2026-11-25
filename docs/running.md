@@ -34,7 +34,7 @@ Run these inside an app directory, or from the root with `--cwd apps/<name>`.
 | `android`       | `expo run:android`, a native build on an emulator or device   |
 | `apk`           | a release APK for x86_64 emulators, built locally with Gradle |
 | `emulator`      | starts the headless test emulator, creating it on first use   |
-| `build`         | `expo export --platform web` into `dist/`                     |
+| `build`         | `expo export --platform android` into `dist/`                 |
 | `build-preview` | `eas build -p android --profile preview`                      |
 | `doctor`        | `expo-doctor`, then `expo install --check`                    |
 
@@ -51,17 +51,23 @@ packages it needs there. `build` needs no Expo account. The checks (`lint`,
 
 ## Preview builds
 
-[`apps/atomic/eas.json`](../apps/atomic/eas.json) defines three EAS Build
-profiles: `development` (a development client, internal distribution), `preview`
-(internal distribution) and `production` (auto-incrementing version). Building
-needs an [Expo](https://expo.dev) account with access to the project.
+atomic and foco each define three EAS Build profiles in their `eas.json`:
+`development` (a development client, internal distribution), `preview` (internal
+distribution) and `production` (auto-incrementing version). Building needs an
+[Expo](https://expo.dev) account in the `risinghq` organization.
+
+```bash
+bun run --cwd apps/foco build-preview
+```
+
+EAS prints a link when the build finishes. Open it on an Android phone to
+install the APK.
 
 Android release builds run R8 and shrink unused resources. The
-`expo-build-properties` entry in [`app.json`](../apps/atomic/app.json) sets
-both.
+`expo-build-properties` entry in each app's `app.json` sets both.
 
 ## Resetting local data
 
 The atomic app keeps its data in a SQLite database on the device. **Borrar todos
 los datos** in Ajustes erases it and returns to onboarding. Clearing the app's
-storage, or the site data on the web, also removes the database file.
+storage also removes the database file.

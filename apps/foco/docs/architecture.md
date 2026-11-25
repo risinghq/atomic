@@ -56,6 +56,4 @@ vibrate mode and during a call.
 [`Alarms`](../modules/voice/android/src/main/java/com/empiricalhq/foco/voice/Alarms.kt)
 keeps the pending texts in preferences and arms them again after a reboot.
 
-iOS and the web have no voice module, so Ahora hides the Voz toggle there.
-
-The web build shows the screens and stores its data, but sends no chimes.
+iOS has no voice module, so Ahora hides the Voz toggle there.

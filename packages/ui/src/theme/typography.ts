@@ -24,8 +24,7 @@ export const fontAssets = {
 
 /**
  * Every platform draws Inter, one bundled family per weight. The style sets no
- * `fontWeight`: Android would ignore the family, and a browser would
- * synthesize bold over the registered face.
+ * `fontWeight`: Android would ignore the family.
  */
 export function font(weight: FontWeight): TextStyle {
   return { fontFamily: interFamily[weight] };

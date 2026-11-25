@@ -1,6 +1,5 @@
 import { currencies, currencyChoice, hapticLevels, weekStartOf, weekStarts } from '../choices';
 import { ListRow, ListSection, SegmentedControl, Sheet, Toggle, useToast } from '@rising/ui';
-import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AccountSection } from '../account/AccountSection';
 import { useAccount } from '../account/AccountProvider';
@@ -95,31 +94,27 @@ export function SettingsScreen() {
         />
       </Field>
 
-      {Platform.OS === 'web' ? null : (
-        <Field label="Vibración">
-          <SegmentedControl
-            segments={hapticLevels}
-            value={settings.haptics}
-            onChange={(haptics) => void write((store) => store.updateSettings({ haptics }))}
-          />
-        </Field>
-      )}
+      <Field label="Vibración">
+        <SegmentedControl
+          segments={hapticLevels}
+          value={settings.haptics}
+          onChange={(haptics) => void write((store) => store.updateSettings({ haptics }))}
+        />
+      </Field>
 
       <ListSection>
         <ListRow title="Categorías" onPress={() => manageCategories.show()} />
         <ListRow title="Recurrentes" onPress={() => manageRecurring.show()} />
-        {Platform.OS === 'web' ? null : (
-          <ListRow
-            title="Bloquear la app"
-            trailing={
-              <Toggle
-                label="Bloquear la app"
-                value={settings.lock}
-                onChange={(on) => void setLock(on)}
-              />
-            }
-          />
-        )}
+        <ListRow
+          title="Bloquear la app"
+          trailing={
+            <Toggle
+              label="Bloquear la app"
+              value={settings.lock}
+              onChange={(on) => void setLock(on)}
+            />
+          }
+        />
       </ListSection>
 
       <AccountSection />

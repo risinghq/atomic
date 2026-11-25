@@ -31,8 +31,6 @@ export function AccountSection() {
   const confirmDelete = useSheet();
   const emailSignIn = useSheet();
 
-  if (!account.supported) return null;
-
   async function signIn(provider: Provider) {
     try {
       if ((await account.signIn(provider)) !== 'cancelled') toast({ text: 'Sesión iniciada' });

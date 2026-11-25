@@ -75,10 +75,7 @@
       },
       "package": "com.empiricalhq.atomic"
     },
-    "web": {
-      "bundler": "metro",
-      "output": "single"
-    },
+    "platforms": ["ios", "android"],
     "extra": {
       "eas": {
         "projectId": "e99143d8-7b52-4f07-afca-c4dad8cc4b0c"

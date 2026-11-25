@@ -1,5 +1,4 @@
 import * as Haptics from 'expo-haptics';
-import { Platform } from 'react-native';
 
 export type HapticKind = 'selection' | 'light' | 'medium' | 'success' | 'warning' | 'error';
 
@@ -40,10 +39,10 @@ function plays(kind: HapticKind): boolean {
 
 /**
  * Plays a haptic the level allows and never throws: a device without a haptic
- * engine, or the web, feels nothing.
+ * engine feels nothing.
  */
 export function haptic(kind: HapticKind = 'light'): void {
-  if (!plays(kind) || Platform.OS === 'web') return;
+  if (!plays(kind)) return;
 
   play(kind).catch(() => {});
 }

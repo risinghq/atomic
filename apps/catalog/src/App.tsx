@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   Amount,
   amountValue,
@@ -40,19 +40,10 @@ import { useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-/** On web, `?scheme=dark` or `?scheme=light` picks the scheme, for screenshots. */
-function schemeFromUrl(): ColorScheme | null {
-  const search = (globalThis as { location?: { search?: string } }).location?.search ?? '';
-  const scheme = new URLSearchParams(search).get('scheme');
-  return scheme === 'dark' || scheme === 'light' ? scheme : null;
-}
-
 export function App() {
   const [fontsLoaded] = useFonts(fontAssets);
   const system = useColorScheme();
-  const [scheme, setScheme] = useState<ColorScheme>(
-    () => schemeFromUrl() ?? (system === 'dark' ? 'dark' : 'light')
-  );
+  const [scheme, setScheme] = useState<ColorScheme>(() => (system === 'dark' ? 'dark' : 'light'));
   if (!fontsLoaded) return null;
 
   return (

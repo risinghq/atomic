@@ -2,8 +2,8 @@
 
 [![CI](https://github.com/risinghq/pocket/actions/workflows/ci.yml/badge.svg)](https://github.com/risinghq/pocket/actions/workflows/ci.yml)
 
-pocket holds small apps for iOS, Android and the web that share one set of
-components and one on-device store. Their interfaces are in Spanish.
+pocket holds small apps for iOS and Android that share one set of components and
+one on-device store. Their interfaces are in Spanish.
 
 atomic is a plain expense tracker. It records expenses and income in a few taps,
 shows where the money went, and keeps weekly or monthly budgets.
@@ -58,7 +58,7 @@ Start foco the same way with `bun run --cwd apps/foco start`.
 
 - **Chimes.** A notification every 5, 10, 15 or 25 minutes, on the clock (:00,
   :05, :10), with the time and the minutes spent on the current task. They
-  arrive with the app closed. The web build has no chimes.
+  arrive with the app closed.
 - **Timebox.** Give a task a time, and once it has run over, chimes say by how
   much, with a longer vibration.
 - **Cambié.** Answer a chime with Cambié to name the new task, or Sigo to carry

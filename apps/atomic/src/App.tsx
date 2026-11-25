@@ -1,5 +1,5 @@
 import type { Store } from '@rising/core';
-import { fontAssets, ThemeProvider, ToastProvider, type ColorScheme } from '@rising/ui';
+import { fontAssets, ThemeProvider, ToastProvider } from '@rising/ui';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -11,13 +11,6 @@ import { openAppStore } from './data/openAppStore';
 import { Root } from './Root';
 
 void SplashScreen.preventAutoHideAsync();
-
-/** On web, `?scheme=dark` or `?scheme=light` forces a scheme, for screenshots. */
-function schemeFromUrl(): ColorScheme | undefined {
-  const search = (globalThis as { location?: { search?: string } }).location?.search ?? '';
-  const scheme = new URLSearchParams(search).get('scheme');
-  return scheme === 'dark' || scheme === 'light' ? scheme : undefined;
-}
 
 /** Holds the splash screen until the fonts and the database are ready. */
 export function App() {
@@ -41,7 +34,7 @@ export function App() {
 
   return (
     <SafeAreaProvider>
-      <ThemeProvider scheme={schemeFromUrl()}>
+      <ThemeProvider>
         <ToastProvider>
           <StatusBar style="auto" />
           <DataProvider store={store}>
