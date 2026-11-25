@@ -9,7 +9,8 @@ arrive with the app closed.
 index.ts ─► App ─► FocoProvider ─► Shell ─┬─► NowScreen
                      │      │              ├─► TodayScreen
                      │      │              └─► FocusForm (sheet)
-                     │      └─ chimes.ts ─► expo-notifications
+                     │      └─ chimes.ts ─┬─► expo-notifications
+                     │                    └─► modules/voice (Android)
                      └─ store.ts (expo-sqlite)
 ```
 
@@ -22,6 +23,7 @@ index.ts ─► App ─► FocoProvider ─► Shell ─┬─► NowScreen
 | [`src/data/FocoProvider.tsx`](../src/data/FocoProvider.tsx) | The settings and the actions that change them, through `useFoco()`.                  |
 | [`src/plan.ts`](../src/plan.ts)                             | When chimes fall (interval, jitter, schedule) and what each one says.                |
 | [`src/chimes.ts`](../src/chimes.ts)                         | Asks for permission and hands the next window of chimes to the system.               |
+| [`modules/voice`](../modules/voice)                         | Speaks each chime on Android, from its own alarms.                                   |
 | [`src/timeline.ts`](../src/timeline.ts)                     | Turns the event log into the stretches Hoy lists.                                    |
 | [`src/Shell.tsx`](../src/Shell.tsx)                         | The tab bar, the active tab and the task sheet. Android back returns to Ahora first. |
 | [`src/useSwitchRequest.ts`](../src/useSwitchRequest.ts)     | Opens the task sheet when the person answers a chime with Cambié.                    |
@@ -39,5 +41,21 @@ window.
 Each chime is a date trigger on one of two Android channels: `chime`, or `over`
 once the task has run past its time. On Android 14 and later, `allowChimes` asks
 for exact alarms so a chime lands on its minute.
+
+## Voice
+
+With Voz on, each chime is also spoken. A notification runs no JavaScript when
+it fires with the app closed, so the speech is native: the Android-only module
+in [`modules/voice`](../modules/voice) arms one exact alarm per chime, 1.5
+seconds after it, with the text `chimeFor` returns as `spoken`.
+[`VoiceReceiver`](../modules/voice/android/src/main/java/com/empiricalhq/foco/voice/VoiceReceiver.kt)
+speaks it with the system's Spanish text-to-speech over the notification stream.
+It asks to duck other audio; Android 15 and later refuse that to an app in the
+background, so the voice plays over music there. It stays quiet in silent or
+vibrate mode and during a call.
+[`Alarms`](../modules/voice/android/src/main/java/com/empiricalhq/foco/voice/Alarms.kt)
+keeps the pending texts in preferences and arms them again after a reboot.
+
+iOS and the web have no voice module, so Ahora hides the Voz toggle there.
 
 The web build shows the screens and stores its data, but sends no chimes.

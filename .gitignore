@@ -4,8 +4,9 @@ dist/
 *.ps1
 
 # Expo prebuild generates these directories.
-ios
-android
+/apps/*/ios/
+/apps/*/android/
+/apps/*/modules/*/android/build/
 
 # Wrangler state, and the Env types `wrangler types` writes.
 .wrangler/

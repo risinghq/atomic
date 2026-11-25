@@ -143,28 +143,36 @@ export interface Chime {
   at: number;
   title: string;
   body: string;
+  /** The title and body as a voice reads them, with units in full. */
+  spoken: string;
   over: boolean;
 }
 
 /** The notification a chime at `at` shows. */
 export function chimeFor(at: number, focus: Focus | null): Chime {
   const title = `Son las ${clockTime(at)}`;
+  const { body, over } = progress(at, focus, () => 'min');
+  const spoken = `${title}. ${progress(at, focus, (count) => (count === 1 ? 'minuto' : 'minutos')).body}`;
 
-  if (!focus) return { at, title, body: '¿Sigues en lo que querías hacer?', over: false };
+  return { at, title, body, spoken, over };
+}
+
+function progress(
+  at: number,
+  focus: Focus | null,
+  unit: (count: number) => string
+): { body: string; over: boolean } {
+  if (!focus) return { body: '¿Sigues en lo que querías hacer?', over: false };
 
   const spent = elapsed(focus.since, at);
   const what = focus.label === '' ? '' : ` en ${focus.label}`;
 
-  if (focus.budget === null) return { at, title, body: `${spent} min${what}`, over: false };
+  if (focus.budget === null) return { body: `${spent} ${unit(spent)}${what}`, over: false };
 
   if (spent <= focus.budget) {
-    return { at, title, body: `${spent} de ${focus.budget} min${what}`, over: false };
+    return { body: `${spent} de ${focus.budget} ${unit(focus.budget)}${what}`, over: false };
   }
 
-  return {
-    at,
-    title,
-    body: `${spent - focus.budget} min más de lo previsto${what}`,
-    over: true,
-  };
+  const extra = spent - focus.budget;
+  return { body: `${extra} ${unit(extra)} más de lo previsto${what}`, over: true };
 }

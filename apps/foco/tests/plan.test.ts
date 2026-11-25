@@ -77,18 +77,28 @@ describe('chimeFor', () => {
       at: at('2026-11-23T10:05:00'),
       title: 'Son las 10:05',
       body: '¿Sigues en lo que querías hacer?',
+      spoken: 'Son las 10:05. ¿Sigues en lo que querías hacer?',
       over: false,
     });
   });
 
   it('counts minutes spent on the focus', () => {
     const focus = { label: 'correo', budget: null, since };
-    expect(chimeFor(at('2026-11-23T10:12:30'), focus).body).toBe('12 min en correo');
+    expect(chimeFor(at('2026-11-23T10:12:30'), focus)).toMatchObject({
+      body: '12 min en correo',
+      spoken: 'Son las 10:12. 12 minutos en correo',
+    });
+    expect(chimeFor(at('2026-11-23T10:01:00'), focus).spoken).toBe(
+      'Son las 10:01. 1 minuto en correo'
+    );
   });
 
   it('counts against a timebox', () => {
     const focus = { label: 'correo', budget: 25, since };
-    expect(chimeFor(at('2026-11-23T10:12:00'), focus).body).toBe('12 de 25 min en correo');
+    expect(chimeFor(at('2026-11-23T10:12:00'), focus)).toMatchObject({
+      body: '12 de 25 min en correo',
+      spoken: 'Son las 10:12. 12 de 25 minutos en correo',
+    });
     expect(chimeFor(at('2026-11-23T10:25:00'), focus).over).toBe(false);
   });
 
@@ -96,7 +106,11 @@ describe('chimeFor', () => {
     const focus = { label: '', budget: 25, since };
     expect(chimeFor(at('2026-11-23T10:40:00'), focus)).toMatchObject({
       body: '15 min más de lo previsto',
+      spoken: 'Son las 10:40. 15 minutos más de lo previsto',
       over: true,
     });
+    expect(chimeFor(at('2026-11-23T10:26:00'), focus).spoken).toBe(
+      'Son las 10:26. 1 minuto más de lo previsto'
+    );
   });
 });

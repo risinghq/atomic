@@ -12,6 +12,9 @@ import { clearShownChimes, scheduleChimes } from '../chimes';
 import type { Plan } from '../plan';
 import type { Settings, Store } from './store';
 
+/** The settings that shape the chimes, as opposed to the running session. */
+type PlanSettings = Plan & Pick<Settings, 'voice'>;
+
 /** What the person says they will do next, and for how many minutes at most. */
 export interface Intent {
   label: string;
@@ -24,7 +27,7 @@ export interface Foco {
   start: (intent: Intent) => Promise<void>;
   switchTo: (intent: Intent) => Promise<void>;
   stop: () => Promise<void>;
-  changePlan: (change: Partial<Plan>) => Promise<void>;
+  changePlan: (change: Partial<PlanSettings>) => Promise<void>;
   /** When the last event was recorded; 0 before any in this run. */
   lastChange: number;
 }
@@ -86,7 +89,7 @@ export function FocoProvider({ store, children }: { store: Store; children: Reac
   }, [store]);
 
   const changePlan = useCallback(
-    async (change: Partial<Plan>) => setSettings(await store.updateSettings(change)),
+    async (change: Partial<PlanSettings>) => setSettings(await store.updateSettings(change)),
     [store]
   );
 
