@@ -1,0 +1,19 @@
+appId: com.empiricalhq.foco
+name: Start a timeboxed task and see the next chime
+---
+- launchApp:
+    permissions:
+      notifications: allow
+
+- tapOn: 'Empezar'
+- tapOn: 'Tarea'
+- inputText: 'correo'
+- tapOn: '45 min'
+- tapOn: 'Listo'
+
+- assertVisible: 'correo'
+- assertVisible: '0 de 45 min'
+- assertVisible: 'Próximo aviso a las.*'
+
+- tapOn: 'Hoy'
+- assertVisible: 'correo'

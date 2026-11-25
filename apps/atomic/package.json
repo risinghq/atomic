@@ -12,7 +12,6 @@
     "typecheck": "tsc --noEmit",
     "test": "TZ=America/Lima jest",
     "apk": "expo prebuild -p android --no-install && cd android && ./gradlew assembleRelease -PreactNativeArchitectures=x86_64",
-    "emulator": "./scripts/emulator.sh",
     "e2e": "android --no-metrics install android/app/build/outputs/apk/release/app-release.apk && maestro test .maestro",
     "build": "expo export --platform web",
     "build-preview": "eas build -p android --profile preview",

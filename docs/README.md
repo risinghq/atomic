@@ -20,4 +20,7 @@ The atomic app has its own manual:
 2. [Data flow](../apps/atomic/docs/data-flow.md): how the app starts, and how an
    entry travels from the number pad to the store and every screen.
 
+The foco app's manual is its [architecture](../apps/foco/docs/architecture.md):
+the code map and how chimes are scheduled.
+
 [CONTRIBUTING.md](../.github/CONTRIBUTING.md) covers sending a change.

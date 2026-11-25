@@ -21,7 +21,7 @@ import {
   type SyncResult,
 } from '../sync';
 import type { Database, SqlValue } from './database';
-import { migrate } from './migrations';
+import { migrate, migrations } from './migrations';
 
 type StampRow = { updated_at: number; deleted: number };
 
@@ -163,7 +163,7 @@ export async function openStore(db: Database, { newId, now = Date.now }: StoreOp
   // build's OPFS, keeps its rollback journal.
   await db.execAsync('PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL');
 
-  await migrate(db);
+  await migrate(db, migrations);
 
   async function categories({ archived = false } = {}): Promise<Category[]> {
     const rows = await db.getAllAsync<CategoryRow>(

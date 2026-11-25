@@ -13,6 +13,8 @@ export type SegmentedControlProps<T extends string> = {
   segments: readonly Segment<T>[];
   value: T;
   onChange: (value: T) => void;
+  /** What a screen reader announces for the whole row. */
+  label?: string;
 };
 
 /** A row of choices with a pill that slides to the selected one. */
@@ -20,6 +22,7 @@ export function SegmentedControl<T extends string>({
   segments,
   value,
   onChange,
+  label,
 }: SegmentedControlProps<T>) {
   const { colors } = useTheme();
   const count = Math.max(1, segments.length);
@@ -41,7 +44,10 @@ export function SegmentedControl<T extends string>({
   );
 
   return (
-    <View accessibilityRole="tablist" style={[styles.track, { backgroundColor: colors.surface }]}>
+    <View
+      accessibilityRole="tablist"
+      accessibilityLabel={label}
+      style={[styles.track, { backgroundColor: colors.surface }]}>
       <View pointerEvents="none" style={styles.pillArea}>
         <Animated.View
           testID="segmented-pill"

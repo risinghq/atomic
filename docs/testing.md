@@ -61,32 +61,37 @@ Layout in the atomic app:
 
 ## End-to-end flows
 
-[Maestro](https://docs.maestro.dev) flows in
-[`apps/atomic/.maestro/`](../apps/atomic/.maestro) drive the installed Android
-app on a device or emulator. They cover what Jest cannot: the release build,
-Hermes, native gestures and real animations. Each flow clears the app's data
-first.
+[Maestro](https://docs.maestro.dev) flows in each app's `.maestro/` folder
+([atomic](../apps/atomic/.maestro), [foco](../apps/foco/.maestro)) drive the
+installed Android app on a device or emulator. They cover what Jest cannot: the
+release build, Hermes, native gestures, real animations and, for foco, alarms
+the system actually holds. Each flow starts from cleared app data.
 
-With the tools from `mise install`, build the release APK, start the emulator,
-then install the APK and run every flow:
+With the tools from `mise install`, build an app's release APK, start the
+emulator, then install the APK and run its flows:
 
 ```bash
-bun run --cwd apps/atomic apk
-bun run --cwd apps/atomic emulator
-bun run --cwd apps/atomic e2e
+bun run --cwd apps/foco apk
+bun run emulator
+bun run --cwd apps/foco e2e
 ```
 
 `apk` runs `expo prebuild` and Gradle, so it spends no EAS build; a cold build
 takes about five minutes. `emulator` runs
-[`scripts/emulator.sh`](../apps/atomic/scripts/emulator.sh): it installs the SDK
-packages, creates the `atomic-e2e` device (a Pixel 7 on the API 37 Automated
-Test Device image, a system image stripped of the apps that tests do not need)
-and returns once it has booted. Stop it with `android emulator stop atomic-e2e`.
+[`scripts/emulator.sh`](../scripts/emulator.sh): it installs the SDK packages,
+creates the `pocket-e2e` device (a Pixel 7 on the API 37 Automated Test Device
+image, a system image stripped of the apps that tests do not need) and returns
+once it has booted. Stop it with `android emulator stop pocket-e2e`.
 `bun run check` does not run these flows.
 
-In CI, [`e2e.yml`](../.github/workflows/e2e.yml) runs the same three scripts on
-every change under `apps/atomic` or `packages`. A failed run uploads Maestro's
-screenshots and logs as the `maestro` artifact.
+foco's `e2e` runs [`scripts/e2e.sh`](../apps/foco/scripts/e2e.sh). It grants
+exact alarms with `appops` before the flows, since Android 14 denies them to a
+new install, and fails unless `dumpsys alarm` lists the app's chimes afterwards.
+
+In CI, [`e2e.yml`](../.github/workflows/e2e.yml) runs the same three scripts for
+each app on every change under `apps/atomic`, `apps/foco`, `packages` or the
+emulator script. A failed run uploads Maestro's screenshots and logs as the
+`maestro-<app>` artifact.
 
 ## Lint and format
 

@@ -95,15 +95,18 @@ export const migrations: readonly string[] = [
   `,
 ];
 
-/** Brings the schema to the latest version. SQLite's `user_version` holds the current one. */
-export async function migrate(db: Database): Promise<void> {
+/**
+ * Brings the schema to the last of `list`. SQLite's `user_version` holds how
+ * many of them have run, so a list only ever grows at its end.
+ */
+export async function migrate(db: Database, list: readonly string[]): Promise<void> {
   const row = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version', []);
   const current = row?.user_version ?? 0;
 
-  for (let version = current; version < migrations.length; version += 1) {
+  for (let version = current; version < list.length; version += 1) {
     // oxlint-disable-next-line no-await-in-loop -- each migration builds on the schema the last one left.
     await db.withTransactionAsync(async () => {
-      await db.execAsync(migrations[version] ?? '');
+      await db.execAsync(list[version] ?? '');
       await db.execAsync(`PRAGMA user_version = ${version + 1}`);
     });
   }

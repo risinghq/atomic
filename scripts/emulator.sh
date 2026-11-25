@@ -3,7 +3,7 @@
 # on first use. mise.toml supplies java, android and ANDROID_HOME.
 set -eu
 
-avd=atomic-e2e
+avd=pocket-e2e
 image=system-images/android-37.0/aosp_atd/x86_64
 
 # avdmanager writes AVDs under $XDG_CONFIG_HOME/.android when that variable is
