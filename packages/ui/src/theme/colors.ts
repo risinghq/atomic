@@ -5,12 +5,16 @@ export type Colors = {
   background: string;
   /** Cards, keys and filled controls on `background`. */
   surface: string;
-  /** Background of grouped lists and the sheets that hold them. */
-  surfaceGrouped: string;
+  /** Grouped list sections and cards that sit on `background`. */
+  card: string;
   text: string;
   textMuted: string;
   textFaint: string;
   border: string;
+  /** The empty part of a toggle, progress bar or chart bar. */
+  track: string;
+  /** A control lifted off `surface`, such as the selected segment. */
+  raised: string;
   /** The primary action fill, such as the add button and the confirm key. */
   accent: string;
   onAccent: string;
@@ -30,11 +34,13 @@ export const palettes: Record<ColorScheme, Colors> = {
   light: {
     background: '#FFFFFF',
     surface: '#F6F6F6',
-    surfaceGrouped: '#FBFBFB',
+    card: '#F7F7F7',
     text: '#010101',
     textMuted: '#A6A6A6',
     textFaint: '#C7C7CC',
     border: '#ECF0F4',
+    track: '#E9E9EB',
+    raised: '#FFFFFF',
     accent: '#3C3C3C',
     onAccent: '#FFFFFF',
     icon: '#3D3D3D',
@@ -51,11 +57,13 @@ export const palettes: Record<ColorScheme, Colors> = {
   dark: {
     background: '#000000',
     surface: '#2C2C2E',
-    surfaceGrouped: '#1C1C1E',
+    card: '#1C1C1E',
     text: '#FFFFFF',
     textMuted: '#8E8E93',
     textFaint: '#636366',
     border: '#38383A',
+    track: '#39393D',
+    raised: '#636366',
     accent: '#FFFFFF',
     onAccent: '#1C1C1E',
     icon: '#FBFBFB',
@@ -70,3 +78,22 @@ export const palettes: Record<ColorScheme, Colors> = {
     overBudget: '#F17879',
   },
 };
+
+/**
+ * Fills for category tiles and chart segments. They read on both schemes, so
+ * they do not change with it.
+ */
+export const tints = {
+  red: '#FF6B5E',
+  orange: '#FF9F43',
+  yellow: '#FDCC41',
+  green: '#34D399',
+  teal: '#2DD4BF',
+  blue: '#4F8EF7',
+  indigo: '#7C83FD',
+  purple: '#B57BFF',
+  pink: '#FF6FAE',
+  grey: '#A6A6A6',
+} as const;
+
+export type Tint = keyof typeof tints;

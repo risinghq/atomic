@@ -22,6 +22,8 @@ vi.mock('expo-haptics', () => ({
   NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
 }));
 
+vi.mock('@expo/vector-icons', () => ({ Ionicons: () => null }));
+
 vi.mock('@expo-google-fonts/nunito', () => ({
   Nunito_400Regular: 'Nunito_400Regular.ttf',
   Nunito_500Medium: 'Nunito_500Medium.ttf',
