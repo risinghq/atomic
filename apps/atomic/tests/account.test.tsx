@@ -91,6 +91,32 @@ describe('signing in', () => {
     );
   });
 
+  it('keeps onboarding open when the connection drops before the first sync', async () => {
+    const user = userEvent.setup();
+    const store = await freshStore({ onboarded: false });
+
+    cloud.push(ANA, { settings: [{ key: 'currency', value: '"USD"', updatedAt: 50 }] });
+    cloud.dropsAfterSignIn = true;
+    await renderWith(store, <Root />);
+
+    await user.press(await screen.findByRole('button', { name: 'Continuar con Google' }));
+
+    expect(
+      await screen.findByText('No se pudo iniciar sesión. Revisa tu conexión.')
+    ).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Continuar con Google' })).toBeOnTheScreen();
+    expect(keystore.has('session')).toBe(false);
+    expect(await store.settings()).toMatchObject({ onboarded: false });
+
+    cloud.online = true;
+    cloud.dropsAfterSignIn = false;
+    await user.press(screen.getByRole('button', { name: 'Continuar con Google' }));
+
+    await waitFor(async () =>
+      expect(await store.settings()).toMatchObject({ onboarded: true, currency: 'USD' })
+    );
+  });
+
   it('changes nothing when the person closes the browser', async () => {
     const store = await freshStore();
     cloud.signingInAs = null;

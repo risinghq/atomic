@@ -45,6 +45,9 @@ export class FakeCloud {
   /** When false, every request fails as if the phone had no connection. */
   online = true;
 
+  /** When true, the connection drops as soon as a sign-in hands out its session. */
+  dropsAfterSignIn = false;
+
   /** The most records one sync hands back. */
   pageSize = 2000;
 
@@ -156,6 +159,8 @@ export class FakeCloud {
       if (!login || login.challenge !== hash) return { status: 400 };
 
       this.logins.delete(body.code);
+
+      if (this.dropsAfterSignIn) this.online = false;
 
       return { status: 200, body: this.session(login.email) };
     }

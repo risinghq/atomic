@@ -48,7 +48,7 @@ export function AccountProvider({ store, children }: { store: Store; children: R
   const toast = useToast();
   const [session, setSession] = useState<api.Session | null>(null);
   const [status, setStatus] = useState<SyncStatus>('idle');
-  const running = useRef<Promise<number> | null>(null);
+  const running = useRef<Promise<number | null> | null>(null);
   const again = useRef(false);
 
   useEffect(() => {
@@ -63,15 +63,17 @@ export function AccountProvider({ store, children }: { store: Store; children: R
     setStatus('idle');
   }, [store]);
 
+  /** Resolves to how many records arrived, or null when the sync failed. */
   const sync = useCallback(
-    async (token: string): Promise<number> => {
+    async (token: string): Promise<number | null> => {
       if (running.current) {
         again.current = true;
         return running.current.then(() => 0);
       }
 
-      async function run(): Promise<number> {
+      async function run(): Promise<number | null> {
         let received = 0;
+        let failed = false;
 
         setStatus('syncing');
 
@@ -85,6 +87,8 @@ export function AccountProvider({ store, children }: { store: Store; children: R
 
           setStatus('idle');
         } catch (error) {
+          failed = true;
+
           if (error instanceof api.SignedOut) {
             await leave();
             toast({ text: 'Tu sesión terminó. Los datos siguen en este dispositivo.' });
@@ -93,9 +97,10 @@ export function AccountProvider({ store, children }: { store: Store; children: R
           }
         }
 
-        if (received > 0) await reload();
+        // A failed sync may have stored some pages before it stopped.
+        if (received > 0 || failed) await reload();
 
-        return received;
+        return failed ? null : received;
       }
 
       running.current = run();
@@ -134,15 +139,22 @@ export function AccountProvider({ store, children }: { store: Store; children: R
 
       if (!started) return 'cancelled';
 
-      await saveSession(started);
-
+      // Whether the account already holds data decides what onboarding keeps,
+      // so the sign-in only counts once the first sync has answered.
       const received = await sync(started.token);
 
+      if (received === null) {
+        await api.endSession(started.token).catch(() => undefined);
+        await leave();
+        throw new Error('The first sync after signing in failed');
+      }
+
+      await saveSession(started);
       setSession(started);
 
       return received > 0 ? 'returning' : 'new';
     },
-    [sync]
+    [sync, leave]
   );
 
   const signOut = useCallback(async () => {
