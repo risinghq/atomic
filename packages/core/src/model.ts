@@ -44,10 +44,13 @@ export type Settings = {
   /** An ISO 4217 code. */
   currency: string;
   onboarded: boolean;
+  /** Whether saving, switching tabs and toggling play a haptic. */
+  haptics: boolean;
 };
 
 export const defaultSettings: Settings = {
   weekStart: 1,
   currency: 'PEN',
   onboarded: false,
+  haptics: true,
 };

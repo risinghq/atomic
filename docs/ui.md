@@ -2,8 +2,8 @@
 
 `@atomic/ui` holds the theme and components every app shares. The look is quiet
 and rounded: white or pure-black screens, soft grey surfaces, one dark accent
-for the primary action, green for income, and rounded type throughout. The
-palette, sizes and motion follow the design of the
+for the primary action, green for income, and Inter throughout. The palette,
+sizes and motion follow the design of the
 [Dime](https://github.com/rafsoh/dimeApp) iOS app. Dime is GPL-3.0, so this
 package reuses only its design values and none of its code or assets.
 
@@ -38,7 +38,7 @@ plain style objects.
 | Token         | Source                                                    | Use                                                                                       |
 | ------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | `colors`      | [`colors.ts`](../packages/ui/src/theme/colors.ts)         | Semantic colors per scheme. Components never use a hex value.                             |
-| `textStyle()` | [`typography.ts`](../packages/ui/src/theme/typography.ts) | Size, line height and rounded face for a text variant.                                    |
+| `textStyle()` | [`typography.ts`](../packages/ui/src/theme/typography.ts) | Size, line height, Inter weight and tracking for a text variant.                          |
 | `space`       | [`layout.ts`](../packages/ui/src/theme/layout.ts)         | Padding and gaps on a 4-point grid.                                                       |
 | `radii`       | [`layout.ts`](../packages/ui/src/theme/layout.ts)         | Corner radii, from 6 for chips to `full` for pills.                                       |
 | `springs`     | [`motion.ts`](../packages/ui/src/theme/motion.ts)         | `snappy` for presses, `smooth` for things moving into place, `gentle` for large surfaces. |
@@ -47,11 +47,20 @@ plain style objects.
 
 ### Type
 
-iOS draws SF Rounded through the `ui-rounded` system family. Android and web
-have no rounded system face, so they use Nunito, one family per weight. The text
-variants follow the iOS Dynamic Type sizes, plus `display` (56) and `amount`
-(34) for money. Apply `tabularNumbers` to any amount so its digits keep the same
-width.
+Every platform draws Inter, one family per weight, so a screen looks the same on
+iOS, Android and web. The text variants follow the iOS Dynamic Type sizes, plus
+three for money: `hero` (65) for the month's total, `display` (56) for the
+amount being typed and `amount` (34) for a total inside a card. Each variant
+carries Inter's [dynamic tracking](https://rsms.me/inter/dynmetrics/) for its
+size: neutral at caption size, tighter as the text grows. Apply `tabularNumbers`
+to any amount so its digits keep the same width.
+
+### Haptics
+
+A haptic marks a commit, not a touch. Confirming an amount, switching tabs,
+opening the add screen, changing a segment or a toggle, and a toast play one. A
+plain press on a row, card or key plays none. `setHapticsEnabled(false)` turns
+them all off; the app calls it from the user's Vibración setting.
 
 ### Springs
 
@@ -72,11 +81,11 @@ category colors an `IconTile` sits on; they are the same in both schemes.
 | Component                     | Use                                                                                                                                                                |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `Text`                        | Any text. Takes a `variant`, `weight`, color name and `tabular`.                                                                                                   |
-| `PressableScale`              | The base of every tappable control: shrinks on a spring while held and plays a haptic on press.                                                                    |
+| `PressableScale`              | The base of every tappable control: shrinks on a spring while held. `feedback` adds a haptic on press.                                                             |
 | `Button`                      | `primary` (dark accent), `secondary` (grey) or `plain`, in `regular` or `small` (pill) size.                                                                       |
 | `IconTile`                    | A rounded square with an emoji or icon on a tint, for categories and settings rows.                                                                                |
 | `Amount`, `amountParts()`     | Money in the app's currency. At `amount` size and above, the sign and symbol shrink and turn grey beside the number.                                               |
-| `ListSection`, `ListRow`      | A titled grey card of rows with hairlines between them. A row with `onPress` shows a chevron.                                                                      |
+| `ListSection`, `ListRow`      | A titled grey card of 48-point rows with hairlines between them. A row with `onPress` shows a chevron.                                                             |
 | `TransactionRow`, `DayHeader` | One transaction with its category tile and amount; income shows green with a `+`. A day header shows the day and its total.                                        |
 | `SegmentedControl`            | Two to four choices on a grey track; the selected pill slides on a spring.                                                                                         |
 | `Toggle`                      | An on/off switch, green when on.                                                                                                                                   |

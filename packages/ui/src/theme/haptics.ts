@@ -20,11 +20,19 @@ function play(kind: HapticKind): Promise<void> {
   }
 }
 
+let enabled = true;
+
+/** Turns every haptic on or off; the app sets it from the user's setting. */
+export function setHapticsEnabled(on: boolean): void {
+  enabled = on;
+}
+
 /**
  * Plays a haptic and never throws: a device without a haptic engine, or the
- * web, simply feels nothing.
+ * web, feels nothing.
  */
 export function haptic(kind: HapticKind = 'light'): void {
-  if (Platform.OS === 'web') return;
+  if (!enabled || Platform.OS === 'web') return;
+
   play(kind).catch(() => {});
 }

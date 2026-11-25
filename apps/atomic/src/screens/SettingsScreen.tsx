@@ -1,5 +1,5 @@
 import { currencies, currencyChoice, weekStartOf, weekStarts } from '../choices';
-import { ListRow, ListSection, SegmentedControl, Sheet, useToast } from '@atomic/ui';
+import { ListRow, ListSection, SegmentedControl, Sheet, Toggle, useToast } from '@atomic/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Field } from '../components/Field';
 import { Screen } from '../components/Screen';
@@ -8,7 +8,7 @@ import { useData } from '../data/DataProvider';
 import { shareCsv } from '../data/shareCsv';
 import { useSheet } from '../useSheet';
 
-/** The currency, the first day of the week, and the export and erasing of the data. */
+/** The currency, the first day of the week, haptics, and the export and erasing of the data. */
 export function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { settings, transactions, categories, write } = useData();
@@ -57,6 +57,19 @@ export function SettingsScreen() {
           }
         />
       </Field>
+
+      <ListSection>
+        <ListRow
+          title="Vibración"
+          trailing={
+            <Toggle
+              label="Vibración"
+              value={settings.haptics}
+              onChange={(haptics) => void write((store) => store.updateSettings({ haptics }))}
+            />
+          }
+        />
+      </ListSection>
 
       <ListSection title="Datos" footer="Los datos solo se guardan en este dispositivo.">
         <ListRow title="Exportar CSV" onPress={() => void exportCsv()} />

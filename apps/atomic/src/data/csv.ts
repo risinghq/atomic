@@ -10,7 +10,7 @@ export const bom = String.fromCodePoint(0xfe_ff);
 
 /** Every transaction as RFC 4180 CSV, oldest first, amounts with a dot decimal. */
 export function toCsv(transactions: readonly Transaction[], categories: readonly Category[]) {
-  const sorted = transactions.toSorted((a, b) => a.at - b.at);
+  const sorted = [...transactions].sort((a, b) => a.at - b.at);
 
   const rows = sorted.map((transaction) => [
     localStamp(transaction.at),

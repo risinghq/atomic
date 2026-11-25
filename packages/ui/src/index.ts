@@ -24,7 +24,7 @@ export {
   springs,
   type PhysicsSpring,
 } from './theme/motion';
-export { haptic, type HapticKind } from './theme/haptics';
+export { haptic, setHapticsEnabled, type HapticKind } from './theme/haptics';
 export { ThemeProvider, useTheme, type Theme } from './theme/ThemeProvider';
 
 export { Text, type ColorName, type TextProps } from './components/Text';

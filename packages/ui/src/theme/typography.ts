@@ -1,47 +1,49 @@
-import {
-  Nunito_400Regular,
-  Nunito_500Medium,
-  Nunito_600SemiBold,
-  Nunito_700Bold,
-} from '@expo-google-fonts/nunito';
-import { Platform, type TextStyle } from 'react-native';
+// One subpath per weight: the package index requires all 18 font files.
+import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
+import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
+import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
+import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
+import type { TextStyle } from 'react-native';
 
 export type FontWeight = 'regular' | 'medium' | 'semibold' | 'bold';
 
-const numericWeight: Record<FontWeight, TextStyle['fontWeight']> = {
-  regular: '400',
-  medium: '500',
-  semibold: '600',
-  bold: '700',
+const interFamily: Record<FontWeight, string> = {
+  regular: 'Inter_400Regular',
+  medium: 'Inter_500Medium',
+  semibold: 'Inter_600SemiBold',
+  bold: 'Inter_700Bold',
 };
 
-const nunitoFamily: Record<FontWeight, string> = {
-  regular: 'Nunito_400Regular',
-  medium: 'Nunito_500Medium',
-  semibold: 'Nunito_600SemiBold',
-  bold: 'Nunito_700Bold',
-};
-
-/** Pass to `useFonts` from expo-font before rendering text on Android and web. */
+/** Pass to `useFonts` from expo-font before rendering any text. */
 export const fontAssets = {
-  [nunitoFamily.regular]: Nunito_400Regular,
-  [nunitoFamily.medium]: Nunito_500Medium,
-  [nunitoFamily.semibold]: Nunito_600SemiBold,
-  [nunitoFamily.bold]: Nunito_700Bold,
+  [interFamily.regular]: Inter_400Regular,
+  [interFamily.medium]: Inter_500Medium,
+  [interFamily.semibold]: Inter_600SemiBold,
+  [interFamily.bold]: Inter_700Bold,
 };
 
 /**
- * iOS draws the system rounded face (SF Rounded) and picks the weight itself.
- * Android and web have no rounded system face, so they use one bundled Nunito
- * family per weight. They get no `fontWeight`: Android would ignore the family,
- * and a browser would synthesize bold over the registered face.
+ * Every platform draws Inter, one bundled family per weight. The style sets no
+ * `fontWeight`: Android would ignore the family, and a browser would
+ * synthesize bold over the registered face.
  */
-export function font(weight: FontWeight, os: typeof Platform.OS = Platform.OS): TextStyle {
-  if (os === 'ios') return { fontFamily: 'ui-rounded', fontWeight: numericWeight[weight] };
-  return { fontFamily: nunitoFamily[weight] };
+export function font(weight: FontWeight): TextStyle {
+  return { fontFamily: interFamily[weight] };
+}
+
+/**
+ * Inter's recommended tracking for a size, in points: about zero at 12 and
+ * tighter as the size grows, which keeps large amounts compact.
+ * https://rsms.me/inter/dynmetrics/
+ */
+export function tracking(fontSize: number): number {
+  const em = -0.0223 + 0.185 * Math.exp(-0.1745 * fontSize);
+
+  return Math.round(em * fontSize * 100) / 100;
 }
 
 export type TextVariant =
+  | 'hero'
   | 'display'
   | 'amount'
   | 'largeTitle'
@@ -58,8 +60,13 @@ export type TextVariant =
 
 type VariantSpec = { fontSize: number; lineHeight: number; weight: FontWeight };
 
-/** Sizes follow the iOS default Dynamic Type scale; the first two are for money. */
+/**
+ * Sizes follow the iOS default Dynamic Type scale, as Dime's do. The first
+ * three are for money: `hero` is the month's total, `display` the amount being
+ * typed, `amount` a total inside a card.
+ */
 export const textVariants: Record<TextVariant, VariantSpec> = {
+  hero: { fontSize: 65, lineHeight: 72, weight: 'regular' },
   display: { fontSize: 56, lineHeight: 64, weight: 'regular' },
   amount: { fontSize: 34, lineHeight: 41, weight: 'medium' },
   largeTitle: { fontSize: 34, lineHeight: 41, weight: 'bold' },
@@ -77,9 +84,11 @@ export const textVariants: Record<TextVariant, VariantSpec> = {
 
 export function textStyle(variant: TextVariant, weight?: FontWeight): TextStyle {
   const spec = textVariants[variant];
+
   return {
     fontSize: spec.fontSize,
     lineHeight: spec.lineHeight,
+    letterSpacing: tracking(spec.fontSize),
     ...font(weight ?? spec.weight),
   };
 }

@@ -24,9 +24,11 @@ vi.mock('expo-haptics', () => ({
 
 vi.mock('@expo/vector-icons', () => ({ Ionicons: () => null }));
 
-vi.mock('@expo-google-fonts/nunito', () => ({
-  Nunito_400Regular: 'Nunito_400Regular.ttf',
-  Nunito_500Medium: 'Nunito_500Medium.ttf',
-  Nunito_600SemiBold: 'Nunito_600SemiBold.ttf',
-  Nunito_700Bold: 'Nunito_700Bold.ttf',
+vi.mock('@expo-google-fonts/inter/400Regular', () => ({
+  Inter_400Regular: 'Inter_400Regular.ttf',
 }));
+vi.mock('@expo-google-fonts/inter/500Medium', () => ({ Inter_500Medium: 'Inter_500Medium.ttf' }));
+vi.mock('@expo-google-fonts/inter/600SemiBold', () => ({
+  Inter_600SemiBold: 'Inter_600SemiBold.ttf',
+}));
+vi.mock('@expo-google-fonts/inter/700Bold', () => ({ Inter_700Bold: 'Inter_700Bold.ttf' }));

@@ -41,23 +41,22 @@ export function TransactionRow({
       onPress={onPress}
       onLongPress={onLongPress}
       disabled={!interactive}
-      feedback={interactive ? 'light' : false}
       scaleTo={0.98}
       style={styles.row}>
-      <IconTile icon={emoji} color={color} size={40} />
+      <IconTile icon={emoji} color={color} size={44} />
       <View style={styles.text}>
-        <Text variant="callout" weight="medium" numberOfLines={1}>
+        <Text variant="body" weight="medium" numberOfLines={1}>
           {title}
         </Text>
         {subtitle ? (
-          <Text variant="caption" color="textMuted" numberOfLines={1}>
+          <Text variant="subheadline" weight="medium" color="textMuted" numberOfLines={1}>
             {subtitle}
           </Text>
         ) : null}
       </View>
       <Amount
         value={amount}
-        variant="callout"
+        variant="title3"
         tone={income ? 'income' : 'default'}
         sign={income ? 'always' : 'negative'}
         {...format}
@@ -76,10 +75,10 @@ export type DayHeaderProps = {
 export function DayHeader({ title, total, format }: DayHeaderProps) {
   return (
     <View style={styles.header}>
-      <Text variant="caption" weight="semibold" color="textMuted" style={styles.headerTitle}>
-        {title.toUpperCase()}
+      <Text variant="callout" weight="semibold" color="textMuted" numberOfLines={1}>
+        {title}
       </Text>
-      <Amount value={total} variant="caption" tone="muted" sign="always" {...format} />
+      <Amount value={total} variant="callout" tone="muted" sign="always" {...format} />
     </View>
   );
 }
@@ -99,5 +98,4 @@ const styles = StyleSheet.create({
     paddingTop: space.lg,
     paddingBottom: space.xs,
   },
-  headerTitle: { letterSpacing: 0.4 },
 });

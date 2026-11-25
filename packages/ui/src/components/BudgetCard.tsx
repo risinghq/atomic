@@ -57,7 +57,6 @@ export function BudgetCard({
       onPress={onPress}
       onLongPress={onLongPress}
       disabled={!interactive}
-      feedback={interactive ? 'light' : false}
       scaleTo={0.98}
       style={[styles.card, styles.tile, { backgroundColor: colors.card }]}>
       <View style={styles.title}>
@@ -147,7 +146,6 @@ export function BudgetSummaryCard({
       onPress={onPress}
       onLongPress={onLongPress}
       disabled={!interactive}
-      feedback={interactive ? 'light' : false}
       scaleTo={0.98}
       style={[styles.card, styles.summary, { backgroundColor: colors.card }]}>
       <View style={styles.spread}>

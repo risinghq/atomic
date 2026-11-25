@@ -83,7 +83,7 @@ export function LogScreen({
           <Amount
             value={fromCents(net)}
             currency={settings.currency}
-            variant="display"
+            variant="hero"
             sign="always"
           />
         </View>

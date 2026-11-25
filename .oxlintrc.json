@@ -18,7 +18,9 @@
     "react/require-render-return": "error",
     "react/no-unescaped-entities": "error",
     "import/export": "error",
-    "no-var": "error"
+    "no-var": "error",
+    // Hermes has no Array#toSorted, the method this rule asks for.
+    "unicorn/no-array-sort": "off"
   },
   "ignorePatterns": ["dist/*"],
   "env": {

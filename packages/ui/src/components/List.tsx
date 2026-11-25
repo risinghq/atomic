@@ -19,7 +19,7 @@ export function ListSection({ title, footer, children }: ListSectionProps) {
   return (
     <View style={styles.section}>
       {title ? (
-        <Text variant="caption" weight="semibold" color="textMuted" style={styles.title}>
+        <Text variant="subheadline" weight="semibold" color="textMuted" style={styles.title}>
           {title.toUpperCase()}
         </Text>
       ) : null}
@@ -69,7 +69,7 @@ export function ListRow({
     <>
       {leading}
       <View style={styles.text}>
-        <Text variant="callout" color={destructive ? 'danger' : 'text'} numberOfLines={1}>
+        <Text variant="body" color={destructive ? 'danger' : 'text'} numberOfLines={1}>
           {title}
         </Text>
         {subtitle ? (
@@ -81,7 +81,7 @@ export function ListRow({
       {trailing ?? (
         <>
           {value ? (
-            <Text variant="callout" color="textMuted">
+            <Text variant="body" color="textMuted">
               {value}
             </Text>
           ) : null}
@@ -99,18 +99,21 @@ export function ListRow({
   );
 }
 
+// From the card's edge to its rows, title and footer.
+const ROW_INSET = 14;
+
 const styles = StyleSheet.create({
   section: { gap: space.sm },
-  title: { paddingHorizontal: space.lg, letterSpacing: 0.4 },
-  card: { borderRadius: radii.lg, overflow: 'hidden' },
-  separator: { height: StyleSheet.hairlineWidth, marginLeft: space.lg },
-  footer: { paddingHorizontal: space.lg },
+  title: { paddingHorizontal: ROW_INSET },
+  card: { borderRadius: radii.xl, overflow: 'hidden' },
+  separator: { height: StyleSheet.hairlineWidth, marginLeft: ROW_INSET },
+  footer: { paddingHorizontal: ROW_INSET },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.md,
-    minHeight: 52,
-    paddingHorizontal: space.lg,
+    minHeight: 48,
+    paddingHorizontal: ROW_INSET,
     paddingVertical: space.sm,
   },
   text: { flex: 1, gap: 1 },
