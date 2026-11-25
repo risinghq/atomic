@@ -26,6 +26,7 @@ export function ProgressBar({ progress, color, height = 8, label }: ProgressBarP
 
   return (
     <View
+      accessible
       accessibilityRole="progressbar"
       accessibilityLabel={label}
       aria-valuemin={0}

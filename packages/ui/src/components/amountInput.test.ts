@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from '@jest/globals';
 import { amountValue, applyKey, type PadKey } from './amountInput';
 
 const type = (keys: PadKey[]) => keys.reduce(applyKey, '');

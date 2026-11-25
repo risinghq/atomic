@@ -138,12 +138,10 @@ browser driver that waits in real time, such as Playwright.
 
 ## Testing
 
-The package's tests render through `react-native-web` in jsdom, so a test sees
-the real DOM a component produces.
-[`tests/setup.ts`](../packages/ui/tests/setup.ts) stubs the Expo native modules
-and the icon font, which need a device.
+[`docs/testing.md`](testing.md) describes how the tests run. A component test
+renders a small harness that uses the component as a screen would, and asserts
+what a user sees or what a screen reader announces.
 
-The tests run without Reanimated's Babel plugin, so every `useAnimatedStyle`
-passes its dependency array. Reanimated keeps the frame scheduler it finds at
-import, so fake timers cannot drive an animation; a test of one uses real timers
-and a short duration.
+Reanimated's animated styles do not reach the rendered tree under Jest, so a
+test cannot see an element fade or slide. A test of a timed component, such as
+the toast, uses real timers and a short duration.

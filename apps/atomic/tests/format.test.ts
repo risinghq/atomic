@@ -1,5 +1,5 @@
 import { periodOf, shiftPeriod, type Transaction } from '@atomic/core';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from '@jest/globals';
 import { budgetLine, dayTitle, daysLeft, groupByDay, periodTitle } from '../src/format';
 
 // Wednesday 25 November 2026, noon local time.

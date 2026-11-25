@@ -122,6 +122,7 @@ function ToastView({
   return (
     <View pointerEvents="none" style={[styles.layer, { bottom: bottomOffset }]}>
       <Animated.View
+        accessible
         accessibilityRole="alert"
         accessibilityLiveRegion="polite"
         style={[styles.toast, { backgroundColor: colors.accent }, style]}>

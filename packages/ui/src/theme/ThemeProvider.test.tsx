@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from '@jest/globals';
+import { render, screen } from '@testing-library/react-native';
 import { Text } from 'react-native';
-import { describe, expect, it } from 'vitest';
 import { palettes } from './colors';
 import { ThemeProvider, useTheme } from './ThemeProvider';
 
@@ -10,17 +10,19 @@ function Probe() {
 }
 
 describe('ThemeProvider', () => {
-  it('gives its subtree the forced scheme and its palette', () => {
-    render(
+  it('gives its subtree the forced scheme and its palette', async () => {
+    await render(
       <ThemeProvider scheme="dark">
         <Probe />
       </ThemeProvider>
     );
-    expect(screen.getByText(`dark ${palettes.dark.background}`)).toBeTruthy();
+
+    expect(screen.getByText(`dark ${palettes.dark.background}`)).toBeOnTheScreen();
   });
 
-  it('follows the system scheme outside a provider', () => {
-    render(<Probe />);
-    expect(screen.getByText(`light ${palettes.light.background}`)).toBeTruthy();
+  it('follows the system scheme outside a provider', async () => {
+    await render(<Probe />);
+
+    expect(screen.getByText(`light ${palettes.light.background}`)).toBeOnTheScreen();
   });
 });

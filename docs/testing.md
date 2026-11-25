@@ -13,28 +13,33 @@ bun run check
 
 ## Tests
 
-`bun run test` runs each workspace's `test` script, which is `vitest run`. It
-finds every `*.test.ts` and `*.test.tsx` in that workspace and exits non-zero if
-one fails.
+`bun run test` runs each workspace's `test` script and exits non-zero if a test
+fails. `apps/atomic` and `packages/ui` run Jest with the `jest-expo` preset
+([`jest.config.js`](../apps/atomic/jest.config.js)). `packages/core` holds no
+React Native code and runs Vitest.
 
 One workspace, one file or one directory:
 
 ```bash
 bun run --cwd apps/atomic test
 cd packages/core && bunx vitest run tests/period.test.ts
-cd apps/atomic && TZ=America/Lima bunx vitest run tests/app.test.tsx
+cd apps/atomic && TZ=America/Lima bunx jest tests/app.test.tsx
 ```
+
+The React Native tests act as a user. They render components with
+[React Native Testing Library](https://callstack.github.io/react-native-testing-library/),
+find elements by role, label or visible text, as a screen reader would, and
+press and type through `userEvent`. They assert what the user sees and what the
+store holds, not styles or props. They mock no module: `jest-expo` replaces each
+Expo native module with a recorder, and a test reads that recorder.
 
 Layout in the atomic app:
 
 - Tests live in [`tests/`](../apps/atomic/tests). `app.test.tsx` drives the real
   screens: onboarding, adding and deleting an entry, creating a budget, the CSV
-  export and erasing the data. It mocks `shareCsv`, which needs the Expo
-  runtime. `format.test.ts` covers the labels in `src/format.ts`, and
+  export and erasing the data. The export test reads the file handed to the
+  share sheet. `format.test.ts` covers the labels in `src/format.ts`, and
   `csv.test.ts` the CSV in `src/data/csv.ts`.
-- The tests render through react-native-web under jsdom
-  ([`vitest.config.mts`](../apps/atomic/vitest.config.mts)), so they query the
-  DOM by role and label.
 - [`tests/render.tsx`](../apps/atomic/tests/render.tsx) opens a real store on
   `memoryDatabase` from `@atomic/core/testing` and wraps a screen in the theme,
   toast and data providers.
