@@ -1,4 +1,22 @@
-import type { WeekStart } from '@atomic/core';
+import type { Every, WeekStart } from '@atomic/core';
+
+/** How often a new transaction repeats. Daily repeats are left out: nobody pays rent daily. */
+export const repeats = [
+  { value: 'never', label: 'No' },
+  { value: 'week', label: 'Semanal' },
+  { value: 'month', label: 'Mensual' },
+  { value: 'year', label: 'Anual' },
+] as const satisfies readonly { value: Every | 'never'; label: string }[];
+
+export type Repeat = (typeof repeats)[number]['value'];
+
+/** "Cada semana", for a recurring transaction's line. */
+export const everyLabel: Record<Every, string> = {
+  day: 'Cada día',
+  week: 'Cada semana',
+  month: 'Cada mes',
+  year: 'Cada año',
+};
 
 /** The currencies offered at setup and in Ajustes, as ISO 4217 codes. */
 export const currencies = [

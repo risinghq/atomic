@@ -9,15 +9,17 @@ import { Screen } from '../components/Screen';
 import { csvName, toCsv } from '../data/csv';
 import { useData } from '../data/DataProvider';
 import { shareCsv } from '../data/shareCsv';
+import { RecurringList } from '../recurring/RecurringList';
 import { useSheet } from '../useSheet';
 
-/** The currency, the first day of the week, categories, haptics, the account, and the export and erasing of the data. */
+/** The currency, the first day of the week, categories, recurring transactions, haptics, the account, and the export and erasing of the data. */
 export function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { settings, transactions, categories, write } = useData();
   const toast = useToast();
   const confirmErase = useSheet();
   const manageCategories = useSheet();
+  const manageRecurring = useSheet();
   const account = useAccount();
   const signedIn = account.email !== null;
 
@@ -74,6 +76,7 @@ export function SettingsScreen() {
 
       <ListSection>
         <ListRow title="Categorías" onPress={() => manageCategories.show()} />
+        <ListRow title="Recurrentes" onPress={() => manageRecurring.show()} />
         <ListRow
           title="Vibración"
           trailing={
@@ -108,6 +111,14 @@ export function SettingsScreen() {
       </Sheet>
 
       <Sheet
+        visible={manageRecurring.open}
+        onClose={manageRecurring.hide}
+        title="Recurrentes"
+        bottomInset={insets.bottom}>
+        <RecurringList key={manageRecurring.session} />
+      </Sheet>
+
+      <Sheet
         visible={confirmErase.open}
         onClose={confirmErase.hide}
         title="¿Borrar todos los datos?"
@@ -115,8 +126,8 @@ export function SettingsScreen() {
         <ListSection
           footer={
             signedIn
-              ? 'Se borran los movimientos, los presupuestos y los ajustes de este dispositivo y de tu cuenta. No se puede deshacer.'
-              : 'Se borran los movimientos, los presupuestos y los ajustes. No se puede deshacer.'
+              ? 'Se borran los movimientos, los recurrentes, los presupuestos y los ajustes de este dispositivo y de tu cuenta. No se puede deshacer.'
+              : 'Se borran los movimientos, los recurrentes, los presupuestos y los ajustes. No se puede deshacer.'
           }>
           <ListRow title="Borrar todo" destructive onPress={() => void eraseAll()} />
         </ListSection>

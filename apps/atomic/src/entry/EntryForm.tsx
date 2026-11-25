@@ -15,6 +15,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
+import { repeats, type Repeat } from '../choices';
+import { Field } from '../components/Field';
 import { pickable, useData } from '../data/DataProvider';
 import { formatMoney } from '../format';
 
@@ -37,17 +39,20 @@ export function EntryForm({ editing, onDone }: { editing?: Transaction; onDone: 
   const [text, setText] = useState(editing ? String(fromCents(editing.amount)) : '');
   const [note, setNote] = useState(editing?.note ?? '');
   const [step, setStep] = useState<'amount' | 'category'>('amount');
+  const [repeat, setRepeat] = useState<Repeat>('never');
 
   const cents = parseCents(text) ?? 0;
 
   async function save(categoryId: string) {
     const fields = { kind, amount: cents, categoryId, note: note.trim() };
 
-    await write((store) =>
-      editing
-        ? store.updateTransaction({ ...editing, ...fields })
-        : store.addTransaction({ ...fields, at: Date.now() })
-    );
+    // A new recurring transaction records its first occurrence now.
+    await write((store) => {
+      if (editing) return store.updateTransaction({ ...editing, ...fields });
+      if (repeat === 'never') return store.addTransaction({ ...fields, at: Date.now() });
+
+      return store.addRecurring({ ...fields, every: repeat, start: Date.now() });
+    });
 
     toast({ text: kind === 'expense' ? 'Gasto guardado' : 'Ingreso guardado', tone: 'success' });
     onDone();
@@ -104,6 +109,12 @@ export function EntryForm({ editing, onDone }: { editing?: Transaction; onDone: 
           { backgroundColor: colors.surface, color: colors.text },
         ]}
       />
+
+      {editing ? null : (
+        <Field label="Repetir">
+          <SegmentedControl segments={repeats} value={repeat} onChange={setRepeat} />
+        </Field>
+      )}
 
       <CategoryPicker
         categories={pickable(categories, kind)}

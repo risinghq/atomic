@@ -8,8 +8,9 @@
    then imports what the AsyncStorage version of the app left
    ([Core](../../../docs/core.md#the-asyncstorage-import)) and seeds the default
    categories on a new install.
-3. [`DataProvider`](../src/data/DataProvider.tsx) loads the snapshot: every
-   category (archived ones included), the transactions, the budgets and the
+3. [`DataProvider`](../src/data/DataProvider.tsx) records the recurring
+   transactions that came due, then loads the snapshot: every category (archived
+   ones included), the transactions, the budgets, the recurring rules and the
    settings. It renders nothing until the snapshot is loaded.
 4. [`AccountProvider`](../src/account/AccountProvider.tsx) reads the session
    from the keystore and, when there is one, starts a sync.
@@ -43,6 +44,23 @@ Deleting and budgets take the same path: a long press opens a confirm sheet, and
 **Borrar** calls `write` with `deleteTransaction` or `deleteBudget`.
 [`BudgetForm`](../src/budgets/BudgetForm.tsx) saves with `setBudget`, which
 replaces the budget that category had.
+
+## Recurring transactions
+
+**Repetir** on the entry form's category step offers Semanal, Mensual and Anual
+for a new entry. Picking the category then saves with `addRecurring`, which
+records the first transaction at once
+([Core](../../../docs/core.md#recurring-transactions)).
+
+Every snapshot load runs `applyRecurring` first, so the occurrences that came
+due while the app was closed appear when it opens, after a write and after a
+sync. While the app is in the foreground, `DataProvider` sets one timer for the
+next occurrence and reloads when it fires. When a load records occurrences, it
+counts as a write, so a sync sends them.
+
+**Recurrentes** in Ajustes lists the rules with how often each repeats and its
+next date. Tapping one offers **Dejar de repetir**, which calls
+`deleteRecurring`; the transactions it recorded stay.
 
 ## Categories
 

@@ -1,4 +1,13 @@
-import type { Budget, Category, Kind, Settings, Store, Transaction } from '@atomic/core';
+import {
+  nextOccurrence,
+  type Budget,
+  type Category,
+  type Kind,
+  type Recurring,
+  type Settings,
+  type Store,
+  type Transaction,
+} from '@atomic/core';
 import {
   createContext,
   useCallback,
@@ -8,6 +17,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { AppState } from 'react-native';
 
 /** Everything the screens read, loaded from the store in one go. */
 export type Snapshot = {
@@ -15,6 +25,7 @@ export type Snapshot = {
   categories: Category[];
   transactions: Transaction[];
   budgets: Budget[];
+  recurring: Recurring[];
   settings: Settings;
 };
 
@@ -31,15 +42,22 @@ export type Data = Snapshot & {
 
 const DataContext = createContext<Data | null>(null);
 
-async function load(store: Store): Promise<Snapshot> {
-  const [categories, transactions, budgets, settings] = await Promise.all([
+/** setTimeout fires at once past a signed 32-bit delay, about 24 days. */
+const MAX_DELAY = 2 ** 31 - 1;
+
+/** Records the recurring transactions that came due, then reads the snapshot. */
+async function load(store: Store): Promise<{ snapshot: Snapshot; recorded: number }> {
+  const recorded = await store.applyRecurring();
+
+  const [categories, transactions, budgets, recurring, settings] = await Promise.all([
     store.categories({ archived: true }),
     store.transactions(),
     store.budgets(),
+    store.recurring(),
     store.settings(),
   ]);
 
-  return { categories, transactions, budgets, settings };
+  return { snapshot: { categories, transactions, budgets, recurring, settings }, recorded };
 }
 
 /**
@@ -55,7 +73,10 @@ export function DataProvider({ store, children }: { store: Store; children: Reac
     let current = true;
 
     void load(store).then((loaded) => {
-      if (current) setSnapshot(loaded);
+      if (!current) return;
+
+      setSnapshot(loaded.snapshot);
+      if (loaded.recorded > 0) setWrites((count) => count + 1);
     });
 
     return () => {
@@ -63,9 +84,44 @@ export function DataProvider({ store, children }: { store: Store; children: Reac
     };
   }, [store]);
 
+  // Occurrences the store records on its own count as writes, so sync sends them.
   const reload = useCallback(async () => {
-    setSnapshot(await load(store));
+    const loaded = await load(store);
+
+    setSnapshot(loaded.snapshot);
+    if (loaded.recorded > 0) setWrites((count) => count + 1);
   }, [store]);
+
+  const recurring = snapshot?.recurring;
+
+  // While the app is open, reload when the next occurrence comes due.
+  useEffect(() => {
+    if (!recurring || recurring.length === 0) return;
+
+    const due = Math.min(...recurring.map((rule) => nextOccurrence(rule, Date.now())));
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const schedule = () => {
+      clearTimeout(timer);
+
+      const wait = due - Date.now();
+
+      if (wait <= 0) void reload();
+      else timer = setTimeout(schedule, Math.min(wait, MAX_DELAY));
+    };
+
+    if (AppState.currentState === 'active' || AppState.currentState == null) schedule();
+
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') schedule();
+      else clearTimeout(timer);
+    });
+
+    return () => {
+      clearTimeout(timer);
+      subscription.remove();
+    };
+  }, [recurring, reload]);
 
   const write = useCallback<Data['write']>(
     async (change) => {

@@ -16,10 +16,14 @@ const phone = {
 /**
  * A seeded in-memory store. Onboarded, it holds the choices the person made;
  * otherwise it is a new install, which holds no settings of its own yet.
+ * `now` is the store's clock; it defaults to the real one.
  */
-export async function freshStore({ onboarded = true } = {}): Promise<Store> {
+export async function freshStore({
+  onboarded = true,
+  now = Date.now,
+}: { onboarded?: boolean; now?: () => number } = {}): Promise<Store> {
   let next = 0;
-  const store = await openStore(memoryDatabase(), { newId: () => `id-${++next}` });
+  const store = await openStore(memoryDatabase(), { newId: () => `id-${++next}`, now });
 
   await store.seedCategories();
 

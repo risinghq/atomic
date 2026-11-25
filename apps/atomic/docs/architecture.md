@@ -34,22 +34,23 @@ index.ts ─► App ─► DataProvider ─► AccountProvider ─► Root ─�
 | [`src/Root.tsx`](../src/Root.tsx)                                       | Shows `Onboarding` until `settings.onboarded`, then `Shell`.                                     |
 | [`src/Shell.tsx`](../src/Shell.tsx)                                     | The tab bar, the active tab and the entry sheet. Android back returns to Registro first.         |
 | [`src/screens/`](../src/screens)                                        | One file per tab, plus `Onboarding`.                                                             |
-| [`src/entry/EntryForm.tsx`](../src/entry/EntryForm.tsx)                 | The entry sheet: kind, number pad, then note and category. Saving the category saves the entry.  |
+| [`src/entry/EntryForm.tsx`](../src/entry/EntryForm.tsx)                 | The entry sheet: kind, number pad, then note, repeat and category. The category saves the entry. |
 | [`src/budgets/BudgetForm.tsx`](../src/budgets/BudgetForm.tsx)           | The budget sheet: what the budget covers, then its period and amount.                            |
 | [`src/categories/`](../src/categories)                                  | Ajustes' category sheet: the list per kind, and the form that adds, edits, archives or restores. |
+| [`src/recurring/RecurringList.tsx`](../src/recurring/RecurringList.tsx) | Ajustes' recurring sheet: each rule with its next date, and stopping one.                        |
 | [`src/format.ts`](../src/format.ts)                                     | Spanish (es-PE) money, day, period and budget labels.                                            |
-| [`src/choices.ts`](../src/choices.ts)                                   | The currency and week-start options that onboarding and Ajustes share.                           |
+| [`src/choices.ts`](../src/choices.ts)                                   | The currency, week-start and repeat options, and the repeat labels.                              |
 | [`src/useSheet.ts`](../src/useSheet.ts)                                 | A sheet's open state, the record it shows and a session key that starts its form fresh.          |
 | [`src/useNow.ts`](../src/useNow.ts)                                     | The current day, refreshed at midnight and when the app returns to the foreground.               |
 
 ## Tabs
 
-| Tab          | Screen           | Shows                                                                                                      |
-| ------------ | ---------------- | ---------------------------------------------------------------------------------------------------------- |
-| Registro     | `LogScreen`      | This month's net and every transaction by day. Tap edits, long press deletes.                              |
-| Resumen      | `InsightsScreen` | Spending or income per week, month or year: a bar chart and a list by category.                            |
-| Presupuestos | `BudgetsScreen`  | The overall budget split by category, then one card per category budget.                                   |
-| Ajustes      | `SettingsScreen` | The account, the currency, the first day of the week, categories, the CSV export and erasing every record. |
+| Tab          | Screen           | Shows                                                                                                     |
+| ------------ | ---------------- | --------------------------------------------------------------------------------------------------------- |
+| Registro     | `LogScreen`      | This month's net and every transaction by day. Tap edits, long press deletes.                             |
+| Resumen      | `InsightsScreen` | Spending or income per week, month or year: a bar chart and a list by category.                           |
+| Presupuestos | `BudgetsScreen`  | The overall budget split by category, then one card per category budget.                                  |
+| Ajustes      | `SettingsScreen` | The account, the currency, the week start, categories, recurring entries, the CSV export and erasing all. |
 
 The add button in the tab bar opens the entry sheet from every tab. Only the
 active tab is mounted.
