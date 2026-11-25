@@ -33,7 +33,10 @@ The React Native tests act as a user. They render components with
 find elements by role, label or visible text, as a screen reader would, and
 press and type through `userEvent`. They assert what the user sees and what the
 store holds, not styles or props. They mock no module: `jest-expo` replaces each
-Expo native module with a recorder, and a test reads that recorder.
+Expo native module with a recorder, and a test reads that recorder. The account
+tests also give three recorders real behaviour (an in-memory keystore, a browser
+that signs in, and SHA-256) and replace `fetch`, the one network boundary, with
+an in-memory Worker.
 
 Layout in the atomic app:
 
@@ -41,10 +44,15 @@ Layout in the atomic app:
   screens: onboarding, adding and deleting an entry, creating a budget, the CSV
   export and erasing the data. The export test reads the file handed to the
   share sheet. `format.test.ts` covers the labels in `src/format.ts`, and
-  `csv.test.ts` the CSV in `src/data/csv.ts`.
+  `csv.test.ts` the CSV in `src/data/csv.ts`. `account.test.tsx` covers sign-in,
+  sync, sign-out, account deletion and erasing while signed in.
+- [`tests/cloud.ts`](../apps/atomic/tests/cloud.ts) holds `FakeCloud`, the
+  Worker's contract from [API](api.md) in memory: PKCE sign-in, the newer record
+  wins, paged pulls and the delete routes. A test sets `online`, `pageSize`,
+  `signingInAs` or `providersSetUp` to shape what the app meets.
 - [`tests/render.tsx`](../apps/atomic/tests/render.tsx) opens a real store on
   `memoryDatabase` from `@atomic/core/testing` and wraps a screen in the theme,
-  toast and data providers.
+  toast, data and account providers.
 - The `test` script pins `TZ=America/Lima`, because day and period labels depend
   on the local time zone.
 

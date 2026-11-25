@@ -21,6 +21,12 @@ export type Snapshot = {
 export type Data = Snapshot & {
   /** Runs writes against the store, then reloads the snapshot. */
   write: (change: (store: Store) => Promise<unknown>) => Promise<void>;
+
+  /** Reloads the snapshot after the store changed outside `write`, as a sync does. */
+  reload: () => Promise<void>;
+
+  /** How many times `write` has run. Sync sends new changes when it grows. */
+  writes: number;
 };
 
 const DataContext = createContext<Data | null>(null);
@@ -43,6 +49,7 @@ async function load(store: Store): Promise<Snapshot> {
  */
 export function DataProvider({ store, children }: { store: Store; children: ReactNode }) {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
+  const [writes, setWrites] = useState(0);
 
   useEffect(() => {
     let current = true;
@@ -56,15 +63,23 @@ export function DataProvider({ store, children }: { store: Store; children: Reac
     };
   }, [store]);
 
+  const reload = useCallback(async () => {
+    setSnapshot(await load(store));
+  }, [store]);
+
   const write = useCallback<Data['write']>(
     async (change) => {
       await change(store);
-      setSnapshot(await load(store));
+      await reload();
+      setWrites((count) => count + 1);
     },
-    [store]
+    [store, reload]
   );
 
-  const data = useMemo(() => (snapshot ? { ...snapshot, write } : null), [snapshot, write]);
+  const data = useMemo(
+    () => (snapshot ? { ...snapshot, write, reload, writes } : null),
+    [snapshot, write, reload, writes]
+  );
 
   if (!data) return null;
 

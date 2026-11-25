@@ -11,9 +11,13 @@
 3. [`DataProvider`](../src/data/DataProvider.tsx) loads the snapshot: every
    category (archived ones included), the transactions, the budgets and the
    settings. It renders nothing until the snapshot is loaded.
-4. [`Root`](../src/Root.tsx) shows `Onboarding` while `settings.onboarded` is
+4. [`AccountProvider`](../src/account/AccountProvider.tsx) reads the session
+   from the keystore and, when there is one, starts a sync.
+5. [`Root`](../src/Root.tsx) shows `Onboarding` while `settings.onboarded` is
    false. **Empezar** saves the chosen currency and week start with
    `onboarded: true`, and the reloaded snapshot switches `Root` to the shell.
+   Signing in from onboarding instead keeps the account's currency and week
+   start when the account already holds data.
 
 ## Adding an expense
 
@@ -56,4 +60,42 @@ it.
 
 **Borrar todos los datos** asks for confirmation, then calls `eraseAll` and
 seeds the default categories again in one `write`. Erasing clears the settings,
-so `onboarded` is false and `Root` shows onboarding.
+so `onboarded` is false and `Root` shows onboarding. When signed in, it first
+erases the account's copy with `DELETE /data`; if that fails, it erases nothing,
+since the next sync would bring the data back.
+
+## Account and sync
+
+```text
+Continuar con Google ─► signIn ─► browser ─► Worker ─► atomic://auth?code=…
+                                                          │
+                     keystore ◄─ session ◄─ POST /auth/token
+                                                          │
+write ─► writes + 1 ─► sync ─► POST /sync ─► completeSync ─► reload
+```
+
+1. **Continuar con Google** or **Continuar con GitHub**, in Ajustes or
+   onboarding, calls [`signIn`](../src/account/signIn.ts). It opens the Worker's
+   start route in a browser session with a PKCE challenge
+   ([API](../../../docs/api.md#signing-in)) and trades the returned code for a
+   session. Closing the browser cancels and changes nothing.
+2. `AccountProvider` saves the session in the keystore and syncs.
+3. A sync runs once the session loads, after every `write` (the `writes` count
+   in `DataProvider`) and when the app returns to the foreground. One sync runs
+   at a time; a request made during a sync runs one more after it.
+   [`syncStore`](../src/account/syncStore.ts) sends the pending changes and
+   applies the reply, page by page while the Worker reports more
+   ([Core](../../../docs/core.md#sync)). When records arrive, `reload` refreshes
+   the snapshot.
+4. A failed sync sets the status to offline, which Ajustes shows under the
+   email; the changes stay pending for the next one. A 401 means the session
+   ended elsewhere: the device signs out and keeps its data.
+
+**Cerrar sesión** ends the session at the Worker, deletes it from the keystore
+and calls `forgetSync`, so the data stays on the device and reaches the next
+account in full. **Eliminar cuenta** asks for confirmation, deletes the account
+at the Worker and signs out the same way.
+
+The web build has no keystore and its redirect targets the app scheme, so
+[`session.web.ts`](../src/account/session.web.ts) turns accounts off there and
+Ajustes shows no Cuenta section.

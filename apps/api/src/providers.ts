@@ -20,6 +20,10 @@ const GITHUB_EMAILS = 'https://api.github.com/user/emails';
 export const callbackUrl = (origin: string, provider: Provider) =>
   `${origin}/auth/${provider}/callback`;
 
+/** Whether the provider's OAuth client is set; a deploy without its secrets has none. */
+export const configured = (env: Secrets, provider: Provider) =>
+  Boolean(provider === 'google' ? env.GOOGLE_CLIENT_ID : env.GITHUB_CLIENT_ID);
+
 /** The provider's sign-in page. `verifier` is this Worker's PKCE verifier with the provider. */
 export async function authorizeUrl(
   env: Secrets,

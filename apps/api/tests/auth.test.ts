@@ -56,6 +56,23 @@ describe('signing in', () => {
     expect((await send('/auth/gitlab/start?challenge=x')).status).toBe(404);
   });
 
+  it('sends the app back unavailable when a provider has no OAuth client yet', async () => {
+    const challenge = 'a'.repeat(43);
+    const clientId = env.GITHUB_CLIENT_ID;
+
+    env.GITHUB_CLIENT_ID = '';
+
+    try {
+      const github = await send(`/auth/github/start?challenge=${challenge}`);
+      const google = await send(`/auth/google/start?challenge=${challenge}`);
+
+      expect(github.headers.get('location')).toBe('atomic://auth?error=unavailable');
+      expect(new URL(google.headers.get('location')!).origin).toBe('https://accounts.google.com');
+    } finally {
+      env.GITHUB_CLIENT_ID = clientId;
+    }
+  });
+
   it('refuses an address the provider has not verified', async () => {
     const approve = fakeProviders({ ...ANA, verified: false });
     const { authorize, state } = await startSignIn('google');

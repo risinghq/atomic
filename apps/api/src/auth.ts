@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { createMiddleware } from 'hono/factory';
 import type { App } from './app';
 import { randomToken, safeEqual, sha256 } from './crypto';
-import { authorizeUrl, providers, verifiedEmail, type Provider } from './providers';
+import { authorizeUrl, configured, providers, verifiedEmail, type Provider } from './providers';
 
 /** Where the callback hands control back to the app. */
 export const APP_REDIRECT = 'atomic://auth';
@@ -34,6 +34,7 @@ auth.get('/:provider/start', async (c) => {
 
   if (!isProvider(provider)) return c.json({ error: 'unknown provider' }, 404);
   if (!CHALLENGE.test(challenge)) return c.json({ error: 'missing challenge' }, 400);
+  if (!configured(c.env, provider)) return c.redirect(backToApp({ error: 'unavailable' }));
 
   const state = randomToken(16);
   const verifier = randomToken();

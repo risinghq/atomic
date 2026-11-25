@@ -18,7 +18,8 @@ and sends only its SHA-256.
 
 1. The app opens `GET /auth/{google|github}/start?challenge=<S256 of verifier>`
    in a browser session. The Worker stores the sign-in for ten minutes and
-   redirects to the provider.
+   redirects to the provider. When that provider's client id secret is unset, it
+   redirects to `atomic://auth?error=unavailable` instead.
 2. The provider returns to `/auth/{provider}/callback`. The Worker trades the
    provider's code for the person's verified email, finds or creates the account
    for that email, and redirects to `atomic://auth?code=<one-time code>`. On
