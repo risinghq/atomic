@@ -94,6 +94,25 @@ Labels a component draws itself, such as the number pad's "Confirmar" and the
 tab bar's "Agregar", default to Spanish and can be overridden by prop where the
 component offers one.
 
+## Catalog
+
+[`apps/catalog`](../apps/catalog) shows every component in light and dark on one
+scrolling screen, with the tab bar and toasts live. Change a component and check
+it there before an app uses it:
+
+```bash
+bun run --cwd apps/catalog web
+```
+
+`start` opens it in Expo Go instead. On web, `?scheme=light` or `?scheme=dark`
+in the URL fixes the scheme, which makes screenshots repeatable. The header's
+Claro/Oscuro control switches it at runtime.
+
+Chrome's headless `--screenshot` advances virtual time without running
+Reanimated's frames, so it captures springs mid-flight. Take screenshots of the
+exported site (`bun run --cwd apps/catalog build`, then serve `dist/`) with a
+browser driver that waits in real time, such as Playwright.
+
 ## Testing
 
 The package's tests render through `react-native-web` in jsdom, so a test sees

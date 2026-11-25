@@ -4,10 +4,11 @@ atomic is a [bun workspace](https://bun.sh/docs/install/workspaces). Each app
 under `apps/` is an Expo app. Code that more than one app uses lives in a
 package under `packages/`.
 
-| Workspace                           | Package      | Owns                                                       |
-| ----------------------------------- | ------------ | ---------------------------------------------------------- |
-| [`apps/atomic`](../apps/atomic)     | `atomic`     | The expense tracker. Its manual is in `apps/atomic/docs/`. |
-| [`packages/ui`](../packages/ui/src) | `@atomic/ui` | The theme and components the apps share. See [UI](ui.md).  |
+| Workspace                           | Package      | Owns                                                          |
+| ----------------------------------- | ------------ | ------------------------------------------------------------- |
+| [`apps/atomic`](../apps/atomic)     | `atomic`     | The expense tracker. Its manual is in `apps/atomic/docs/`.    |
+| [`apps/catalog`](../apps/catalog)   | `catalog`    | A gallery of every shared component. See [UI](ui.md#catalog). |
+| [`packages/ui`](../packages/ui/src) | `@atomic/ui` | The theme and components the apps share. See [UI](ui.md).     |
 
 ## Rules
 
@@ -15,9 +16,10 @@ package under `packages/`.
 - An app never imports another app.
 - A dependency goes in the `package.json` of the workspace that imports it. The
   root `package.json` holds only the repository tools (`oxlint`, `oxfmt`).
-- Every workspace with code defines `typecheck` and `test` scripts, and a
-  `build` script when it produces an artifact. The root scripts run them in
-  every workspace that has them.
+- Every workspace with code defines a `typecheck` script, a `test` script when
+  it holds logic, and a `build` script when it produces an artifact. The catalog
+  holds only demos, so it has no tests. The root scripts run each script in
+  every workspace that has it.
 - A package ships its TypeScript source (`main` points at `src/index.ts`). The
   app's bundler compiles it, so a package has no build step.
 

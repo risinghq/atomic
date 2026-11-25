@@ -6,6 +6,8 @@
 - Format Markdown and TypeScript with `oxfmt`. Do not use Prettier.
 - Interface text is Spanish. Code, comments and documentation are English.
 - A package under `packages/` never imports an app under `apps/`.
+- A new or changed component in `packages/ui` gets a demo in `apps/catalog` and
+  a row in `docs/ui.md`.
 
 In `apps/atomic`:
 

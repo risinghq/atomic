@@ -8,7 +8,8 @@ device. It is built with React Native, Expo Router and NativeWind. The interface
 is in Spanish.
 
 The repository is a bun workspace. The app lives in `apps/atomic`, and code that
-more than one app shares lives under `packages/`. See
+more than one app shares lives under `packages/`. The shared components in
+`@atomic/ui` have a gallery app in `apps/catalog`. See
 [Repository layout](docs/architecture.md).
 
 ## Get started

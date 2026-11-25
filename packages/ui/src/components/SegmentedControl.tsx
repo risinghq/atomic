@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Pressable, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
-import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { useEffect } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { haptic } from '../theme/haptics';
 import { radii, space } from '../theme/layout';
 import { springs } from '../theme/motion';
@@ -22,29 +22,36 @@ export function SegmentedControl<T extends string>({
   onChange,
 }: SegmentedControlProps<T>) {
   const { colors } = useTheme();
-  const [width, setWidth] = useState(0);
+  const count = Math.max(1, segments.length);
   const index = Math.max(
     0,
     segments.findIndex((segment) => segment.value === value)
   );
-  const segmentWidth = segments.length > 0 ? width / segments.length : 0;
+  // The pill animates the selected index and is placed in percentages of the
+  // track, so it needs no layout measurement and starts under its segment.
+  const position = useSharedValue(index);
+
+  useEffect(() => {
+    position.value = withSpring(index, springs.smooth);
+  }, [position, index]);
 
   const pillStyle = useAnimatedStyle(
-    () => ({
-      width: segmentWidth,
-      transform: [{ translateX: withSpring(index * segmentWidth, springs.smooth) }],
-    }),
-    [index, segmentWidth]
+    () => ({ left: `${(position.value * 100) / count}%` }),
+    [position, count]
   );
 
   return (
-    <View
-      accessibilityRole="tablist"
-      onLayout={(event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width - PAD * 2)}
-      style={[styles.track, { backgroundColor: colors.surface }]}>
-      {width > 0 ? (
-        <Animated.View style={[styles.pill, { backgroundColor: colors.raised }, pillStyle]} />
-      ) : null}
+    <View accessibilityRole="tablist" style={[styles.track, { backgroundColor: colors.surface }]}>
+      <View pointerEvents="none" style={styles.pillArea}>
+        <Animated.View
+          testID="segmented-pill"
+          style={[
+            styles.pill,
+            { width: `${100 / count}%`, backgroundColor: colors.raised },
+            pillStyle,
+          ]}
+        />
+      </View>
       {segments.map((segment) => {
         const selected = segment.value === value;
         return (
@@ -75,11 +82,11 @@ const PAD = 3;
 
 const styles = StyleSheet.create({
   track: { flexDirection: 'row', padding: PAD, borderRadius: radii.md },
+  pillArea: { position: 'absolute', top: PAD, bottom: PAD, left: PAD, right: PAD },
   pill: {
     position: 'absolute',
-    top: PAD,
-    bottom: PAD,
-    left: PAD,
+    top: 0,
+    bottom: 0,
     borderRadius: radii.md - PAD,
     shadowColor: '#000',
     shadowOpacity: 0.08,
