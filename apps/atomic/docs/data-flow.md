@@ -47,6 +47,14 @@ Deleting and budgets take the same path: a long press opens a confirm sheet, and
 [`BudgetForm`](../src/budgets/BudgetForm.tsx) saves with `setBudget`, which
 replaces the budget that category had.
 
+## Searching
+
+The field under Registro's title narrows the log as the person types, from the
+snapshot already in memory. [`search`](../src/search.ts) keeps a transaction
+when every word of the query appears in its note or its category's name,
+ignoring case and accents, or in its amount written with two decimals. The
+month's net gives way to the count and the net of what was found.
+
 ## Recurring transactions
 
 **Repetir** on the entry form's category step offers Semanal, Mensual and Anual
