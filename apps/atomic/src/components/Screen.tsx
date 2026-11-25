@@ -29,7 +29,10 @@ export function Screen({
   const insets = useSafeAreaInsets();
 
   return (
+    // A sheet's Modal is a React child of this view, so its touches pass this
+    // responder: without "handled", a tap in a sheet only blurs its input.
     <ScrollView
+      keyboardShouldPersistTaps="handled"
       style={{ backgroundColor: colors.background }}
       contentContainerStyle={[styles.content, { paddingTop: insets.top + space.lg }]}>
       <ScreenTitle title={title} trailing={trailing} />

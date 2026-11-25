@@ -94,6 +94,7 @@ export function LogScreen({
   return (
     <>
       <FlatList
+        keyboardShouldPersistTaps="handled"
         style={{ backgroundColor: colors.background }}
         contentContainerStyle={[styles.content, { paddingTop: insets.top + space.lg }]}
         data={groupByDay(transactions)}

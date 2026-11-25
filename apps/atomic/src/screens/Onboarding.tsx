@@ -56,6 +56,7 @@ export function Onboarding() {
 
   return (
     <ScrollView
+      keyboardShouldPersistTaps="handled"
       style={{ backgroundColor: colors.background }}
       contentContainerStyle={[
         styles.screen,

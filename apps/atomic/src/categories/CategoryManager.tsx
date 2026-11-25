@@ -47,7 +47,10 @@ export function CategoryManager() {
     <View style={styles.manager}>
       <SegmentedControl segments={kinds} value={kind} onChange={setKind} />
 
-      <ScrollView style={{ maxHeight: height * 0.7 }} contentContainerStyle={styles.lists}>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        style={{ maxHeight: height * 0.7 }}
+        contentContainerStyle={styles.lists}>
         <ListSection>
           {active.map(row)}
           <ListRow title="Nueva categoría" onPress={() => setEditing('new')} />

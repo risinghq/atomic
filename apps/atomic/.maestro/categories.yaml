@@ -9,7 +9,9 @@ name: Add a category, record with it, then archive it
 - tapOn: 'Nombre'
 - inputText: 'Mascotas'
 - tapOn: 'Morado'
-- hideKeyboard
+- assertVisible:
+    text: 'Morado'
+    checked: true
 - tapOn: 'Guardar'
 - assertVisible: 'Mascotas'
 
