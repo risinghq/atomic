@@ -4,24 +4,24 @@
     "slug": "atomic",
     "version": "1.0.0",
     "scheme": "atomic",
-    "experiments": {
-      "tsconfigPaths": true
-    },
     "plugins": [
-      "expo-router",
       "@react-native-async-storage/expo-with-async-storage",
       [
         "expo-splash-screen",
         {
           "image": "./assets/splash.png",
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#ffffff",
+          "dark": {
+            "image": "./assets/splash.png",
+            "backgroundColor": "#000000"
+          }
         }
       ]
     ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
@@ -33,6 +33,7 @@
       },
       "package": "com.empiricalhq.atomic"
     },
+    "web": { "bundler": "metro", "output": "single" },
     "extra": {
       "eas": {
         "projectId": "e99143d8-7b52-4f07-afca-c4dad8cc4b0c"

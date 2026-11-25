@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { defaultCategories, migrations, openStore, periodOf, type Store } from '../src';
-import { memoryDatabase } from './sqlite';
+import { memoryDatabase } from '../testing/memory-database';
 
 let store: Store;
 let db: ReturnType<typeof memoryDatabase>;

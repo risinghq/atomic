@@ -81,7 +81,9 @@ export function SegmentedControl<T extends string>({
 const PAD = 3;
 
 const styles = StyleSheet.create({
-  track: { flexDirection: 'row', padding: PAD, borderRadius: radii.md },
+  // The pill is 1/count of the track, so segments need equal widths, which
+  // flex: 1 gives only when the track has a width of its own to share.
+  track: { flexDirection: 'row', alignSelf: 'stretch', padding: PAD, borderRadius: radii.md },
   pillArea: { position: 'absolute', top: PAD, bottom: PAD, left: PAD, right: PAD },
   pill: {
     position: 'absolute',

@@ -2,15 +2,14 @@
 
 [![CI](https://github.com/risinghq/atomic/actions/workflows/ci.yml/badge.svg)](https://github.com/risinghq/atomic/actions/workflows/ci.yml)
 
-atomic is a personal finance app for iOS and Android. It records income and
-expenses, tracks monthly budgets per category, and keeps everything on the
-device. It is built with React Native, Expo Router and NativeWind. The interface
-is in Spanish.
+atomic is a plain expense tracker for iOS, Android and the web. It records
+expenses and income in a few taps, shows where the money went, and keeps weekly
+or monthly budgets. Everything stays on the device. The interface is in Spanish.
 
 The repository is a bun workspace. The app lives in `apps/atomic`, and code that
-more than one app shares lives under `packages/`. The shared components in
-`@atomic/ui` have a gallery app in `apps/catalog`. See
-[Repository layout](docs/architecture.md).
+more than one app shares lives under `packages/`: the components in
+`@atomic/ui`, with a gallery app in `apps/catalog`, and the data model and store
+in `@atomic/core`. See [Repository layout](docs/architecture.md).
 
 ## Get started
 
@@ -26,31 +25,29 @@ bun run --cwd apps/atomic start
 development server. Scan its QR code with Expo Go. Simulators, emulators and
 preview builds are in [Running the apps](docs/running.md).
 
-The app opens on a three-step onboarding. Tapping **Comenzar** creates an
-anonymous local user and lands on the home screen, which shows the balance and
-recent transactions.
+The app opens on one screen that asks for the currency and the first day of the
+week. **Empezar** lands on Registro.
 
 ## Features
 
-- **Transactions.** Add an expense or an income with an amount, a category and a
-  description. The home screen shows income, expense and net totals and the
-  three newest transactions.
-- **Budgets.** Set a monthly budget for an expense category. The budget screen
-  shows spent against budgeted for the current calendar month, per category and
-  in total.
-- **Reports.** Income against expenses for each of the last six months, and the
-  top five spending categories, from your transactions.
-- **Settings.** Toggles for notifications, biometric login and dark mode are
-  saved with the user. The screen shows an error if a change is not saved.
-- **Local storage.** The user, transactions and budgets are stored in
-  AsyncStorage on the device. There is no server and no account.
-- **Exact money arithmetic.** Totals are summed in integer cents, so `0.1 + 0.2`
-  is `0.3`.
+- **Fast entry.** The add button opens a number pad. Confirm the amount, add a
+  note if you want, and tap a category to save.
+- **Registro.** Every transaction grouped by day, with this month's net on top.
+  Tap one to edit it, long press to delete it.
+- **Resumen.** Spending or income for a week, a month or a year: a bar chart and
+  the share of each category.
+- **Presupuestos.** An overall budget split by category, and budgets per
+  category, each per week or per month, with what is left per day.
+- **Ajustes.** The currency (soles, dollars or euros) and the first day of the
+  week.
+- **Local storage.** Data lives in SQLite on the device. There is no server and
+  no account.
+- **Exact money arithmetic.** Amounts are stored and summed in integer cents.
 
 ## Documentation
 
 The [manual](docs/README.md) covers running the apps, the repository layout,
-testing, and the atomic app's architecture, data flow and user lifecycle.
+testing, the shared packages, and the atomic app's architecture and data flow.
 
 ## Contributing
 

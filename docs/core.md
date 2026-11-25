@@ -57,8 +57,10 @@ const store = await openStore(await openDatabaseAsync('atomic.db'), {
 The store depends only on the `Database` interface, the five methods it calls on
 expo-sqlite's `SQLiteDatabase`. A type test fails the typecheck if expo-sqlite's
 database stops fitting it. The tests pass an in-memory `node:sqlite` database
-behind the same methods ([`tests/sqlite.ts`](../packages/core/tests/sqlite.ts)),
-so they run real SQL.
+behind the same methods, so they run real SQL. The package exports it as
+`memoryDatabase` from `@atomic/core/testing`
+([`testing/memory-database.ts`](../packages/core/testing/memory-database.ts))
+for the apps' tests. It needs Node, so app code never imports it.
 
 The schema enforces what the types promise: a positive amount, a known category
 and one budget per category plus one overall. `setBudget` replaces the budget

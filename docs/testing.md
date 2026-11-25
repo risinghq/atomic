@@ -21,24 +21,23 @@ One workspace, one file or one directory:
 
 ```bash
 bun run --cwd apps/atomic test
-cd apps/atomic && bunx vitest run src/utils
-cd apps/atomic && bunx vitest run src/hooks/useTransactions.test.tsx
+cd packages/core && bunx vitest run tests/period.test.ts
+cd apps/atomic && TZ=America/Lima bunx vitest run tests/app.test.tsx
 ```
 
 Layout in the atomic app:
 
-- Tests sit beside the file they cover: `src/utils/money.test.ts`,
-  `src/api/budgetService.test.ts`, `src/hooks/useBudget.test.tsx`.
-- Screen tests live in [`tests/screens/`](../apps/atomic/tests/screens).
-- A test that renders React starts with `// @vitest-environment jsdom`. The
-  default environment is Node.
-- Tests that render screens or navigators replace `react-native` with plain DOM
-  elements. Tests that touch storage replace
-  `@react-native-async-storage/async-storage` with an in-memory `Map`, and
-  `expo-crypto` with a stub id generator, because its native module does not
-  load under jsdom.
-- `@/` resolves to `src/` in tests, as in the app
-  ([`vitest.config.mts`](../apps/atomic/vitest.config.mts)).
+- Tests live in [`tests/`](../apps/atomic/tests). `app.test.tsx` drives the real
+  screens: onboarding, adding and deleting an entry, and creating a budget.
+  `format.test.ts` covers the labels in `src/format.ts`.
+- The tests render through react-native-web under jsdom
+  ([`vitest.config.mts`](../apps/atomic/vitest.config.mts)), so they query the
+  DOM by role and label.
+- [`tests/render.tsx`](../apps/atomic/tests/render.tsx) opens a real store on
+  `memoryDatabase` from `@atomic/core/testing` and wraps a screen in the theme,
+  toast and data providers.
+- The `test` script pins `TZ=America/Lima`, because day and period labels depend
+  on the local time zone.
 
 ## Lint and format
 

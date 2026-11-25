@@ -2,11 +2,8 @@
   "extends": "expo/tsconfig.base.json",
   "compilerOptions": {
     "strict": true,
+    "noUncheckedIndexedAccess": true,
     "jsx": "react-jsx",
-    "types": ["expo/types"],
-
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "types": ["expo/types"]
   }
 }

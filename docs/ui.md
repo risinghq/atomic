@@ -87,7 +87,7 @@ category colors an `IconTile` sits on; they are the same in both schemes.
 | `CategoryPicker`              | A three-column grid of category tiles, emoji over name on a wash of the category color. The selected tile darkens and gains a border.                              |
 | `BudgetMeter`                 | A capsule split into colored segments, with an optional pace tick at the elapsed part of the period.                                                               |
 | `BudgetCard`                  | One category's budget: the amount left or over, a status line and a meter in the category color.                                                                   |
-| `BudgetSummaryCard`           | The overall budget: the large amount left or over, and a meter split by category.                                                                                  |
+| `BudgetSummaryCard`           | The overall budget: the large amount left or over, and a meter split by category. Pressable like `BudgetCard`.                                                     |
 | `PeriodPicker`                | The period on screen between back and forward arrows. `canNext={false}` stops at the current period.                                                               |
 | `BarChart`, `showsAverage()`  | Bars on faint tracks with labels under them. While a bar is `current`, the others dim. The dashed average shows only when a quarter of the elapsed bars hold data. |
 | `Sheet`                       | A bottom panel over a dimmed screen. Tapping the dim closes it; it stays mounted until it has slid away.                                                           |

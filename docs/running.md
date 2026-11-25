@@ -53,6 +53,6 @@ needs an [Expo](https://expo.dev) account with access to the project.
 
 ## Resetting local data
 
-The atomic app keeps its data in AsyncStorage on the device. Clear the app's
-storage, or uninstall the app, to return to onboarding. See
-[The user](../apps/atomic/docs/user.md).
+The atomic app keeps its data in a SQLite database on the device. Clear the
+app's storage, or uninstall the app, to return to onboarding. On the web, the
+database lives in the browser's origin storage: clear the site data.

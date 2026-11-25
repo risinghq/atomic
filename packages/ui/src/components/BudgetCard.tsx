@@ -116,6 +116,8 @@ export type BudgetSummaryCardProps = ResultWords & {
   tick?: number;
   status?: string;
   format?: Omit<AmountFormat, 'sign'>;
+  onPress?: () => void;
+  onLongPress?: () => void;
 };
 
 /** The overall budget: the large difference, a meter split by category and a status line. */
@@ -128,6 +130,8 @@ export function BudgetSummaryCard({
   tick,
   status,
   format,
+  onPress,
+  onLongPress,
   leftWord = 'restante',
   overWord = 'excedido',
 }: BudgetSummaryCardProps) {
@@ -135,9 +139,17 @@ export function BudgetSummaryCard({
 
   const difference = amount - spent;
   const over = difference < 0;
+  const interactive = !!(onPress || onLongPress);
 
   return (
-    <View style={[styles.card, styles.summary, { backgroundColor: colors.card }]}>
+    <PressableScale
+      accessibilityLabel={title}
+      onPress={onPress}
+      onLongPress={onLongPress}
+      disabled={!interactive}
+      feedback={interactive ? 'light' : false}
+      scaleTo={0.98}
+      style={[styles.card, styles.summary, { backgroundColor: colors.card }]}>
       <View style={styles.spread}>
         <Text variant="headline">{title}</Text>
         {trailing ? (
@@ -166,7 +178,7 @@ export function BudgetSummaryCard({
           {status}
         </Text>
       ) : null}
-    </View>
+    </PressableScale>
   );
 }
 
