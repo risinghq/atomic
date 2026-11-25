@@ -8,6 +8,8 @@
    how the tests are laid out.
 4. [UI](ui.md): the shared theme and components in `@atomic/ui`, and the catalog
    app that shows them.
+5. [Core](core.md): the data model, money and period math, and the SQLite store
+   in `@atomic/core`, with its migrations and the AsyncStorage import.
 
 The atomic app has its own manual:
 
