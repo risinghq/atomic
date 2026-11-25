@@ -1,4 +1,4 @@
-import { describe, expect, it, type jest } from '@jest/globals';
+import { afterEach, describe, expect, it, type jest } from '@jest/globals';
 import { screen, userEvent, waitFor } from '@testing-library/react-native';
 import { File } from 'expo-file-system';
 // The native module behind expo-sharing. jest-expo stands it in with a recorder,
@@ -96,28 +96,66 @@ describe('budgets', () => {
   });
 });
 
+async function exportAs(user: ReturnType<typeof userEvent.setup>, choice: string) {
+  await user.press(await screen.findByRole('tab', { name: 'Ajustes' }));
+  await user.press(screen.getByRole('button', { name: 'Exportar CSV' }));
+  await user.press(await screen.findByRole('button', { name: new RegExp(`^${choice}`) }));
+
+  await waitFor(() => expect(nativeSharing.shareAsync).toHaveBeenCalledTimes(1));
+
+  const [uri, options] = (nativeSharing.shareAsync as jest.Mock).mock.lastCall ?? [];
+  expect(options).toMatchObject({ mimeType: 'text/csv' });
+
+  return { uri: String(uri), text: new File(String(uri)).textSync() };
+}
+
+async function storeWithTwoYears() {
+  const store = await freshStore();
+  const lastYear = new Date(new Date().getFullYear() - 1, 5, 15).getTime();
+
+  await store.addTransaction({
+    kind: 'expense',
+    amount: 1250,
+    categoryId: 'food',
+    note: 'Menú',
+    at: Date.now(),
+  });
+  await store.addTransaction({
+    kind: 'expense',
+    amount: 9900,
+    categoryId: 'travel',
+    note: 'Pasaje',
+    at: lastYear,
+  });
+
+  return store;
+}
+
 describe('settings', () => {
-  it('opens the share sheet on a dated CSV file', async () => {
+  afterEach(() => {
+    (nativeSharing.shareAsync as jest.Mock).mockClear();
+  });
+
+  it("shares this month's transactions in a file named for the month", async () => {
     const user = userEvent.setup();
-    const store = await freshStore();
-    await store.addTransaction({
-      kind: 'expense',
-      amount: 1250,
-      categoryId: 'food',
-      note: 'Menú',
-      at: Date.now(),
-    });
-    await renderWith(store, <Root />);
+    await renderWith(await storeWithTwoYears(), <Root />);
 
-    await user.press(await screen.findByRole('tab', { name: 'Ajustes' }));
-    await user.press(screen.getByRole('button', { name: 'Exportar CSV' }));
+    const { uri, text } = await exportAs(user, 'Este mes');
 
-    await waitFor(() => expect(nativeSharing.shareAsync).toHaveBeenCalledTimes(1));
+    expect(uri).toMatch(/\/atomic-\d{4}-\d{2}\.csv$/);
+    expect(text).toContain(',gasto,Comida,Menú,12.50\r\n');
+    expect(text).not.toContain('Pasaje');
+  });
 
-    const [uri, options] = (nativeSharing.shareAsync as jest.Mock).mock.lastCall ?? [];
+  it('shares every transaction in a dated file', async () => {
+    const user = userEvent.setup();
+    await renderWith(await storeWithTwoYears(), <Root />);
+
+    const { uri, text } = await exportAs(user, 'Todo');
+
     expect(uri).toMatch(/\/atomic-\d{4}-\d{2}-\d{2}\.csv$/);
-    expect(options).toMatchObject({ mimeType: 'text/csv' });
-    expect(new File(String(uri)).textSync()).toContain(',gasto,Comida,Menú,12.50\r\n');
+    expect(text).toContain(',gasto,Comida,Menú,12.50\r\n');
+    expect(text).toContain(',gasto,Viajes,Pasaje,99.00\r\n');
   });
 
   it('erases every record after a confirmation and returns to onboarding', async () => {

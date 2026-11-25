@@ -1,4 +1,14 @@
-import type { Category, Transaction } from '@atomic/core';
+import {
+  contains,
+  periodOf,
+  shiftPeriod,
+  type Category,
+  type Period,
+  type Span,
+  type Transaction,
+  type WeekStart,
+} from '@atomic/core';
+import { periodTitle } from '../format';
 import { categoryOf } from './DataProvider';
 
 const header = ['fecha', 'tipo', 'categoría', 'nota', 'monto'];
@@ -25,9 +35,54 @@ export function toCsv(transactions: readonly Transaction[], categories: readonly
   return bom + lines.join('\r\n') + '\r\n';
 }
 
-/** The file name for an export made at `now`, such as `atomic-2026-11-25.csv`. */
+/** The file name for an export of everything made at `now`, such as `atomic-2026-11-25.csv`. */
 export function csvName(now: Date) {
   return `atomic-${localStamp(now.getTime()).slice(0, 10)}.csv`;
+}
+
+/** What Exportar CSV offers: one period's transactions, or all of them. */
+export type ExportChoice = {
+  title: string;
+  /** The period in words, such as "Noviembre 2026"; none for everything. */
+  detail?: string;
+  /** None exports every transaction. */
+  span?: Span;
+  file: string;
+};
+
+/** This month, last month, this year and everything, named for the period each covers. */
+export function exportChoices(now: Date, weekStart: WeekStart): ExportChoice[] {
+  const month = periodOf('month', now, weekStart);
+  const lastMonth = shiftPeriod(month, -1);
+  const year = periodOf('year', now, weekStart);
+
+  const choice = (title: string, period: Period): ExportChoice => ({
+    title,
+    detail: periodTitle(period, now, weekStart),
+    span: period,
+    file: `atomic-${periodStamp(period)}.csv`,
+  });
+
+  return [
+    choice('Este mes', month),
+    choice('Mes pasado', lastMonth),
+    choice('Este año', year),
+    { title: 'Todo', file: csvName(now) },
+  ];
+}
+
+/** The transactions an export covers. */
+export function exported(transactions: readonly Transaction[], choice: ExportChoice) {
+  const { span } = choice;
+
+  return span ? transactions.filter((transaction) => contains(span, transaction.at)) : transactions;
+}
+
+function periodStamp(period: Period) {
+  const start = new Date(period.start);
+  const year = String(start.getFullYear());
+
+  return period.kind === 'year' ? year : `${year}-${pad(start.getMonth() + 1)}`;
 }
 
 function field(value: string) {
