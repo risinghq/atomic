@@ -6,6 +6,8 @@
    import.
 3. [Testing and checks](testing.md): the test, lint and type-check commands and
    how the tests are laid out.
+4. [UI](ui.md): the shared theme in `@atomic/ui`: colors, type, spacing, motion
+   and haptics.
 
 The atomic app has its own manual:
 
