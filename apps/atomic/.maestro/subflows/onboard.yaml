@@ -1,0 +1,6 @@
+appId: com.empiricalhq.atomic
+---
+- launchApp:
+    clearState: true
+- tapOn: 'Empezar'
+- assertVisible: 'Registro'
