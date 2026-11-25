@@ -1,7 +1,7 @@
 const RESEND_EMAILS = 'https://api.resend.com/emails';
 
-/** The sender. Resend must have `atomic.rising.sh` verified for it. */
-export const MAIL_FROM = 'Atomic <acceso@atomic.rising.sh>';
+/** The sender. Resend must have `rising.sh` verified for it. */
+export const MAIL_FROM = 'Atomic <atomic@rising.sh>';
 
 /** Whether the Worker can send mail; a deploy without the Resend key cannot. */
 export const mailConfigured = (env: Pick<Env, 'RESEND_API_KEY'>) => Boolean(env.RESEND_API_KEY);

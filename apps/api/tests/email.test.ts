@@ -20,7 +20,7 @@ describe('signing in with an emailed code', () => {
 
     expect((await requestCode(ANA.email)).status).toBe(204);
     expect(inbox).toHaveLength(1);
-    expect(inbox[0]).toMatchObject({ from: 'Atomic <acceso@atomic.rising.sh>', to: [ANA.email] });
+    expect(inbox[0]).toMatchObject({ from: 'Atomic <atomic@rising.sh>', to: [ANA.email] });
 
     const code = codeIn(inbox, ANA.email);
 
