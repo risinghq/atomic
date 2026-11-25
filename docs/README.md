@@ -10,6 +10,8 @@
    app that shows them.
 5. [Core](core.md): the data model, money and period math, and the SQLite store
    in `@atomic/core`, with its migrations and the AsyncStorage import.
+6. [API](api.md): the Worker that signs people in and syncs their records, and
+   how it deploys.
 
 The atomic app has its own manual:
 

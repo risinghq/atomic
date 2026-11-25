@@ -7,6 +7,10 @@ dist/
 ios
 android
 
+# Wrangler state, and the Env types `wrangler types` writes.
+.wrangler/
+worker-configuration.d.ts
+
 # macOS
 .DS_Store
 

@@ -16,7 +16,9 @@ bun run check
 `bun run test` runs each workspace's `test` script and exits non-zero if a test
 fails. `apps/atomic` and `packages/ui` run Jest with the `jest-expo` preset
 ([`jest.config.js`](../apps/atomic/jest.config.js)). `packages/core` holds no
-React Native code and runs Vitest.
+React Native code and runs Vitest. `apps/api` runs Vitest inside workerd against
+a local D1; its tests replace only the Google and GitHub servers (see
+[API](api.md)).
 
 One workspace, one file or one directory:
 
