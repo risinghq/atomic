@@ -40,9 +40,9 @@ its current period, which the budget meter draws as its pace tick.
 
 ## Store
 
-`openStore(db, { newId })` turns on foreign keys, runs the migrations and
-returns the reads and writes. The app passes an `expo-sqlite` database and
-`expo-crypto`'s `randomUUID`:
+`openStore(db, { newId })` turns on foreign keys, sets WAL journaling with
+`synchronous = NORMAL`, runs the migrations and returns the reads and writes.
+The app passes an `expo-sqlite` database and `expo-crypto`'s `randomUUID`:
 
 ```ts
 import { openDatabaseAsync } from 'expo-sqlite';
