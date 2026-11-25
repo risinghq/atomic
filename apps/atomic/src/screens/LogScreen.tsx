@@ -5,22 +5,26 @@ import {
   EmptyState,
   ListRow,
   ListSection,
+  radii,
   Sheet,
   space,
   Text,
+  textStyle,
   TransactionRow,
   useTheme,
   useToast,
 } from '@atomic/ui';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { FlatList, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenTitle, screenPadding } from '../components/Screen';
 import { categoryOf, useData } from '../data/DataProvider';
 import { dayTitle, groupByDay, timeLabel, type Day } from '../format';
+import { search } from '../search';
 import { useSheet } from '../useSheet';
 import { useNow } from '../useNow';
 
-/** Every transaction, newest first, under one header per day. */
+/** Every transaction, newest first, under one header per day, narrowed by a search. */
 export function LogScreen({
   onAdd,
   onEdit,
@@ -38,6 +42,15 @@ export function LogScreen({
   const format = { currency: settings.currency };
   const month = periodOf('month', now, settings.weekStart);
   const net = totalIn(transactions, month, 'income') - totalIn(transactions, month, 'expense');
+
+  const [query, setQuery] = useState('');
+  const searching = query.trim() !== '';
+  const found = search(transactions, (id) => categoryOf(categories, id).name, query);
+  const foundNet = found.reduce(
+    (sum, transaction) =>
+      sum + (transaction.kind === 'income' ? transaction.amount : -transaction.amount),
+    0
+  );
 
   async function remove(transaction: Transaction) {
     confirm.hide();
@@ -75,13 +88,32 @@ export function LogScreen({
   const header = (
     <View style={styles.header}>
       <ScreenTitle title="Registro" />
+
+      {transactions.length > 0 && (
+        <TextInput
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Buscar por nota, categoría o monto"
+          placeholderTextColor={colors.textMuted}
+          accessibilityLabel="Buscar"
+          returnKeyType="search"
+          clearButtonMode="while-editing"
+          autoCorrect={false}
+          style={[
+            styles.search,
+            textStyle('body'),
+            { backgroundColor: colors.surface, color: colors.text },
+          ]}
+        />
+      )}
+
       {transactions.length > 0 && (
         <View style={styles.net}>
           <Text variant="caption" weight="semibold" color="textMuted">
-            NETO ESTE MES
+            {searching ? resultsLabel(found.length) : 'NETO ESTE MES'}
           </Text>
           <Amount
-            value={fromCents(net)}
+            value={fromCents(searching ? foundNet : net)}
             currency={settings.currency}
             variant="hero"
             sign="always"
@@ -91,25 +123,34 @@ export function LogScreen({
     </View>
   );
 
+  const empty = searching ? (
+    <EmptyState
+      emoji="🔍"
+      title="Sin resultados"
+      message={`Nada coincide con "${query.trim()}".`}
+    />
+  ) : (
+    <EmptyState
+      emoji="🧾"
+      title="Aún no hay movimientos"
+      message="Registra tu primer gasto y aparecerá aquí."
+      actionLabel="Agregar gasto"
+      onAction={onAdd}
+    />
+  );
+
   return (
     <>
       <FlatList
         keyboardShouldPersistTaps="handled"
         style={{ backgroundColor: colors.background }}
         contentContainerStyle={[styles.content, { paddingTop: insets.top + space.lg }]}
-        data={groupByDay(transactions)}
+        keyboardDismissMode="on-drag"
+        data={groupByDay(found)}
         keyExtractor={(day) => day.key}
         renderItem={renderDay}
         ListHeaderComponent={header}
-        ListEmptyComponent={
-          <EmptyState
-            emoji="🧾"
-            title="Aún no hay movimientos"
-            message="Registra tu primer gasto y aparecerá aquí."
-            actionLabel="Agregar gasto"
-            onAction={onAdd}
-          />
-        }
+        ListEmptyComponent={empty}
       />
 
       <Sheet
@@ -129,7 +170,12 @@ export function LogScreen({
   );
 }
 
+function resultsLabel(count: number): string {
+  return count === 1 ? '1 MOVIMIENTO' : `${count} MOVIMIENTOS`;
+}
+
 const styles = StyleSheet.create({
+  search: { borderRadius: radii.lg, paddingHorizontal: space.lg, paddingVertical: space.md },
   content: { paddingHorizontal: screenPadding, paddingBottom: space.xxxl, gap: space.lg },
   header: { gap: space.xl, paddingBottom: space.sm },
   net: { alignItems: 'center', gap: space.xs, paddingVertical: space.lg },

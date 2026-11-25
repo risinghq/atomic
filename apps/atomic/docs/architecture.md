@@ -40,6 +40,7 @@ index.ts ─► App ─► DataProvider ─► AccountProvider ─► Root ─�
 | [`src/categories/`](../src/categories)                                  | Ajustes' category sheet: the list per kind, and the form that adds, edits, archives or restores. |
 | [`src/recurring/RecurringList.tsx`](../src/recurring/RecurringList.tsx) | Ajustes' recurring sheet: each rule with its next date, and stopping one.                        |
 | [`src/format.ts`](../src/format.ts)                                     | Spanish (es-PE) money, day, period and budget labels.                                            |
+| [`src/search.ts`](../src/search.ts)                                     | The transactions a Registro search finds.                                                        |
 | [`src/choices.ts`](../src/choices.ts)                                   | The currency, week-start and repeat options, and the repeat labels.                              |
 | [`src/useSheet.ts`](../src/useSheet.ts)                                 | A sheet's open state, the record it shows and a session key that starts its form fresh.          |
 | [`src/useNow.ts`](../src/useNow.ts)                                     | The current day, refreshed at midnight and when the app returns to the foreground.               |
@@ -48,7 +49,7 @@ index.ts ─► App ─► DataProvider ─► AccountProvider ─► Root ─�
 
 | Tab          | Screen           | Shows                                                                                                                   |
 | ------------ | ---------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Registro     | `LogScreen`      | This month's net and every transaction by day. Tap edits, long press deletes.                                           |
+| Registro     | `LogScreen`      | This month's net and every transaction by day, with a search. Tap edits, long press deletes.                            |
 | Resumen      | `InsightsScreen` | Spending or income per week, month or year: a bar chart and a list by category.                                         |
 | Presupuestos | `BudgetsScreen`  | The overall budget split by category, then one card per category budget.                                                |
 | Ajustes      | `SettingsScreen` | The account, the currency, the week start, categories, recurring entries, the app lock, the CSV export and erasing all. |
