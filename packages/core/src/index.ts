@@ -4,7 +4,9 @@ export {
   type Budget,
   type BudgetPeriod,
   type Category,
+  type Every,
   type Kind,
+  type Recurring,
   type Settings,
   type Transaction,
   type WeekStart,
@@ -21,6 +23,7 @@ export {
   type PeriodKind,
   type Span,
 } from './period';
+export { dueIndexes, nextOccurrence, occurrenceAt, occurrenceId } from './recurring';
 export {
   budgetStatus,
   totalIn,
@@ -36,6 +39,7 @@ export {
   type ImportRecords,
   type NewBudget,
   type NewCategory,
+  type NewRecurring,
   type NewTransaction,
   type Store,
   type StoreOptions,

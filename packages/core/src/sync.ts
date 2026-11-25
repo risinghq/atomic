@@ -1,4 +1,4 @@
-import type { Budget, Category, Settings, Transaction } from './model';
+import type { Budget, Category, Recurring, Settings, Transaction } from './model';
 
 /** When a record last changed on any device, and whether it was deleted. */
 export type Stamp = { updatedAt: number; deleted: boolean };
@@ -14,6 +14,7 @@ export type Changes = {
   categories: (Category & Stamp)[];
   transactions: (Transaction & Stamp)[];
   budgets: (Budget & Stamp)[];
+  recurring: (Recurring & Stamp)[];
   settings: SettingChange[];
 };
 
@@ -36,7 +37,7 @@ export const syncedSettings = [
 ] as const satisfies readonly (keyof Settings)[];
 
 export function noChanges(): Changes {
-  return { categories: [], transactions: [], budgets: [], settings: [] };
+  return { categories: [], transactions: [], budgets: [], recurring: [], settings: [] };
 }
 
 export function countChanges(changes: Changes): number {
@@ -44,6 +45,7 @@ export function countChanges(changes: Changes): number {
     changes.categories.length +
     changes.transactions.length +
     changes.budgets.length +
+    changes.recurring.length +
     changes.settings.length
   );
 }

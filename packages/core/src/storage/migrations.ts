@@ -67,6 +67,24 @@ export const migrations: readonly string[] = [
     value TEXT NOT NULL
   );
   `,
+
+  // Recurring transactions. `applied` counts the occurrences this device has
+  // recorded; it stays on the device and never syncs.
+  `
+  CREATE TABLE recurring (
+    id TEXT PRIMARY KEY NOT NULL,
+    kind TEXT NOT NULL CHECK (kind IN ('expense', 'income')),
+    amount INTEGER NOT NULL CHECK (amount > 0),
+    category_id TEXT NOT NULL REFERENCES categories (id),
+    note TEXT NOT NULL DEFAULT '',
+    every TEXT NOT NULL CHECK (every IN ('day', 'week', 'month', 'year')),
+    start INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL DEFAULT 0,
+    deleted INTEGER NOT NULL DEFAULT 0,
+    dirty INTEGER NOT NULL DEFAULT 1,
+    applied INTEGER NOT NULL DEFAULT 0
+  );
+  `,
 ];
 
 /** Brings the schema to the latest version. SQLite's `user_version` holds the current one. */

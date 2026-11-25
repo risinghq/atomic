@@ -218,3 +218,82 @@ describe('sync', () => {
     expect(pending.settings).toEqual([{ key: 'currency', value: '"USD"', updatedAt: 0 }]);
   });
 });
+
+const january = (date: number) => new Date(2026, 0, date, 9).getTime();
+
+const dates = async ({ store }: Device) =>
+  (await store.transactions()).map((transaction) => transaction.at);
+
+describe('recurring transactions', () => {
+  const rent = {
+    kind: 'expense' as const,
+    amount: 120_000,
+    categoryId: 'home',
+    note: 'Alquiler',
+    every: 'week' as const,
+    start: january(1),
+  };
+
+  it('records each due occurrence once, the same one on every device', async () => {
+    const server = referenceServer();
+    const phone = await device('phone');
+    const tablet = await device('tablet');
+
+    phone.tick(january(1));
+    await phone.store.addRecurring(rent);
+    await sync(server, phone);
+
+    tablet.tick(january(16));
+    await sync(server, tablet);
+    expect(await tablet.store.applyRecurring()).toBe(3);
+    expect(await tablet.store.applyRecurring()).toBe(0);
+    await sync(server, tablet);
+
+    phone.tick(january(16));
+    expect(await phone.store.applyRecurring()).toBe(2);
+    await sync(server, phone);
+
+    const recorded = [january(15), january(8), january(1)];
+
+    expect(await dates(phone)).toEqual(recorded);
+    expect(await dates(tablet)).toEqual(recorded);
+  });
+
+  it('keeps an occurrence deleted when another device records it later', async () => {
+    const server = referenceServer();
+    const phone = await device('phone');
+    const tablet = await device('tablet');
+
+    phone.tick(january(1));
+    await phone.store.addRecurring(rent);
+    await sync(server, phone);
+    await sync(server, tablet);
+
+    phone.tick(january(9));
+    await phone.store.applyRecurring();
+    const [latest] = await phone.store.transactions();
+    await phone.store.deleteTransaction(latest!.id);
+    await sync(server, phone);
+
+    tablet.tick(january(10));
+    await tablet.store.applyRecurring();
+    await sync(server, tablet);
+    await sync(server, phone);
+
+    expect(await dates(phone)).toEqual([january(1)]);
+    expect(await dates(tablet)).toEqual([january(1)]);
+  });
+
+  it('stops recording once deleted and keeps what it recorded', async () => {
+    const phone = await device('phone');
+
+    phone.tick(january(1));
+    const rule = await phone.store.addRecurring(rent);
+    await phone.store.deleteRecurring(rule.id);
+
+    phone.tick(january(30));
+    expect(await phone.store.applyRecurring()).toBe(0);
+    expect(await phone.store.recurring()).toEqual([]);
+    expect(await dates(phone)).toEqual([january(1)]);
+  });
+});
