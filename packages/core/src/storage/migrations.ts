@@ -85,6 +85,14 @@ export const migrations: readonly string[] = [
     applied INTEGER NOT NULL DEFAULT 0
   );
   `,
+
+  // Haptics become a level. A device that turned them off keeps them off;
+  // one that had them on gets the default, outcomes only.
+  `
+  UPDATE settings
+  SET value = CASE value WHEN 'false' THEN '"off"' ELSE '"essential"' END
+  WHERE key = 'haptics';
+  `,
 ];
 
 /** Brings the schema to the latest version. SQLite's `user_version` holds the current one. */

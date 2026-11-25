@@ -28,7 +28,7 @@ describe('onboarding', () => {
       onboarded: true,
       currency: 'USD',
       weekStart: 0,
-      haptics: true,
+      haptics: 'essential',
       lock: false,
     });
   });
@@ -156,6 +156,18 @@ describe('settings', () => {
     expect(uri).toMatch(/\/atomic-\d{4}-\d{2}-\d{2}\.csv$/);
     expect(text).toContain(',gasto,Comida,Menú,12.50\r\n');
     expect(text).toContain(',gasto,Viajes,Pasaje,99.00\r\n');
+  });
+
+  it('saves the chosen vibration level', async () => {
+    const user = userEvent.setup();
+    const store = await freshStore();
+    await renderWith(store, <Root />);
+
+    await user.press(await screen.findByRole('tab', { name: 'Ajustes' }));
+    await user.press(screen.getByRole('tab', { name: 'Toda' }));
+
+    await waitFor(async () => expect(await store.settings()).toMatchObject({ haptics: 'all' }));
+    expect(screen.getByRole('tab', { name: 'Toda' })).toBeSelected();
   });
 
   it('erases every record after a confirmation and returns to onboarding', async () => {

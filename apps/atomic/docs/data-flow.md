@@ -94,7 +94,9 @@ active category, so the form offers no **Archivar** for the last one.
 
 Ajustes writes a change with `updateSettings` as soon as a segment is picked.
 The currency formats every amount. The week start moves every week period, in
-Resumen and in weekly budgets.
+Resumen and in weekly budgets. **Vibración** (Apagada, Esencial or Toda) sets
+`haptics`, which `Root` passes to `setHapticLevel`. Each device keeps its own,
+and the web, which has no haptics, does not show it.
 
 **Exportar CSV** offers this month, last month, this year or everything
 ([`exportChoices`](../src/data/csv.ts)). A period's file is named for it, such
