@@ -37,7 +37,8 @@ export function Amount({ value, variant = 'body', tone = 'default', ...format }:
     );
   }
 
-  const prefixVariant: TextVariant = variant === 'display' ? 'title' : 'title3';
+  const prefixVariant: TextVariant =
+    textVariants[variant].fontSize >= textVariants.display.fontSize ? 'title' : 'title3';
   return (
     <View style={styles.row} accessible accessibilityLabel={label}>
       <Text variant={prefixVariant} color={tone === 'default' ? 'textMuted' : color} tabular>

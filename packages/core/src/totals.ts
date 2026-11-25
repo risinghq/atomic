@@ -42,7 +42,7 @@ export function totalsByCategory(
 
   return [...totals]
     .map(([categoryId, total]) => ({ categoryId, total }))
-    .toSorted((a, b) => b.total - a.total);
+    .sort((a, b) => b.total - a.total);
 }
 
 /** One total per bucket, in bucket order. */

@@ -37,7 +37,12 @@ describe('onboarding', () => {
     press('Empezar');
 
     expect(await screen.findByRole('heading', { name: 'Registro' })).toBeTruthy();
-    expect(await store.settings()).toEqual({ onboarded: true, currency: 'USD', weekStart: 0 });
+    expect(await store.settings()).toEqual({
+      onboarded: true,
+      currency: 'USD',
+      weekStart: 0,
+      haptics: true,
+    });
   });
 });
 

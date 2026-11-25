@@ -12,7 +12,10 @@ const AnimatedPressable = createAnimatedComponent(Pressable);
 
 export type PressableScaleProps = Omit<PressableProps, 'style'> & {
   style?: StyleProp<ViewStyle>;
-  /** The haptic played on press, or `false` for none. */
+  /**
+   * The haptic played on press. A plain press plays none; a haptic marks a
+   * commit such as saving or switching tabs.
+   */
   feedback?: HapticKind | false;
   /** How far the control shrinks while held. */
   scaleTo?: number;
@@ -20,7 +23,7 @@ export type PressableScaleProps = Omit<PressableProps, 'style'> & {
 
 /** A pressable that shrinks under the finger and springs back on release. */
 export function PressableScale({
-  feedback = 'light',
+  feedback = false,
   scaleTo = pressScale,
   disabled,
   onPressIn,

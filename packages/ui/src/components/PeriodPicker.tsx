@@ -31,7 +31,6 @@ export function PeriodPicker({
     <View style={styles.row}>
       <PressableScale
         accessibilityLabel={previousLabel}
-        feedback="selection"
         onPress={onPrevious}
         style={[styles.arrow, { backgroundColor: colors.surface }]}>
         <Ionicons name="chevron-back" size={18} color={colors.icon} />
@@ -41,7 +40,6 @@ export function PeriodPicker({
       </Text>
       <PressableScale
         accessibilityLabel={nextLabel}
-        feedback="selection"
         disabled={!canNext}
         onPress={onNext}
         style={[styles.arrow, { backgroundColor: colors.surface, opacity: canNext ? 1 : 0.35 }]}>

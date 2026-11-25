@@ -22,7 +22,12 @@ describe('opening', () => {
 
   it('starts empty, with default settings', async () => {
     expect(await store.categories()).toEqual([]);
-    expect(await store.settings()).toEqual({ weekStart: 1, currency: 'PEN', onboarded: false });
+    expect(await store.settings()).toEqual({
+      weekStart: 1,
+      currency: 'PEN',
+      onboarded: false,
+      haptics: true,
+    });
   });
 });
 
@@ -157,6 +162,7 @@ describe('settings and erasing', () => {
       weekStart: 0,
       currency: 'USD',
       onboarded: false,
+      haptics: true,
     });
   });
 

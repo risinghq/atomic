@@ -35,7 +35,7 @@ export function NumberPad({
       accessibilityLabel={label}
       onPress={() => onKey(value)}
       style={[styles.key, { backgroundColor: colors.surface }]}>
-      <Text variant="title2" weight="regular">
+      <Text variant="largeTitle" weight="regular">
         {label}
       </Text>
     </PressableScale>

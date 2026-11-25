@@ -1,14 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { font, textStyle } from './typography';
+import { font, textStyle, tracking } from './typography';
 
 describe('font', () => {
-  it('uses the rounded system face with a weight on iOS', () => {
-    expect(font('semibold', 'ios')).toEqual({ fontFamily: 'ui-rounded', fontWeight: '600' });
+  it('uses one Inter family per weight, without fontWeight', () => {
+    expect(font('bold')).toEqual({ fontFamily: 'Inter_700Bold' });
+    expect(font('regular')).toEqual({ fontFamily: 'Inter_400Regular' });
   });
+});
 
-  it('uses one Nunito family per weight, without fontWeight, elsewhere', () => {
-    expect(font('bold', 'android')).toEqual({ fontFamily: 'Nunito_700Bold' });
-    expect(font('regular', 'web')).toEqual({ fontFamily: 'Nunito_400Regular' });
+describe('tracking', () => {
+  it('stays near zero at caption size and tightens as the size grows', () => {
+    expect(tracking(12)).toBe(0.01);
+    expect(tracking(17)).toBe(-0.22);
+    expect(tracking(65)).toBe(-1.45);
   });
 });
 
