@@ -1,25 +1,29 @@
 # atomic
 
-[![CodeQL](https://github.com/empiricalhq/atomic/actions/workflows/codeql.yml/badge.svg)](https://github.com/empiricalhq/atomic/actions/workflows/codeql.yml)
+[![CI](https://github.com/risinghq/atomic/actions/workflows/ci.yml/badge.svg)](https://github.com/risinghq/atomic/actions/workflows/ci.yml)
 
 atomic is a personal finance app for iOS and Android. It records income and
 expenses, tracks monthly budgets per category, and keeps everything on the
 device. It is built with React Native, Expo Router and NativeWind. The interface
 is in Spanish.
 
+The repository is a bun workspace. The app lives in `apps/atomic`, and code that
+more than one app shares lives under `packages/`. See
+[Repository layout](docs/architecture.md).
+
 ## Get started
 
 ```bash
-git clone https://github.com/empiricalhq/atomic
+git clone https://github.com/risinghq/atomic
 cd atomic
 mise install
-npm ci
-npm start
+bun install
+bun run --cwd apps/atomic start
 ```
 
-`mise install` installs the tool versions in `mise.toml`. `npm start` starts the
+`mise install` installs the tool versions in `mise.toml`. `start` runs the
 development server. Scan its QR code with Expo Go. Simulators, emulators and
-preview builds are in [Running the app](docs/running.md).
+preview builds are in [Running the apps](docs/running.md).
 
 The app opens on a three-step onboarding. Tapping **Comenzar** creates an
 anonymous local user and lands on the home screen, which shows the balance and
@@ -44,8 +48,8 @@ recent transactions.
 
 ## Documentation
 
-The [manual](docs/README.md) covers running the app, the architecture, the data
-flow, the user lifecycle and testing.
+The [manual](docs/README.md) covers running the apps, the repository layout,
+testing, and the atomic app's architecture, data flow and user lifecycle.
 
 ## Contributing
 

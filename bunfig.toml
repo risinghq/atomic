@@ -1,0 +1,4 @@
+[install]
+# Metro resolves from one hoisted node_modules. The isolated layout hides
+# transitive packages that React Native libraries import without declaring.
+linker = "hoisted"
