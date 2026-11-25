@@ -1,4 +1,11 @@
-export { palettes, tints, type ColorScheme, type Colors, type Tint } from './theme/colors';
+export {
+  palettes,
+  tints,
+  withAlpha,
+  type ColorScheme,
+  type Colors,
+  type Tint,
+} from './theme/colors';
 export {
   font,
   fontAssets,
@@ -55,3 +62,19 @@ export {
   type ToastTone,
 } from './components/Toast';
 export { TabBar, type Tab, type TabBarProps } from './components/TabBar';
+export {
+  CategoryPicker,
+  type CategoryOption,
+  type CategoryPickerProps,
+} from './components/CategoryPicker';
+export { BudgetMeter, type BudgetMeterProps, type MeterSegment } from './components/BudgetMeter';
+export {
+  BudgetCard,
+  BudgetSummaryCard,
+  type BudgetCardProps,
+  type BudgetSummaryCardProps,
+} from './components/BudgetCard';
+export { PeriodPicker, type PeriodPickerProps } from './components/PeriodPicker';
+export { BarChart, showsAverage, type BarChartProps, type ChartBar } from './components/BarChart';
+export { Sheet, type SheetProps } from './components/Sheet';
+export { EmptyState, type EmptyStateProps } from './components/EmptyState';

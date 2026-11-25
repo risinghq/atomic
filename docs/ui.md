@@ -69,21 +69,35 @@ category colors an `IconTile` sits on; they are the same in both schemes.
 
 ## Components
 
-| Component                     | Use                                                                                                                           |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `Text`                        | Any text. Takes a `variant`, `weight`, color name and `tabular`.                                                              |
-| `PressableScale`              | The base of every tappable control: shrinks on a spring while held and plays a haptic on press.                               |
-| `Button`                      | `primary` (dark accent), `secondary` (grey) or `plain`, in `regular` or `small` (pill) size.                                  |
-| `IconTile`                    | A rounded square with an emoji or icon on a tint, for categories and settings rows.                                           |
-| `Amount`, `amountParts()`     | Money in the app's currency. At `amount` size and above, the sign and symbol shrink and turn grey beside the number.          |
-| `ListSection`, `ListRow`      | A titled grey card of rows with hairlines between them. A row with `onPress` shows a chevron.                                 |
-| `TransactionRow`, `DayHeader` | One transaction with its category tile and amount; income shows green with a `+`. A day header shows the day and its total.   |
-| `SegmentedControl`            | Two to four choices on a grey track; the selected pill slides on a spring.                                                    |
-| `Toggle`                      | An on/off switch, green when on.                                                                                              |
-| `NumberPad`, `applyKey()`     | The amount keypad. `applyKey(text, key)` applies one key to the typed text and enforces two decimals and nine whole digits.   |
-| `ProgressBar`                 | A budget bar. The fill springs to its new value.                                                                              |
-| `ToastProvider`, `useToast()` | A dark pill near the bottom that confirms an action and leaves on its own.                                                    |
-| `TabBar`                      | Icon tabs with the dark add capsule in the middle. It holds no routes: the app maps `active` and `onChange` to its navigator. |
+| Component                     | Use                                                                                                                                                                |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Text`                        | Any text. Takes a `variant`, `weight`, color name and `tabular`.                                                                                                   |
+| `PressableScale`              | The base of every tappable control: shrinks on a spring while held and plays a haptic on press.                                                                    |
+| `Button`                      | `primary` (dark accent), `secondary` (grey) or `plain`, in `regular` or `small` (pill) size.                                                                       |
+| `IconTile`                    | A rounded square with an emoji or icon on a tint, for categories and settings rows.                                                                                |
+| `Amount`, `amountParts()`     | Money in the app's currency. At `amount` size and above, the sign and symbol shrink and turn grey beside the number.                                               |
+| `ListSection`, `ListRow`      | A titled grey card of rows with hairlines between them. A row with `onPress` shows a chevron.                                                                      |
+| `TransactionRow`, `DayHeader` | One transaction with its category tile and amount; income shows green with a `+`. A day header shows the day and its total.                                        |
+| `SegmentedControl`            | Two to four choices on a grey track; the selected pill slides on a spring.                                                                                         |
+| `Toggle`                      | An on/off switch, green when on.                                                                                                                                   |
+| `NumberPad`, `applyKey()`     | The amount keypad. `applyKey(text, key)` applies one key to the typed text and enforces two decimals and nine whole digits.                                        |
+| `ProgressBar`                 | A budget bar. The fill springs to its new value.                                                                                                                   |
+| `ToastProvider`, `useToast()` | A dark pill near the bottom that confirms an action and leaves on its own.                                                                                         |
+| `TabBar`                      | Icon tabs with the dark add capsule in the middle. It holds no routes: the app maps `active` and `onChange` to its navigator.                                      |
+| `CategoryPicker`              | A three-column grid of category tiles, emoji over name on a wash of the category color. The selected tile darkens and gains a border.                              |
+| `BudgetMeter`                 | A capsule split into colored segments, with an optional pace tick at the elapsed part of the period.                                                               |
+| `BudgetCard`                  | One category's budget: the amount left or over, a status line and a meter in the category color.                                                                   |
+| `BudgetSummaryCard`           | The overall budget: the large amount left or over, and a meter split by category.                                                                                  |
+| `PeriodPicker`                | The period on screen between back and forward arrows. `canNext={false}` stops at the current period.                                                               |
+| `BarChart`, `showsAverage()`  | Bars on faint tracks with labels under them. While a bar is `current`, the others dim. The dashed average shows only when a quarter of the elapsed bars hold data. |
+| `Sheet`                       | A bottom panel over a dimmed screen. Tapping the dim closes it; it stays mounted until it has slid away.                                                           |
+| `EmptyState`                  | What a screen shows before it has data: an emoji, a title, a line of why and an optional action.                                                                   |
+
+`TransactionRow` takes `onLongPress` for the row's actions, such as delete. Rows
+have no swipe actions, so the package needs no gesture library.
+
+`withAlpha(color, alpha)` turns a `#RRGGBB` color into `rgba()`. The category
+washes and the chart tracks use it.
 
 Interactive components expose their state (selected, checked, disabled,
 progress) through `aria-*` props. React Native reads them on every platform, and
