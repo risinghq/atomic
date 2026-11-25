@@ -144,9 +144,9 @@ done
 Each provider's client lists the callback
 `https://atomic.rising.sh/auth/<provider>/callback`.
 
-Email codes go out from `acceso@atomic.rising.sh`. Add `atomic.rising.sh` as a
-domain in Resend, put the DNS records it lists in the `rising.sh` Cloudflare
-zone, and set the API key:
+Email codes go out from `atomic@rising.sh`. Resend must have `rising.sh`
+verified, with the DNS records it lists in the `rising.sh` Cloudflare zone. Set
+the API key:
 
 ```bash
 cd apps/api
