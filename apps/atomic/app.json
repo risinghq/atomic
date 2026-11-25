@@ -35,6 +35,28 @@
         {
           "faceIDPermission": "Atomic usa Face ID para abrirse cuando activas el bloqueo."
         }
+      ],
+      [
+        "react-native-android-widget",
+        {
+          "fonts": [
+            "../../node_modules/@expo-google-fonts/inter/400Regular/Inter_400Regular.ttf",
+            "../../node_modules/@expo-google-fonts/inter/600SemiBold/Inter_600SemiBold.ttf"
+          ],
+          "widgets": [
+            {
+              "name": "Summary",
+              "label": "Atomic",
+              "description": "Lo que gastaste en el periodo y lo que te queda por día.",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 3600000
+            }
+          ]
+        }
       ]
     ],
     "orientation": "portrait",

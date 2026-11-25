@@ -11,6 +11,7 @@ export default defineConfig(async () => ({
           GOOGLE_CLIENT_SECRET: 'google-test-secret',
           GITHUB_CLIENT_ID: 'github-test-client',
           GITHUB_CLIENT_SECRET: 'github-test-secret',
+          RESEND_API_KEY: 're_test',
           MIGRATIONS: await readD1Migrations('./migrations'),
         },
       },

@@ -19,7 +19,7 @@ index.ts ─► App ─► DataProvider ─► AccountProvider ─► Root ─�
 
 | Path                                                                    | Owns                                                                                             |
 | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| [`index.ts`](../index.ts)                                               | Registers `App` as the root component.                                                           |
+| [`index.ts`](../index.ts)                                               | Registers `App` as the root component, and the widget's task handler on Android.                 |
 | [`src/App.tsx`](../src/App.tsx)                                         | Holds the splash screen until the fonts and the store are ready, then mounts the providers.      |
 | [`src/data/openAppStore.ts`](../src/data/openAppStore.ts)               | Opens `atomic.db`, runs the AsyncStorage import and seeds the default categories.                |
 | [`src/data/DataProvider.tsx`](../src/data/DataProvider.tsx)             | Loads the snapshot and exposes it with `write` through `useData()`.                              |
@@ -37,6 +37,8 @@ index.ts ─► App ─► DataProvider ─► AccountProvider ─► Root ─�
 | [`src/screens/`](../src/screens)                                        | One file per tab, plus `Onboarding`.                                                             |
 | [`src/entry/EntryForm.tsx`](../src/entry/EntryForm.tsx)                 | The entry sheet: kind, number pad, then note, repeat and category. The category saves the entry. |
 | [`src/entry/frequent.ts`](../src/entry/frequent.ts)                     | The repeated entries the number pad offers in one tap.                                           |
+| [`src/entry/entryLink.ts`](../src/entry/entryLink.ts)                   | The `atomic://new` link that opens the entry sheet.                                              |
+| [`src/widget/`](../src/widget)                                          | The Android home-screen widget: its summary, its layout, and drawing it (`platform.android.ts`). |
 | [`src/budgets/BudgetForm.tsx`](../src/budgets/BudgetForm.tsx)           | The budget sheet: what the budget covers, then its period and amount.                            |
 | [`src/categories/`](../src/categories)                                  | Ajustes' category sheet: the list per kind, and the form that adds, edits, archives or restores. |
 | [`src/recurring/RecurringList.tsx`](../src/recurring/RecurringList.tsx) | Ajustes' recurring sheet: each rule with its next date, and stopping one.                        |

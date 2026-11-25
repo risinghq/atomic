@@ -121,5 +121,49 @@ export async function signIn(provider: 'google' | 'github', person: Person): Pro
   return token;
 }
 
+/** A message Resend accepted. */
+export type Mail = { from: string; to: string[]; subject: string; text: string };
+
+/**
+ * Stands in for Resend: it accepts a message sent with the Worker's key and
+ * delivers it to the returned inbox, or answers `status` without delivering.
+ */
+export function fakeMail({ status = 200 }: { status?: number } = {}): Mail[] {
+  const inbox: Mail[] = [];
+
+  vi.stubGlobal('fetch', async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input instanceof Request ? input.url : input);
+
+    if (url !== 'https://api.resend.com/emails') throw new Error(`unexpected fetch to ${url}`);
+
+    const headers = new Headers(init?.headers);
+
+    if (headers.get('Authorization') !== `Bearer ${env.RESEND_API_KEY}`) {
+      return Response.json({ message: 'API key is invalid' }, { status: 401 });
+    }
+
+    if (status !== 200) return Response.json({ message: 'refused' }, { status });
+
+    inbox.push(JSON.parse(String(init?.body)) as Mail);
+
+    return Response.json({ id: crypto.randomUUID() });
+  });
+
+  return inbox;
+}
+
+/** The code in the latest message to `address`, read as a person would. */
+export function codeIn(inbox: Mail[], address: string): string {
+  const mail = inbox.findLast((message) => message.to.includes(address));
+
+  return /\b(\d{6})\b/.exec(mail?.text ?? '')?.[1] ?? '';
+}
+
+export const requestCode = (email: string) =>
+  send('/auth/email/start', { method: 'POST', json: { email } });
+
+export const enterCode = (email: string, code: string) =>
+  send('/auth/email/verify', { method: 'POST', json: { email, code } });
+
 export const ANA = { email: 'ana@example.com' };
 export const BETO = { email: 'beto@example.com' };

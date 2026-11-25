@@ -2,15 +2,15 @@ import { Hono } from 'hono';
 import { createMiddleware } from 'hono/factory';
 import type { App } from './app';
 import { randomToken, safeEqual, sha256 } from './crypto';
+import { emailSignIn } from './email';
 import { authorizeUrl, configured, providers, verifiedEmail, type Provider } from './providers';
+import { addUser, openSession, TOKEN_PREFIX } from './session';
 
 /** Where the callback hands control back to the app. */
 export const APP_REDIRECT = 'atomic://auth';
 
 /** How long a sign-in may take, from the start to the token exchange. */
 const LOGIN_TTL = 10 * 60 * 1000;
-
-const TOKEN_PREFIX = 'atomic_';
 
 /** A PKCE S256 challenge: 32 bytes of SHA-256 in unpadded base64url. */
 const CHALLENGE = /^[A-Za-z0-9_-]{43}$/;
@@ -23,6 +23,8 @@ const backToApp = (params: Record<string, string>) =>
 type Login = { provider: string; verifier: string; challenge: string; user_id: string | null };
 
 export const auth = new Hono<App>();
+
+auth.route('/email', emailSignIn);
 
 /**
  * Starts a sign-in. The app sends the S256 challenge of a verifier it keeps,
@@ -84,9 +86,7 @@ auth.get('/:provider/callback', async (c) => {
   const handoff = randomToken();
 
   await c.env.DB.batch([
-    c.env.DB.prepare(
-      'INSERT INTO users (id, email, created_at) VALUES (?, ?, ?) ON CONFLICT (email) DO NOTHING'
-    ).bind(crypto.randomUUID(), email, Date.now()),
+    addUser(c.env.DB, email),
     c.env.DB.prepare(
       'UPDATE logins SET code_hash = ?, user_id = (SELECT id FROM users WHERE email = ?) WHERE state = ?'
     ).bind(await sha256(handoff), email, state),
@@ -118,15 +118,7 @@ auth.post('/token', async (c) => {
     return c.json({ error: 'invalid code' }, 400);
   }
 
-  const token = TOKEN_PREFIX + randomToken();
-  const user = await c.env.DB.batch<{ email: string }>([
-    c.env.DB.prepare(
-      'INSERT INTO sessions (token_hash, user_id, created_at) VALUES (?, ?, ?)'
-    ).bind(await sha256(token), login.user_id, Date.now()),
-    c.env.DB.prepare('SELECT email FROM users WHERE id = ?').bind(login.user_id),
-  ]);
-
-  return c.json({ token, email: user[1]?.results[0]?.email });
+  return c.json(await openSession(c.env.DB, login.user_id));
 });
 
 /** Requires `Authorization: Bearer <token>` and puts its account on the context. */
