@@ -8,11 +8,12 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/splash.png",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 120,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
           "dark": {
-            "image": "./assets/splash.png",
+            "image": "./assets/splash-icon-dark.png",
             "backgroundColor": "#000000"
           }
         }
@@ -69,7 +70,8 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "monochromeImage": "./assets/monochrome-icon.png",
+        "backgroundColor": "#010101"
       },
       "package": "com.empiricalhq.atomic"
     },
