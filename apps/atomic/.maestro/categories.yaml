@@ -1,0 +1,36 @@
+appId: com.empiricalhq.atomic
+name: Add a category, record with it, then archive it
+---
+- runFlow: subflows/onboard.yaml
+
+- tapOn: 'Ajustes'
+- tapOn: 'Categorías'
+- tapOn: 'Nueva categoría'
+- tapOn: 'Nombre'
+- inputText: 'Mascotas'
+- tapOn: 'Morado'
+- assertVisible:
+    text: 'Morado'
+    checked: true
+- tapOn: 'Guardar'
+- assertVisible: 'Mascotas'
+
+- tapOn: 'Mascotas'
+- tapOn: 'Archivar'
+- assertVisible: 'Sus movimientos se conservan, pero no aparecen al registrar.'
+
+- tapOn: 'Mascotas'
+- tapOn: 'Restaurar'
+- assertNotVisible:
+    'Sus movimientos se conservan, pero no aparecen al registrar.'
+- back
+
+- tapOn: 'Agregar'
+- tapOn: '7'
+- tapOn: 'Confirmar'
+- scrollUntilVisible:
+    element: 'Mascotas'
+- tapOn: 'Mascotas'
+- assertNotVisible: 'Nota (opcional)'
+- tapOn: 'Registro'
+- assertVisible: 'Mascotas'

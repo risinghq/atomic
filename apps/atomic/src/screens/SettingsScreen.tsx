@@ -3,6 +3,7 @@ import { ListRow, ListSection, SegmentedControl, Sheet, Toggle, useToast } from 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AccountSection } from '../account/AccountSection';
 import { useAccount } from '../account/AccountProvider';
+import { CategoryManager } from '../categories/CategoryManager';
 import { Field } from '../components/Field';
 import { Screen } from '../components/Screen';
 import { csvName, toCsv } from '../data/csv';
@@ -10,12 +11,13 @@ import { useData } from '../data/DataProvider';
 import { shareCsv } from '../data/shareCsv';
 import { useSheet } from '../useSheet';
 
-/** The currency, the first day of the week, haptics, the account, and the export and erasing of the data. */
+/** The currency, the first day of the week, categories, haptics, the account, and the export and erasing of the data. */
 export function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { settings, transactions, categories, write } = useData();
   const toast = useToast();
   const confirmErase = useSheet();
+  const manageCategories = useSheet();
   const account = useAccount();
   const signedIn = account.email !== null;
 
@@ -71,6 +73,7 @@ export function SettingsScreen() {
       </Field>
 
       <ListSection>
+        <ListRow title="Categorías" onPress={() => manageCategories.show()} />
         <ListRow
           title="Vibración"
           trailing={
@@ -95,6 +98,14 @@ export function SettingsScreen() {
         <ListRow title="Exportar CSV" onPress={() => void exportCsv()} />
         <ListRow title="Borrar todos los datos" destructive onPress={() => confirmErase.show()} />
       </ListSection>
+
+      <Sheet
+        visible={manageCategories.open}
+        onClose={manageCategories.hide}
+        title="Categorías"
+        bottomInset={insets.bottom}>
+        <CategoryManager key={manageCategories.session} />
+      </Sheet>
 
       <Sheet
         visible={confirmErase.open}
