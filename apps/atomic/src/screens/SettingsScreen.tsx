@@ -7,11 +7,12 @@ import { useAccount } from '../account/AccountProvider';
 import { CategoryManager } from '../categories/CategoryManager';
 import { Field } from '../components/Field';
 import { Screen } from '../components/Screen';
-import { csvName, toCsv } from '../data/csv';
+import { exportChoices, exported, toCsv, type ExportChoice } from '../data/csv';
 import { useData } from '../data/DataProvider';
 import { shareCsv } from '../data/shareCsv';
 import { canLock, unlock } from '../lock/deviceAuth';
 import { RecurringList } from '../recurring/RecurringList';
+import { useNow } from '../useNow';
 import { useSheet } from '../useSheet';
 
 /** The currency, the first day of the week, categories, recurring transactions, haptics, the app lock, the account, and the export and erasing of the data. */
@@ -22,17 +23,23 @@ export function SettingsScreen() {
   const confirmErase = useSheet();
   const manageCategories = useSheet();
   const manageRecurring = useSheet();
+  const chooseExport = useSheet();
+  const now = useNow();
   const account = useAccount();
   const signedIn = account.email !== null;
 
-  async function exportCsv() {
-    if (transactions.length === 0) {
+  async function exportCsv(choice: ExportChoice) {
+    const rows = exported(transactions, choice);
+
+    if (rows.length === 0) {
       toast({ text: 'No hay movimientos para exportar' });
       return;
     }
 
+    chooseExport.hide();
+
     try {
-      await shareCsv(csvName(new Date()), toCsv(transactions, categories));
+      await shareCsv(choice.file, toCsv(rows, categories));
     } catch {
       toast({ text: 'No se pudo exportar', tone: 'error' });
     }
@@ -124,7 +131,7 @@ export function SettingsScreen() {
             ? 'Los datos se guardan en este dispositivo y en tu cuenta.'
             : 'Los datos solo se guardan en este dispositivo.'
         }>
-        <ListRow title="Exportar CSV" onPress={() => void exportCsv()} />
+        <ListRow title="Exportar CSV" onPress={() => chooseExport.show()} />
         <ListRow title="Borrar todos los datos" destructive onPress={() => confirmErase.show()} />
       </ListSection>
 
@@ -142,6 +149,23 @@ export function SettingsScreen() {
         title="Recurrentes"
         bottomInset={insets.bottom}>
         <RecurringList key={manageRecurring.session} />
+      </Sheet>
+
+      <Sheet
+        visible={chooseExport.open}
+        onClose={chooseExport.hide}
+        title="Exportar CSV"
+        bottomInset={insets.bottom}>
+        <ListSection>
+          {exportChoices(now, settings.weekStart).map((choice) => (
+            <ListRow
+              key={choice.file}
+              title={choice.title}
+              value={choice.detail}
+              onPress={() => void exportCsv(choice)}
+            />
+          ))}
+        </ListSection>
       </Sheet>
 
       <Sheet

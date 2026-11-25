@@ -23,7 +23,7 @@ index.ts ─► App ─► DataProvider ─► AccountProvider ─► Root ─�
 | [`src/App.tsx`](../src/App.tsx)                                         | Holds the splash screen until the fonts and the store are ready, then mounts the providers.      |
 | [`src/data/openAppStore.ts`](../src/data/openAppStore.ts)               | Opens `atomic.db`, runs the AsyncStorage import and seeds the default categories.                |
 | [`src/data/DataProvider.tsx`](../src/data/DataProvider.tsx)             | Loads the snapshot and exposes it with `write` through `useData()`.                              |
-| [`src/data/csv.ts`](../src/data/csv.ts)                                 | Turns the transactions into the CSV that Ajustes exports.                                        |
+| [`src/data/csv.ts`](../src/data/csv.ts)                                 | The periods Ajustes exports, and the CSV of their transactions.                                  |
 | [`src/account/AccountProvider.tsx`](../src/account/AccountProvider.tsx) | The session, the sync status and the account actions, through `useAccount()`.                    |
 | [`src/account/api.ts`](../src/account/api.ts)                           | The Worker's routes. `EXPO_PUBLIC_API_URL` points a build at another Worker.                     |
 | [`src/account/signIn.ts`](../src/account/signIn.ts)                     | The browser sign-in with PKCE, ending in a session.                                              |
