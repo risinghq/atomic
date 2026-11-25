@@ -1,10 +1,8 @@
-import type { Changes } from '@atomic/core';
+import { noChanges as none, type Changes } from '@atomic/core';
 import { describe, expect, it } from 'vitest';
 import { ANA, BETO, send, signIn } from './helpers';
 
 type Reply = { changes: Changes; cursor: string; more: boolean };
-
-const none = (): Changes => ({ categories: [], transactions: [], budgets: [], settings: [] });
 
 /** A device: its token and the cursor of its last sync. */
 function device(token: string) {
@@ -79,6 +77,26 @@ describe('sync', () => {
     await phone.sync({ transactions: [{ ...lunch(300), deleted: true }] });
 
     expect((await tablet.sync()).changes.transactions).toEqual([{ ...lunch(300), deleted: true }]);
+  });
+
+  it('carries a recurring transaction', async () => {
+    const phone = device(await signIn('google', ANA));
+    const tablet = device(await signIn('google', ANA));
+    const rent = {
+      id: 'rule-1',
+      kind: 'expense' as const,
+      amount: 120_000,
+      categoryId: 'home',
+      note: 'Alquiler',
+      every: 'month' as const,
+      start: 5,
+      updatedAt: 100,
+      deleted: false,
+    };
+
+    await phone.sync({ recurring: [rent] });
+
+    expect((await tablet.sync()).changes.recurring).toEqual([rent]);
   });
 
   it('shares synced settings', async () => {

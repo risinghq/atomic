@@ -1,7 +1,7 @@
 import { noChanges, syncedSettings, type Changes } from '@atomic/core';
 import type { AppContext } from './app';
 
-export const kinds = ['categories', 'transactions', 'budgets', 'settings'] as const;
+export const kinds = ['categories', 'transactions', 'budgets', 'recurring', 'settings'] as const;
 
 type Kind = (typeof kinds)[number];
 
