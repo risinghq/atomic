@@ -7,7 +7,11 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  await env.DB.batch([env.DB.prepare('DELETE FROM logins'), env.DB.prepare('DELETE FROM users')]);
+  await env.DB.batch([
+    env.DB.prepare('DELETE FROM logins'),
+    env.DB.prepare('DELETE FROM users'),
+    env.DB.prepare('DELETE FROM email_codes'),
+  ]);
 });
 
 afterEach(() => {
