@@ -6,12 +6,14 @@
   "scripts": {
     "start": "expo start",
     "dev": "expo start --clear",
-    "ios": "expo start --ios",
-    "android": "expo start --android",
+    "ios": "expo run:ios",
+    "android": "expo run:android",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "test": "TZ=America/Lima jest",
-    "e2e": "maestro test .maestro",
+    "apk": "expo prebuild -p android --no-install && cd android && ./gradlew assembleRelease -PreactNativeArchitectures=x86_64",
+    "emulator": "./scripts/emulator.sh",
+    "e2e": "android --no-metrics install android/app/build/outputs/apk/release/app-release.apk && maestro test .maestro",
     "build": "expo export --platform web",
     "build-preview": "eas build -p android --profile preview",
     "doctor": "expo-doctor && expo install --check"

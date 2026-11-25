@@ -67,25 +67,26 @@ app on a device or emulator. They cover what Jest cannot: the release build,
 Hermes, native gestures and real animations. Each flow clears the app's data
 first.
 
-Install the Maestro CLI, install a build of the app on a running emulator, then
-run every flow:
+With the tools from `mise install`, build the release APK, start the emulator,
+then install the APK and run every flow:
 
 ```bash
-curl -fsSL https://get.maestro.mobile.dev | bash
-bun run --cwd apps/atomic build-preview
-adb install -r atomic.apk
+bun run --cwd apps/atomic apk
+bun run --cwd apps/atomic emulator
 bun run --cwd apps/atomic e2e
 ```
 
-`build-preview` builds the APK on EAS and prints its download link; save it as
-`atomic.apk`. `bun run check` does not run these flows.
+`apk` runs `expo prebuild` and Gradle, so it spends no EAS build; a cold build
+takes about five minutes. `emulator` runs
+[`scripts/emulator.sh`](../apps/atomic/scripts/emulator.sh): it installs the SDK
+packages, creates the `atomic-e2e` device (a Pixel 7 on the API 37 Automated
+Test Device image, a system image stripped of the apps that tests do not need)
+and returns once it has booted. Stop it with `android emulator stop atomic-e2e`.
+`bun run check` does not run these flows.
 
-In CI, [`e2e.yml`](../.github/workflows/e2e.yml) runs them on every change under
-`apps/atomic` or `packages`. It builds a release APK for x86_64 with
-`expo prebuild` and Gradle, so it spends no EAS build, and runs the flows on an
-API 34 Automated Test Device image, a system image stripped of the apps that
-tests do not need. A failed run uploads Maestro's screenshots and logs as the
-`maestro` artifact.
+In CI, [`e2e.yml`](../.github/workflows/e2e.yml) runs the same three scripts on
+every change under `apps/atomic` or `packages`. A failed run uploads Maestro's
+screenshots and logs as the `maestro` artifact.
 
 ## Lint and format
 
