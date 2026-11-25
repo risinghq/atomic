@@ -11,6 +11,7 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "test": "TZ=America/Lima jest",
+    "e2e": "maestro test .maestro",
     "build": "expo export --platform web",
     "build-preview": "eas build -p android --profile preview",
     "doctor": "expo-doctor && expo install --check"

@@ -1,0 +1,14 @@
+appId: com.empiricalhq.atomic
+name: Delete an expense with a long press
+---
+- runFlow: subflows/onboard.yaml
+
+- tapOn: 'Agregar'
+- tapOn: '5'
+- tapOn: 'Confirmar'
+- tapOn: 'Transporte'
+- assertNotVisible: 'Nota (opcional)'
+
+- longPressOn: 'Transporte'
+- tapOn: 'Borrar'
+- assertVisible: 'Aún no hay movimientos'

@@ -46,6 +46,27 @@ Layout in the atomic app:
 - The `test` script pins `TZ=America/Lima`, because day and period labels depend
   on the local time zone.
 
+## End-to-end flows
+
+[Maestro](https://docs.maestro.dev) flows in
+[`apps/atomic/.maestro/`](../apps/atomic/.maestro) drive the installed Android
+app on a device or emulator. They cover what Jest cannot: the release build,
+Hermes, native gestures and real animations. Each flow clears the app's data
+first.
+
+Install the Maestro CLI, install a build of the app on a running emulator, then
+run every flow:
+
+```bash
+curl -fsSL https://get.maestro.mobile.dev | bash
+bun run --cwd apps/atomic build-preview
+adb install -r atomic.apk
+bun run --cwd apps/atomic e2e
+```
+
+`build-preview` builds the APK on EAS and prints its download link; save it as
+`atomic.apk`. `bun run check` does not run these flows.
+
 ## Lint and format
 
 `bun run lint` runs `oxlint --deny-warnings` and then `oxfmt --check` over the

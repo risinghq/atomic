@@ -1,0 +1,16 @@
+appId: com.empiricalhq.atomic
+name: Add an expense and see it in Resumen
+---
+- runFlow: subflows/onboard.yaml
+
+- tapOn: 'Agregar'
+- tapOn: '1'
+- tapOn: '8'
+- tapOn: 'Confirmar'
+- tapOn: 'Comida'
+- assertNotVisible: 'Nota (opcional)'
+
+- tapOn: 'Resumen'
+- assertVisible: 'Comida'
+- assertVisible: '100%'
+- assertVisible: 'S/ 18.00'
