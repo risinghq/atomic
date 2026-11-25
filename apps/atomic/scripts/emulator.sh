@@ -13,4 +13,7 @@ if ! android --no-metrics emulator list | grep -qx "$avd"; then
     --name "$avd" --package "$(echo "$image" | tr / ';')" --device pixel_7
 fi
 
-android --no-metrics emulator start --headless "$avd"
+android --no-metrics -v emulator list --long
+"$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" list avd
+ls -la ~/.android ~/.android/avd || true
+android --no-metrics -v emulator start --headless "$avd"
