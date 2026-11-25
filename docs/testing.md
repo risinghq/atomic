@@ -46,6 +46,8 @@ Layout in the atomic app:
   share sheet. `format.test.ts` covers the labels in `src/format.ts`, and
   `csv.test.ts` the CSV in `src/data/csv.ts`. `account.test.tsx` covers sign-in,
   sync, sign-out, account deletion and erasing while signed in.
+  `categories.test.tsx` adds, renames, archives and restores categories from
+  Ajustes and checks what the entry picker offers.
 - [`tests/cloud.ts`](../apps/atomic/tests/cloud.ts) holds `FakeCloud`, the
   Worker's contract from [API](api.md) in memory: PKCE sign-in, the newer record
   wins, paged pulls and the delete routes. A test sets `online`,

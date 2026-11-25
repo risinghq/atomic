@@ -44,6 +44,15 @@ Deleting and budgets take the same path: a long press opens a confirm sheet, and
 [`BudgetForm`](../src/budgets/BudgetForm.tsx) saves with `setBudget`, which
 replaces the budget that category had.
 
+## Categories
+
+**Categorías** in Ajustes lists the categories of one kind.
+[`CategoryForm`](../src/categories/CategoryForm.tsx) saves a new one with
+`addCategory`, which places it last, and an edit with `updateCategory`.
+Archiving sets `archived`: the category leaves the entry and budget pickers, and
+its transactions keep it. Restoring clears the flag. A kind keeps at least one
+active category, so the form offers no **Archivar** for the last one.
+
 ## Settings
 
 Ajustes writes a change with `updateSettings` as soon as a segment is picked.
