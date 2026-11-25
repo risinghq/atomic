@@ -2,7 +2,6 @@ import { useEffect, useState, type ReactNode } from 'react';
 import {
   KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   StyleSheet,
   useWindowDimensions,
@@ -67,9 +66,8 @@ export function Sheet({
 
   return (
     <Modal transparent visible={mounted} animationType="none" onRequestClose={onClose}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.root}>
+      {/* Android draws edge to edge, so the window no longer shrinks for the keyboard. */}
+      <KeyboardAvoidingView behavior="padding" style={styles.root}>
         <Animated.View
           style={[
             StyleSheet.absoluteFill,
