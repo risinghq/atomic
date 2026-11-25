@@ -66,6 +66,35 @@ The schema enforces what the types promise: a positive amount, a known category
 and one budget per category plus one overall. `setBudget` replaces the budget
 the category had. Bulk writes go out as multi-row inserts of up to 500 rows.
 
+### Sync
+
+Every category, transaction, budget and setting row carries `updated_at`, the
+time of its last write, and `dirty`, set until a sync sends it. Records also
+carry `deleted`: a deletion keeps the row as a tombstone, so it reaches the
+other devices, and every read skips it. `now` in the store options sets the
+clock; it defaults to `Date.now`.
+
+A sync runs three calls ([`sync.ts`](../packages/core/src/sync.ts) holds the
+types):
+
+```ts
+const pushed = await store.pendingChanges();
+const { pulled, cursor } = await server.sync(await store.syncCursor(), pushed);
+
+await store.completeSync({ pushed, pulled, cursor });
+```
+
+- `pendingChanges` returns the dirty records. Of the settings, only
+  `syncedSettings` (`currency` and `weekStart`) leave the device.
+- `completeSync` runs in one transaction. It clears `dirty` on each sent record
+  that was not written again during the sync, writes each received record only
+  when its `updated_at` is newer than the local one, and saves the cursor.
+- The default categories are seeded with `updated_at` 0 and are not dirty: every
+  device has them, so they travel only after an edit.
+- A budget's id is `budgetId(categoryId)`, so two devices that set the budget of
+  one category write the same record.
+- `eraseAll` deletes the rows outright and forgets the cursor.
+
 ### Migrations
 
 [`migrations.ts`](../packages/core/src/storage/migrations.ts) lists one SQL
