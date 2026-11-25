@@ -57,6 +57,7 @@ and the store's `pendingChanges()`:
     "categories": [],
     "transactions": [],
     "budgets": [],
+    "recurring": [],
     "settings": []
   }
 }
@@ -71,6 +72,7 @@ cursor:
     "categories": [],
     "transactions": [],
     "budgets": [],
+    "recurring": [],
     "settings": []
   },
   "cursor": "57",

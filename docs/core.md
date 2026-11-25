@@ -11,6 +11,7 @@ Expo or React Native, so its tests run in Node.
 | `Category`    | A name, an emoji and a `#RRGGBB` color, for expenses or income. `position` orders the pickers. An archived one leaves them.   |
 | `Transaction` | A positive `amount` in cents, its `kind`, a category, a note and `at` in epoch milliseconds.                                  |
 | `Budget`      | An amount per `week` or `month`, for one category or, with a null `categoryId`, for every expense.                            |
+| `Recurring`   | A transaction to record on `start` and again every `day`, `week`, `month` or `year` after it.                                 |
 | `Settings`    | The first day of the week, the currency code and whether onboarding is done. `defaultSettings` fills in what was never saved. |
 
 Money is a whole number of cents everywhere. `parseCents` reads what the number
@@ -37,6 +38,31 @@ is still a calendar day across a daylight-saving change. The tests run in
 `totalIn`, `totalsByCategory` and `totalsByBucket` sum transactions inside a
 span. `budgetStatus` gives a budget's spent, left, share and the elapsed part of
 its current period, which the budget meter draws as its pace tick.
+
+## Recurring transactions
+
+`occurrenceAt(start, every, index)` is the time of a rule's occurrence number
+`index`, built from calendar fields like a period. A monthly or yearly rule
+keeps the start's day of the month, or takes the last day of a shorter month: a
+rule that starts on January 31 falls on February 28, then March 31. `dueIndexes`
+lists the occurrences due by a moment, and `nextOccurrence` gives the first one
+after it ([`recurring.ts`](../packages/core/src/recurring.ts)).
+
+`addRecurring` saves a rule and records the occurrences already due, so a rule
+that starts now records its first transaction at once. `applyRecurring` records
+every occurrence due by `now` and returns how many it recorded. The app calls it
+before each snapshot load.
+
+- An occurrence is a plain transaction with the id
+  `occurrenceId(ruleId, index)`. Two devices that record the same occurrence
+  write the same record, so sync merges them.
+- The store keeps `applied`, the number of occurrences this device has recorded,
+  in a column that never syncs. An occurrence is inserted only when its id is
+  new and stamped with the rule's `updated_at`, so an edit or a deletion of it
+  is newer and wins over another device's copy.
+- `updateRecurring` changes the kind, amount, category and note. `start` and
+  `every` never change, because they fix the occurrence ids.
+- `deleteRecurring` stops future occurrences. The recorded ones stay.
 
 ## Store
 
@@ -68,11 +94,11 @@ the category had. Bulk writes go out as multi-row inserts of up to 500 rows.
 
 ### Sync
 
-Every category, transaction, budget and setting row carries `updated_at`, the
-time of its last write, and `dirty`, set until a sync sends it. Records also
-carry `deleted`: a deletion keeps the row as a tombstone, so it reaches the
-other devices, and every read skips it. `now` in the store options sets the
-clock; it defaults to `Date.now`.
+Every category, transaction, budget, recurring and setting row carries
+`updated_at`, the time of its last write, and `dirty`, set until a sync sends
+it. Records also carry `deleted`: a deletion keeps the row as a tombstone, so it
+reaches the other devices, and every read skips it. `now` in the store options
+sets the clock; it defaults to `Date.now`.
 
 A sync runs three calls ([`sync.ts`](../packages/core/src/sync.ts) holds the
 types):

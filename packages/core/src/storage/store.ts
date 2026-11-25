@@ -4,11 +4,14 @@ import {
   type Budget,
   type BudgetPeriod,
   type Category,
+  type Every,
   type Kind,
+  type Recurring,
   type Settings,
   type Transaction,
 } from '../model';
 import type { Span } from '../period';
+import { dueIndexes, occurrenceAt, occurrenceId } from '../recurring';
 import {
   budgetId,
   syncedSettings,
@@ -48,11 +51,23 @@ type BudgetRow = StampRow & {
   period: BudgetPeriod;
 };
 
+type RecurringRow = StampRow & {
+  id: string;
+  kind: Kind;
+  amount: number;
+  category_id: string;
+  note: string;
+  every: Every;
+  start: number;
+  applied: number;
+};
+
 type SettingRow = { key: string; value: string; updated_at: number };
 
 export type NewCategory = Pick<Category, 'name' | 'emoji' | 'color' | 'kind'>;
 export type NewTransaction = Omit<Transaction, 'id'>;
 export type NewBudget = Omit<Budget, 'id'>;
+export type NewRecurring = Omit<Recurring, 'id'>;
 
 /** Records written in one go by an import. */
 export type ImportRecords = {
@@ -110,6 +125,20 @@ const budgetTable = {
     budget.categoryId,
     budget.amount,
     budget.period,
+  ],
+};
+
+const recurringTable = {
+  name: 'recurring',
+  columns: ['id', 'kind', 'amount', 'category_id', 'note', 'every', 'start'],
+  values: (rule: Recurring): SqlValue[] => [
+    rule.id,
+    rule.kind,
+    rule.amount,
+    rule.categoryId,
+    rule.note,
+    rule.every,
+    rule.start,
   ],
 };
 
@@ -257,6 +286,96 @@ export async function openStore(db: Database, { newId, now = Date.now }: StoreOp
     await bury('budgets', id);
   }
 
+  /** Recurring transactions, by their first occurrence. */
+  async function recurring(): Promise<Recurring[]> {
+    const rows = await db.getAllAsync<RecurringRow>(
+      'SELECT * FROM recurring WHERE deleted = 0 ORDER BY start, id',
+      []
+    );
+
+    return rows.map(toRecurring);
+  }
+
+  /** Saves a recurring transaction and records the occurrences already due. */
+  async function addRecurring(input: NewRecurring): Promise<Recurring> {
+    const rule: Recurring = { ...input, id: newId() };
+
+    await insertRecords(recurringTable, [rule], edited());
+    await applyRecurring();
+
+    return rule;
+  }
+
+  /** Changes the amount, category or note of the occurrences still to come. */
+  async function updateRecurring(rule: Recurring): Promise<void> {
+    await db.runAsync(
+      `UPDATE recurring SET kind = ?, amount = ?, category_id = ?, note = ?,
+       updated_at = ?, dirty = 1
+       WHERE id = ?`,
+      [rule.kind, rule.amount, rule.categoryId, rule.note, now(), rule.id]
+    );
+  }
+
+  /** Stops a recurring transaction. The occurrences it recorded stay. */
+  async function deleteRecurring(id: string): Promise<void> {
+    await bury('recurring', id);
+  }
+
+  /**
+   * Records every occurrence due by now as a transaction, and returns how
+   * many it recorded.
+   *
+   * An occurrence carries its rule's stamp, so an edit or a deletion of it
+   * wins over the copy another device records, and that copy wins over
+   * nothing. A deleted occurrence keeps its tombstone and is not recorded
+   * again.
+   */
+  async function applyRecurring(): Promise<number> {
+    const at = now();
+    let recorded = 0;
+
+    await db.withTransactionAsync(async () => {
+      const rows = await db.getAllAsync<RecurringRow>(
+        'SELECT * FROM recurring WHERE deleted = 0',
+        []
+      );
+
+      for (const row of rows) {
+        const rule = toRecurring(row);
+        const due = dueIndexes(rule, row.applied, at);
+
+        if (due.length === 0) continue;
+
+        const occurrences = due.map((index): Transaction => ({
+          id: occurrenceId(rule.id, index),
+          kind: rule.kind,
+          amount: rule.amount,
+          categoryId: rule.categoryId,
+          note: rule.note,
+          at: occurrenceAt(rule.start, rule.every, index),
+        }));
+
+        // oxlint-disable-next-line no-await-in-loop -- one connection runs the writes in order anyway.
+        await insertRecords(
+          transactionTable,
+          occurrences,
+          { updatedAt: row.updated_at, deleted: false, dirty: true },
+          '',
+          'INSERT OR IGNORE'
+        );
+        // oxlint-disable-next-line no-await-in-loop
+        await db.runAsync('UPDATE recurring SET applied = ? WHERE id = ?', [
+          row.applied + due.length,
+          rule.id,
+        ]);
+
+        recorded += due.length;
+      }
+    });
+
+    return recorded;
+  }
+
   async function settings(): Promise<Settings> {
     const rows = await db.getAllAsync<{ key: string; value: string }>(
       'SELECT key, value FROM settings',
@@ -309,8 +428,8 @@ export async function openStore(db: Database, { newId, now = Date.now }: StoreOp
   async function eraseAll(): Promise<void> {
     await db.withTransactionAsync(async () => {
       await db.execAsync(
-        `DELETE FROM budgets; DELETE FROM transactions; DELETE FROM categories;
-         DELETE FROM settings; DELETE FROM sync;`
+        `DELETE FROM budgets; DELETE FROM transactions; DELETE FROM recurring;
+         DELETE FROM categories; DELETE FROM settings; DELETE FROM sync;`
       );
     });
   }
@@ -324,28 +443,32 @@ export async function openStore(db: Database, { newId, now = Date.now }: StoreOp
     await db.withTransactionAsync(async () => {
       await db.execAsync(
         `UPDATE categories SET dirty = 1; UPDATE transactions SET dirty = 1;
-         UPDATE budgets SET dirty = 1; UPDATE settings SET dirty = 1; DELETE FROM sync;`
+         UPDATE budgets SET dirty = 1; UPDATE recurring SET dirty = 1;
+         UPDATE settings SET dirty = 1; DELETE FROM sync;`
       );
     });
   }
 
   /** The records this device changed since they were last sent. */
   async function pendingChanges(): Promise<Changes> {
-    const [categoryRows, transactionRows, budgetRows, settingRows] = await Promise.all([
-      db.getAllAsync<CategoryRow>('SELECT * FROM categories WHERE dirty = 1', []),
-      db.getAllAsync<TransactionRow>('SELECT * FROM transactions WHERE dirty = 1', []),
-      db.getAllAsync<BudgetRow>('SELECT * FROM budgets WHERE dirty = 1', []),
-      db.getAllAsync<SettingRow>(
-        `SELECT key, value, updated_at FROM settings
+    const [categoryRows, transactionRows, budgetRows, recurringRows, settingRows] =
+      await Promise.all([
+        db.getAllAsync<CategoryRow>('SELECT * FROM categories WHERE dirty = 1', []),
+        db.getAllAsync<TransactionRow>('SELECT * FROM transactions WHERE dirty = 1', []),
+        db.getAllAsync<BudgetRow>('SELECT * FROM budgets WHERE dirty = 1', []),
+        db.getAllAsync<RecurringRow>('SELECT * FROM recurring WHERE dirty = 1', []),
+        db.getAllAsync<SettingRow>(
+          `SELECT key, value, updated_at FROM settings
          WHERE dirty = 1 AND key IN (${syncedSettings.map(() => '?').join(', ')})`,
-        [...syncedSettings]
-      ),
-    ]);
+          [...syncedSettings]
+        ),
+      ]);
 
     return {
       categories: categoryRows.map((row) => Object.assign(toCategory(row), toStamp(row))),
       transactions: transactionRows.map((row) => Object.assign(toTransaction(row), toStamp(row))),
       budgets: budgetRows.map((row) => Object.assign(toBudget(row), toStamp(row))),
+      recurring: recurringRows.map((row) => Object.assign(toRecurring(row), toStamp(row))),
       settings: settingRows.map((row) => ({
         key: row.key,
         value: row.value,
@@ -387,15 +510,21 @@ export async function openStore(db: Database, { newId, now = Date.now }: StoreOp
         pushed.budgets.map((record) => [record.id, record.updatedAt])
       );
       await markSent(
+        'recurring',
+        'id',
+        pushed.recurring.map((record) => [record.id, record.updatedAt])
+      );
+      await markSent(
         'settings',
         'key',
         pushed.settings.map((setting) => [setting.key, setting.updatedAt])
       );
 
-      // Categories go first: transactions and budgets reference them.
+      // Categories go first: the other records reference them.
       await mergeRecords(categoryTable, pulled.categories);
       await mergeRecords(transactionTable, pulled.transactions);
       await mergeRecords(budgetTable, pulled.budgets);
+      await mergeRecords(recurringTable, pulled.recurring);
       await mergeSettings(pulled.settings);
 
       await db.runAsync(
@@ -515,6 +644,11 @@ export async function openStore(db: Database, { newId, now = Date.now }: StoreOp
     budgets,
     setBudget,
     deleteBudget,
+    recurring,
+    addRecurring,
+    updateRecurring,
+    deleteRecurring,
+    applyRecurring,
     settings,
     updateSettings,
     importRecords,
@@ -578,6 +712,18 @@ function toTransaction(row: TransactionRow): Transaction {
 
 function toBudget(row: BudgetRow): Budget {
   return { id: row.id, categoryId: row.category_id, amount: row.amount, period: row.period };
+}
+
+function toRecurring(row: RecurringRow): Recurring {
+  return {
+    id: row.id,
+    kind: row.kind,
+    amount: row.amount,
+    categoryId: row.category_id,
+    note: row.note,
+    every: row.every,
+    start: row.start,
+  };
 }
 
 function pick(source: Record<string, unknown>, keys: readonly string[]): Record<string, unknown> {

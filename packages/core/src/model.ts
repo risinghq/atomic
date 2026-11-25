@@ -26,6 +26,23 @@ export type Transaction = {
   at: number;
 };
 
+export type Every = 'day' | 'week' | 'month' | 'year';
+
+/**
+ * A transaction that repeats. Its first occurrence falls at `start` and each
+ * later one `every` interval after it; the store records the ones that are due.
+ */
+export type Recurring = {
+  id: string;
+  kind: Kind;
+  amount: Cents;
+  categoryId: string;
+  note: string;
+  every: Every;
+  /** Epoch milliseconds of the first occurrence. */
+  start: number;
+};
+
 export type BudgetPeriod = 'week' | 'month';
 
 export type Budget = {
