@@ -1,8 +1,9 @@
 # API
 
 `apps/api` is the Cloudflare Worker behind `https://atomic.rising.sh`. It signs
-a person in with Google or GitHub and keeps a copy of their records in D1, so
-their devices share one set of data. It speaks JSON and has no web pages.
+a person in with Google, GitHub or a code sent to their email, and keeps a copy
+of their records in D1, so their devices share one set of data. It speaks JSON
+and has no web pages.
 
 ```bash
 cd apps/api
@@ -34,6 +35,31 @@ the primary address, and only when GitHub has verified it.
 
 [`auth.ts`](../apps/api/src/auth.ts) holds the routes and
 [`providers.ts`](../apps/api/src/providers.ts) the Google and GitHub calls.
+
+### With an emailed code
+
+1. The app sends `POST /auth/email/start {email}`. The Worker emails a six-digit
+   code through Resend and answers 204. The new code replaces the last one sent
+   to that address.
+2. The person types the code, and the app sends
+   `POST /auth/email/verify {email, code}`. The Worker answers `{token, email}`,
+   as `/auth/token` does, and the account is the one for that address.
+
+A code lasts ten minutes, works once, and allows five guesses. The Worker sends
+an address one code a minute and five an hour. Errors come back as `{error}`:
+
+| Status | `error`          | When                                               |
+| ------ | ---------------- | -------------------------------------------------- |
+| 400    | `invalid email`  | The address is not one.                            |
+| 400    | `invalid code`   | The code is wrong; a guess is spent.               |
+| 400    | `expired`        | No live code: expired, used, or out of guesses.    |
+| 429    | `too soon`       | A code went to the address less than a minute ago. |
+| 429    | `too many codes` | Five codes went to the address this hour.          |
+| 502    | `mail failed`    | Resend refused the message. No code is stored.     |
+| 503    | `unavailable`    | The Worker has no `RESEND_API_KEY`.                |
+
+[`email.ts`](../apps/api/src/email.ts) holds the routes and
+[`mail.ts`](../apps/api/src/mail.ts) the call to Resend.
 
 ## Routes
 
@@ -117,3 +143,12 @@ done
 
 Each provider's client lists the callback
 `https://atomic.rising.sh/auth/<provider>/callback`.
+
+Email codes go out from `acceso@atomic.rising.sh`. Add `atomic.rising.sh` as a
+domain in Resend, put the DNS records it lists in the `rising.sh` Cloudflare
+zone, and set the API key:
+
+```bash
+cd apps/api
+bunx wrangler secret put RESEND_API_KEY
+```
