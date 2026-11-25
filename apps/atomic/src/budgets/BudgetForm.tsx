@@ -1,4 +1,4 @@
-import { fromCents, parseCents, type Budget, type BudgetPeriod } from '@atomic/core';
+import { fromCents, parseCents, type Budget, type BudgetPeriod } from '@rising/core';
 import {
   Amount,
   applyKey,
@@ -10,7 +10,7 @@ import {
   tints,
   useToast,
   type CategoryOption,
-} from '@atomic/ui';
+} from '@rising/ui';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { pickable, useData } from '../data/DataProvider';

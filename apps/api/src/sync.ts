@@ -1,4 +1,4 @@
-import { noChanges, syncedSettings, type Changes } from '@atomic/core';
+import { noChanges, syncedSettings, type Changes } from '@rising/core';
 import type { AppContext } from './app';
 
 export const kinds = ['categories', 'transactions', 'budgets', 'recurring', 'settings'] as const;

@@ -6,7 +6,7 @@ import {
   type Settings,
   type Store,
   type Transaction,
-} from '@atomic/core';
+} from '@rising/core';
 import { budgetLine, formatMoney, periodTitle } from '../format';
 
 /** The three lines the home-screen widget shows. */

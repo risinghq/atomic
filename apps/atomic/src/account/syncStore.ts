@@ -1,4 +1,4 @@
-import { countChanges, type Store } from '@atomic/core';
+import { countChanges, type Store } from '@rising/core';
 import { exchangeChanges } from './api';
 
 /**

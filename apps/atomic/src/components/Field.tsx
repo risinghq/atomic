@@ -1,4 +1,4 @@
-import { space, Text } from '@atomic/ui';
+import { space, Text } from '@rising/ui';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 

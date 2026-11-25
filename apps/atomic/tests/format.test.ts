@@ -1,4 +1,4 @@
-import { periodOf, shiftPeriod, type Transaction } from '@atomic/core';
+import { periodOf, shiftPeriod, type Transaction } from '@rising/core';
 import { describe, expect, it } from '@jest/globals';
 import { budgetLine, dayTitle, daysLeft, groupByDay, periodTitle } from '../src/format';
 

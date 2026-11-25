@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import { screen } from '@testing-library/react-native';
-import type { Store } from '@atomic/core';
+import type { Store } from '@rising/core';
 import { Children, isValidElement, type ReactNode } from 'react';
 import type { WidgetRepresentation, WidgetTaskHandlerProps } from 'react-native-android-widget';
 import { NEW_ENTRY_URL } from '../src/entry/entryLink';

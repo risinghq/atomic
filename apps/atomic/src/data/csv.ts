@@ -7,7 +7,7 @@ import {
   type Span,
   type Transaction,
   type WeekStart,
-} from '@atomic/core';
+} from '@rising/core';
 import { periodTitle } from '../format';
 import { categoryOf } from './DataProvider';
 

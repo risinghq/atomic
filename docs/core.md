@@ -1,6 +1,6 @@
 # Core
 
-`@atomic/core` holds the data model, the money and period math, and the SQLite
+`@rising/core` holds the data model, the money and period math, and the SQLite
 store that every app shares. It is plain TypeScript and imports nothing from
 Expo or React Native, so its tests run in Node.
 
@@ -73,7 +73,7 @@ The app passes an `expo-sqlite` database and `expo-crypto`'s `randomUUID`:
 ```ts
 import { openDatabaseAsync } from 'expo-sqlite';
 import { randomUUID } from 'expo-crypto';
-import { openStore } from '@atomic/core';
+import { openStore } from '@rising/core';
 
 const store = await openStore(await openDatabaseAsync('atomic.db'), {
   newId: randomUUID,
@@ -84,7 +84,7 @@ The store depends only on the `Database` interface, the five methods it calls on
 expo-sqlite's `SQLiteDatabase`. A type test fails the typecheck if expo-sqlite's
 database stops fitting it. The tests pass an in-memory `node:sqlite` database
 behind the same methods, so they run real SQL. The package exports it as
-`memoryDatabase` from `@atomic/core/testing`
+`memoryDatabase` from `@rising/core/testing`
 ([`testing/memory-database.ts`](../packages/core/testing/memory-database.ts))
 for the apps' tests. It needs Node, so app code never imports it.
 

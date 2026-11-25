@@ -1,4 +1,4 @@
-import { defaultCategories, type Transaction } from '@atomic/core';
+import { defaultCategories, type Transaction } from '@rising/core';
 import { describe, expect, it } from '@jest/globals';
 import { bom, csvName, exportChoices, exported, toCsv } from '../src/data/csv';
 

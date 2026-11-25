@@ -1,4 +1,4 @@
-import { fromCents, periodOf, totalIn, type Transaction } from '@atomic/core';
+import { fromCents, periodOf, totalIn, type Transaction } from '@rising/core';
 import {
   Amount,
   DayHeader,
@@ -13,7 +13,7 @@ import {
   TransactionRow,
   useTheme,
   useToast,
-} from '@atomic/ui';
+} from '@rising/ui';
 import { useState } from 'react';
 import { FlatList, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

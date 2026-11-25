@@ -1,4 +1,4 @@
-import type { Every, HapticLevel, WeekStart } from '@atomic/core';
+import type { Every, HapticLevel, WeekStart } from '@rising/core';
 
 /** How often a new transaction repeats. Daily repeats are left out: nobody pays rent daily. */
 export const repeats = [

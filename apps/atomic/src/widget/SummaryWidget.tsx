@@ -1,4 +1,4 @@
-import { palettes, type Colors } from '@atomic/ui';
+import { palettes, type Colors } from '@rising/ui';
 import {
   FlexWidget,
   TextWidget,

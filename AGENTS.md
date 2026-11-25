@@ -15,4 +15,4 @@ In `apps/atomic`:
   `src/data/openAppStore.ts` opens the database.
 - Keep money in integer cents. Convert with `fromCents` only where a ui
   component takes the amount.
-- Build screens from `@atomic/ui` components and theme values.
+- Build screens from `@rising/ui` components and theme values.

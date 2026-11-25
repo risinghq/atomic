@@ -9,7 +9,7 @@ import {
   totalsByCategory,
   type Kind,
   type PeriodKind,
-} from '@atomic/core';
+} from '@rising/core';
 import {
   Amount,
   BarChart,
@@ -23,7 +23,7 @@ import {
   Text,
   useTheme,
   type ChartBar,
-} from '@atomic/ui';
+} from '@rising/ui';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Screen } from '../components/Screen';

@@ -9,7 +9,7 @@ import {
   type Span,
   type Transaction,
   type WeekStart,
-} from '@atomic/core';
+} from '@rising/core';
 
 const locale = 'es-PE';
 

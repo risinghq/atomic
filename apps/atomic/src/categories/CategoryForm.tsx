@@ -1,4 +1,4 @@
-import type { Category, Kind } from '@atomic/core';
+import type { Category, Kind } from '@rising/core';
 import {
   Button,
   IconTile,
@@ -10,7 +10,7 @@ import {
   useTheme,
   useToast,
   type Tint,
-} from '@atomic/ui';
+} from '@rising/ui';
 import { useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { Field } from '../components/Field';

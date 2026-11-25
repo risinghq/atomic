@@ -1,6 +1,6 @@
 # UI
 
-`@atomic/ui` holds the theme and components every app shares. The look is quiet
+`@rising/ui` holds the theme and components every app shares. The look is quiet
 and rounded: white or pure-black screens, soft grey surfaces, one dark accent
 for the primary action, green for income, and Inter throughout. The palette,
 sizes and motion follow the design of the
@@ -9,12 +9,12 @@ package reuses only its design values and none of its code or assets.
 
 ## Using it
 
-Add `"@atomic/ui": "workspace:*"` to the app's dependencies, wrap the app in
+Add `"@rising/ui": "workspace:*"` to the app's dependencies, wrap the app in
 `ThemeProvider`, and load the fonts before the first text renders:
 
 ```tsx
 import { useFonts } from 'expo-font';
-import { ThemeProvider, fontAssets } from '@atomic/ui';
+import { ThemeProvider, fontAssets } from '@rising/ui';
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts(fontAssets);

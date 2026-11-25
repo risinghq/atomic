@@ -1,5 +1,5 @@
-import type { Store } from '@atomic/core';
-import { tints } from '@atomic/ui';
+import type { Store } from '@rising/core';
+import { tints } from '@rising/ui';
 import { describe, expect, it } from '@jest/globals';
 import { fireEvent, screen, userEvent } from '@testing-library/react-native';
 import { Root } from '../src/Root';

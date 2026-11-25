@@ -33,7 +33,7 @@ import {
   type ChartBar,
   type ColorScheme,
   type Tab,
-} from '@atomic/ui';
+} from '@rising/ui';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { useState, type ReactNode } from 'react';

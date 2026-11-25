@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 import { screen, userEvent } from '@testing-library/react-native';
-import type { Store } from '@atomic/core';
+import type { Store } from '@rising/core';
 import { Root } from '../src/Root';
 import { freshStore, renderWith } from './render';
 

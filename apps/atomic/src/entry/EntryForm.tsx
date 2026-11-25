@@ -1,4 +1,4 @@
-import { fromCents, parseCents, type Kind, type Transaction } from '@atomic/core';
+import { fromCents, parseCents, type Kind, type Transaction } from '@rising/core';
 import {
   Amount,
   applyKey,
@@ -11,7 +11,7 @@ import {
   textStyle,
   useTheme,
   useToast,
-} from '@atomic/ui';
+} from '@rising/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useMemo, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';

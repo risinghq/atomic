@@ -1,4 +1,4 @@
-import { noChanges, type Changes } from '@atomic/core';
+import { noChanges, type Changes } from '@rising/core';
 import { jest } from '@jest/globals';
 // jest-expo stands each native module in with a recorder. These three are the
 // device's keystore, its browser and its hash function.

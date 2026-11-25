@@ -1,21 +1,23 @@
-# atomic
+# pocket
 
-[![CI](https://github.com/risinghq/atomic/actions/workflows/ci.yml/badge.svg)](https://github.com/risinghq/atomic/actions/workflows/ci.yml)
+[![CI](https://github.com/risinghq/pocket/actions/workflows/ci.yml/badge.svg)](https://github.com/risinghq/pocket/actions/workflows/ci.yml)
 
-atomic is a plain expense tracker for iOS, Android and the web. It records
-expenses and income in a few taps, shows where the money went, and keeps weekly
-or monthly budgets. Everything stays on the device. The interface is in Spanish.
+pocket holds small apps for iOS, Android and the web that share one set of
+components and one on-device store. Their interfaces are in Spanish.
 
-The repository is a bun workspace. The app lives in `apps/atomic`, and code that
+atomic is a plain expense tracker. It records expenses and income in a few taps,
+shows where the money went, and keeps weekly or monthly budgets.
+
+The repository is a bun workspace. Each app lives under `apps/`, and code that
 more than one app shares lives under `packages/`: the components in
-`@atomic/ui`, with a gallery app in `apps/catalog`, and the data model and store
-in `@atomic/core`. See [Repository layout](docs/architecture.md).
+`@rising/ui`, with a gallery app in `apps/catalog`, and the data model and store
+in `@rising/core`. See [Repository layout](docs/architecture.md).
 
 ## Get started
 
 ```bash
-git clone https://github.com/risinghq/atomic
-cd atomic
+git clone https://github.com/risinghq/pocket
+cd pocket
 mise install
 bun install
 bun run --cwd apps/atomic start
@@ -40,8 +42,8 @@ week. **Empezar** lands on Registro.
   category, each per week or per month, with what is left per day.
 - **Ajustes.** The currency (soles, dollars or euros), the first day of the
   week, a CSV export of every transaction, and erasing all data.
-- **Local storage.** Data lives in SQLite on the device. There is no server and
-  no account.
+- **Local storage.** Data lives in SQLite on the device. An optional account,
+  through Google, GitHub or email, syncs it across devices.
 - **Exact money arithmetic.** Amounts are stored and summed in integer cents.
 
 ## Documentation

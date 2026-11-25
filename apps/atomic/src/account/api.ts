@@ -1,4 +1,4 @@
-import type { Changes } from '@atomic/core';
+import type { Changes } from '@rising/core';
 
 /** The Worker in `apps/api`. `EXPO_PUBLIC_API_URL` points a build at another one. */
 export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://atomic.rising.sh';

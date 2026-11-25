@@ -1,6 +1,6 @@
-import { openStore, type Store } from '@atomic/core';
-import { memoryDatabase } from '@atomic/core/testing';
-import { ThemeProvider, ToastProvider } from '@atomic/ui';
+import { openStore, type Store } from '@rising/core';
+import { memoryDatabase } from '@rising/core/testing';
+import { ThemeProvider, ToastProvider } from '@rising/ui';
 import { render } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';

@@ -1,4 +1,4 @@
-import { budgetStatus, fromCents, totalsByCategory, type Budget } from '@atomic/core';
+import { budgetStatus, fromCents, totalsByCategory, type Budget } from '@rising/core';
 import {
   BudgetCard,
   BudgetSummaryCard,
@@ -9,7 +9,7 @@ import {
   Sheet,
   space,
   type MeterSegment,
-} from '@atomic/ui';
+} from '@rising/ui';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BudgetForm } from '../budgets/BudgetForm';

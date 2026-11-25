@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { importLegacy, openStore, type Store } from '@atomic/core';
+import { importLegacy, openStore, type Store } from '@rising/core';
 import { randomUUID } from 'expo-crypto';
 import { openDatabaseAsync } from 'expo-sqlite';
 
