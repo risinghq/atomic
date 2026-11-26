@@ -66,6 +66,23 @@ install the APK.
 Android release builds run R8 and shrink unused resources. The
 `expo-build-properties` entry in each app's `app.json` sets both.
 
+## README screenshots
+
+The screenshots in each app's README come from Maestro flows in
+`apps/<app>/.maestro/screenshots/`. Build the app's `apk`, then:
+
+```bash
+bun run emulator screenshots
+./scripts/screenshots.sh foco
+```
+
+The e2e emulator's test image draws nothing, so its screenshots are black.
+`emulator screenshots` starts a second emulator on an image that renders.
+
+It installs the APK on a clean state with the clock at 09:00 today, fills the
+app with sample data, and writes each screen in light and dark to
+`apps/<app>/docs/screenshots/`.
+
 ## Resetting local data
 
 The atomic app keeps its data in a SQLite database on the device. **Borrar todos

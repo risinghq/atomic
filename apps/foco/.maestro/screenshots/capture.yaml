@@ -1,0 +1,20 @@
+appId: com.empiricalhq.foco
+name: Screenshot Ahora, the task sheet and Hoy in the ${SCHEME} scheme
+---
+- launchApp
+- tapOn: 'Ahora'
+- waitForAnimationToEnd
+- takeScreenshot: ahora-${SCHEME}
+
+- tapOn: 'Cambiar'
+- tapOn: 'Tarea'
+- inputText: 'Lectura'
+- hideKeyboard
+- tapOn: '45 min'
+- waitForAnimationToEnd
+- takeScreenshot: tarea-${SCHEME}
+- back
+
+- tapOn: 'Hoy'
+- waitForAnimationToEnd
+- takeScreenshot: hoy-${SCHEME}
