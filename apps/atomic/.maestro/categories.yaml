@@ -1,4 +1,4 @@
-appId: com.empiricalhq.atomic
+appId: com.risinghq.atomic
 name: Add a category, record with it, then archive it
 ---
 - runFlow: subflows/onboard.yaml

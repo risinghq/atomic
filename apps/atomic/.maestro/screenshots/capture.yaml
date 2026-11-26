@@ -1,4 +1,4 @@
-appId: com.empiricalhq.atomic
+appId: com.risinghq.atomic
 name: Screenshot Registro, Resumen and Presupuestos in the ${SCHEME} scheme
 ---
 - launchApp

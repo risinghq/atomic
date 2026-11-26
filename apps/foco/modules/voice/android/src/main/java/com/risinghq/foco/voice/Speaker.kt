@@ -1,4 +1,4 @@
-package com.empiricalhq.foco.voice
+package com.risinghq.foco.voice
 
 import android.content.Context
 import android.media.AudioAttributes

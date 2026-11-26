@@ -35,7 +35,8 @@
     "userInterfaceStyle": "automatic",
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.risinghq.foco"
     },
     "android": {
       "adaptiveIcon": {
@@ -44,7 +45,7 @@
         "backgroundColor": "#010101"
       },
       "permissions": ["android.permission.SCHEDULE_EXACT_ALARM"],
-      "package": "com.empiricalhq.foco"
+      "package": "com.risinghq.foco"
     },
     "platforms": ["ios", "android"],
     "owner": "risinghq",

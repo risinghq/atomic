@@ -3,7 +3,7 @@
 # the flows scheduled reached the alarm manager.
 set -eu
 
-app=com.empiricalhq.foco
+app=com.risinghq.foco
 adb="$ANDROID_HOME/platform-tools/adb"
 
 android --no-metrics install android/app/build/outputs/apk/release/app-release.apk

@@ -1,4 +1,4 @@
-package com.empiricalhq.foco.voice
+package com.risinghq.foco.voice
 
 import android.content.BroadcastReceiver
 import android.content.Context

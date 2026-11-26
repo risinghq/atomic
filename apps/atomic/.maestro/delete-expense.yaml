@@ -1,4 +1,4 @@
-appId: com.empiricalhq.atomic
+appId: com.risinghq.atomic
 name: Delete an expense with a long press
 ---
 - runFlow: subflows/onboard.yaml
