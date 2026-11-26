@@ -1,4 +1,4 @@
-appId: com.empiricalhq.atomic
+appId: com.risinghq.atomic
 name: Fill a fresh install with a month's worth of entries and a budget
 ---
 - launchApp:

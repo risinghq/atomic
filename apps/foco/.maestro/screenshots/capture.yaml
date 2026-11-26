@@ -1,4 +1,4 @@
-appId: com.empiricalhq.foco
+appId: com.risinghq.foco
 name: Screenshot Ahora, the task sheet and Hoy in the ${SCHEME} scheme
 ---
 - launchApp

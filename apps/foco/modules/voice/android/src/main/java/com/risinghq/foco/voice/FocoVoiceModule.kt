@@ -1,4 +1,4 @@
-package com.empiricalhq.foco.voice
+package com.risinghq.foco.voice
 
 import expo.modules.kotlin.exception.Exceptions
 import expo.modules.kotlin.modules.Module

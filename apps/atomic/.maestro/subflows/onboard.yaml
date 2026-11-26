@@ -1,4 +1,4 @@
-appId: com.empiricalhq.atomic
+appId: com.risinghq.atomic
 ---
 - launchApp:
     clearState: true

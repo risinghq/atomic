@@ -1,4 +1,4 @@
-appId: com.empiricalhq.atomic
+appId: com.risinghq.atomic
 name: Record one transaction from four pad keys, a note and a category
 ---
 - tapOn: 'Agregar'

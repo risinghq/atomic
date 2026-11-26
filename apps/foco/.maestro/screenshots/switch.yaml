@@ -1,4 +1,4 @@
-appId: com.empiricalhq.foco
+appId: com.risinghq.foco
 name: Switch to ${TASK} with a timebox of ${TIMEBOX}
 ---
 - launchApp

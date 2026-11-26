@@ -1,4 +1,4 @@
-appId: com.empiricalhq.foco
+appId: com.risinghq.foco
 name: Start a timeboxed task and see the next chime
 ---
 - launchApp:

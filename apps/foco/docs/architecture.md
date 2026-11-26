@@ -48,12 +48,12 @@ With Voz on, each chime is also spoken. A notification runs no JavaScript when
 it fires with the app closed, so the speech is native: the Android-only module
 in [`modules/voice`](../modules/voice) arms one exact alarm per chime, 1.5
 seconds after it, with the text `chimeFor` returns as `spoken`.
-[`VoiceReceiver`](../modules/voice/android/src/main/java/com/empiricalhq/foco/voice/VoiceReceiver.kt)
+[`VoiceReceiver`](../modules/voice/android/src/main/java/com/risinghq/foco/voice/VoiceReceiver.kt)
 speaks it with the system's Spanish text-to-speech over the notification stream.
 It asks to duck other audio; Android 15 and later refuse that to an app in the
 background, so the voice plays over music there. It stays quiet in silent or
 vibrate mode and during a call.
-[`Alarms`](../modules/voice/android/src/main/java/com/empiricalhq/foco/voice/Alarms.kt)
+[`Alarms`](../modules/voice/android/src/main/java/com/risinghq/foco/voice/Alarms.kt)
 keeps the pending texts in preferences and arms them again after a reboot.
 
 iOS has no voice module, so Ahora hides the Voz toggle there.

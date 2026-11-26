@@ -65,7 +65,8 @@
     "userInterfaceStyle": "automatic",
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.risinghq.atomic"
     },
     "android": {
       "adaptiveIcon": {
@@ -73,7 +74,7 @@
         "monochromeImage": "./assets/monochrome-icon.png",
         "backgroundColor": "#010101"
       },
-      "package": "com.empiricalhq.atomic"
+      "package": "com.risinghq.atomic"
     },
     "platforms": ["ios", "android"],
     "extra": {

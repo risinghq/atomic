@@ -3,11 +3,11 @@ plugins {
   id 'expo-module-gradle-plugin'
 }
 
-group = 'com.empiricalhq.foco.voice'
+group = 'com.risinghq.foco.voice'
 version = '0.1.0'
 
 android {
-  namespace "com.empiricalhq.foco.voice"
+  namespace "com.risinghq.foco.voice"
   defaultConfig {
     versionCode 1
     versionName "0.1.0"

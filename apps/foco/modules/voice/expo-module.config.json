@@ -1,6 +1,6 @@
 {
   "platforms": ["android"],
   "android": {
-    "modules": ["com.empiricalhq.foco.voice.FocoVoiceModule"]
+    "modules": ["com.risinghq.foco.voice.FocoVoiceModule"]
   }
 }
