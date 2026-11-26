@@ -6,9 +6,11 @@ events. The chimes themselves are local notifications the system holds, so they
 arrive with the app closed.
 
 ```text
-index.ts ─► App ─► FocoProvider ─► Shell ─┬─► NowScreen
-                     │      │              ├─► TodayScreen
-                     │      │              └─► FocusForm (sheet)
+index.ts ─► App ─► FocoProvider ─► Root ─┬─► Onboarding
+                     │      │             └─► Shell ─┬─► NowScreen
+                     │      │                        ├─► TodayScreen
+                     │      │                        ├─► SettingsScreen
+                     │      │                        └─► FocusForm (sheet)
                      │      └─ chimes.ts ─┬─► expo-notifications
                      │                    └─► modules/voice (Android)
                      └─ store.ts (expo-sqlite)
@@ -25,9 +27,11 @@ index.ts ─► App ─► FocoProvider ─► Shell ─┬─► NowScreen
 | [`src/chimes.ts`](../src/chimes.ts)                         | Asks for permission and hands the next window of chimes to the system.               |
 | [`modules/voice`](../modules/voice)                         | Speaks each chime on Android, from its own alarms.                                   |
 | [`src/timeline.ts`](../src/timeline.ts)                     | Turns the event log into the stretches Hoy lists.                                    |
+| [`src/Root.tsx`](../src/Root.tsx)                           | Shows the welcome screen until the person has passed it, then the shell.             |
 | [`src/Shell.tsx`](../src/Shell.tsx)                         | The tab bar, the active tab and the task sheet. Android back returns to Ahora first. |
 | [`src/useSwitchRequest.ts`](../src/useSwitchRequest.ts)     | Opens the task sheet when the person answers a chime with Cambié.                    |
-| [`src/screens/`](../src/screens)                            | Ahora (the running task and the chime settings) and Hoy.                             |
+| [`src/screens/`](../src/screens)                            | The welcome screen, Ahora (the running task), Hoy and Ajustes (the chime settings).  |
+| [`scripts/icon.ts`](../scripts/icon.ts)                     | Draws the icon and splash images in `assets/`.                                       |
 | [`src/FocusForm.tsx`](../src/FocusForm.tsx)                 | The task sheet: what the person is doing and the time they give it.                  |
 
 ## Chimes
@@ -56,4 +60,5 @@ vibrate mode and during a call.
 [`Alarms`](../modules/voice/android/src/main/java/com/risinghq/foco/voice/Alarms.kt)
 keeps the pending texts in preferences and arms them again after a reboot.
 
-iOS has no voice module, so Ahora hides the Voz toggle there.
+iOS has no voice module, so the welcome screen and Ajustes hide the Voz toggle
+there.

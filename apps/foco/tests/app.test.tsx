@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { screen, userEvent, waitFor, within } from '@testing-library/react-native';
+import { Root } from '../src/Root';
 import { Shell } from '../src/Shell';
 import { recorderOf } from './native';
 import { freshStore, renderWith } from './render';
@@ -16,6 +17,39 @@ const minute = 60_000;
 beforeEach(() => {
   scheduler.scheduleNotificationAsync.mockClear();
   scheduler.cancelAllScheduledNotificationsAsync.mockClear();
+});
+
+describe('the first launch', () => {
+  const permissions = recorderOf<'getPermissionsAsync'>(
+    'expo-notifications',
+    'NotificationPermissionsModule'
+  );
+
+  it('welcomes, saves the chosen interval, and asks to notify once', async () => {
+    const user = userEvent.setup();
+    const store = await freshStore();
+    permissions.getPermissionsAsync.mockClear();
+    await renderWith(store, <Root />);
+
+    expect(await screen.findByText('Bienvenido a Foco')).toBeOnTheScreen();
+    expect(screen.queryByRole('tab', { name: 'Ahora' })).not.toBeOnTheScreen();
+
+    await user.press(within(screen.getByLabelText('Cada')).getByRole('tab', { name: '15 min' }));
+    await user.press(screen.getByRole('button', { name: 'Continuar' }));
+
+    expect(await screen.findByRole('button', { name: 'Empezar' })).toBeOnTheScreen();
+    expect(await store.settings()).toMatchObject({ onboarded: true, interval: 15 });
+    expect(permissions.getPermissionsAsync).toHaveBeenCalled();
+  });
+
+  it('opens straight to Ahora once onboarded', async () => {
+    const store = await freshStore();
+    await store.updateSettings({ onboarded: true });
+    await renderWith(store, <Root />);
+
+    expect(await screen.findByRole('button', { name: 'Empezar' })).toBeOnTheScreen();
+    expect(screen.queryByText('Bienvenido a Foco')).not.toBeOnTheScreen();
+  });
 });
 
 describe('a focus session', () => {
@@ -46,6 +80,18 @@ describe('a focus session', () => {
     expect(trigger).toMatchObject({ type: 'date', channelId: 'chime' });
   });
 
+  it('keeps an unnamed task quiet', async () => {
+    const user = userEvent.setup();
+    const store = await freshStore();
+    await renderWith(store, <Shell />);
+
+    await user.press(await screen.findByRole('button', { name: 'Empezar' }));
+    await user.press(screen.getByRole('button', { name: 'Listo' }));
+
+    expect(await screen.findByText('0 min')).toBeOnTheScreen();
+    expect(screen.queryByText('Sin tarea')).not.toBeOnTheScreen();
+  });
+
   it('stops, and leaves no chime pending', async () => {
     const user = userEvent.setup();
     const store = await freshStore();
@@ -66,6 +112,7 @@ describe('a focus session', () => {
     const user = userEvent.setup();
     const store = await freshStore();
     await renderWith(store, <Shell />);
+    await user.press(await screen.findByRole('tab', { name: 'Ajustes' }));
 
     const every = await screen.findByLabelText('Cada');
     await user.press(within(every).getByRole('tab', { name: '10 min' }));
@@ -77,6 +124,7 @@ describe('a focus session', () => {
     const user = userEvent.setup();
     const store = await freshStore();
     await renderWith(store, <Shell />);
+    await user.press(await screen.findByRole('tab', { name: 'Ajustes' }));
 
     await user.press(await screen.findByRole('switch', { name: 'Horario' }));
 
@@ -141,5 +189,21 @@ describe('today', () => {
     expect(screen.getByText('30 min')).toBeOnTheScreen();
     expect(screen.getByText('informe')).toBeOnTheScreen();
     expect(screen.getByText('45 min')).toBeOnTheScreen();
+  });
+
+  it('names an unnamed stretch Foco', async () => {
+    const user = userEvent.setup();
+    const clock = { at: Date.now() - 20 * minute };
+    const store = await freshStore({ now: () => clock.at });
+
+    await store.record('start');
+    clock.at += 20 * minute;
+    await store.record('stop');
+
+    await renderWith(store, <Shell />);
+    await user.press(await screen.findByRole('tab', { name: 'Hoy' }));
+
+    expect(await screen.findByText('Foco')).toBeOnTheScreen();
+    expect(screen.queryByText('Sin tarea')).not.toBeOnTheScreen();
   });
 });

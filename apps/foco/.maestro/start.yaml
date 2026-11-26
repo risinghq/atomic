@@ -5,6 +5,10 @@ name: Start a timeboxed task and see the next chime
     permissions:
       notifications: allow
 
+- assertVisible: 'Bienvenido a Foco'
+- tapOn: '10 min'
+- tapOn: 'Continuar'
+
 - tapOn: 'Empezar'
 - tapOn: 'Tarea'
 - inputText: 'correo'
@@ -18,9 +22,10 @@ name: Start a timeboxed task and see the next chime
 - tapOn: 'Hoy'
 - assertVisible: 'correo'
 
-- tapOn: 'Ahora'
-- scrollUntilVisible:
-    element: 'Dice la hora en voz alta.*'
+- tapOn: 'Ajustes'
+- assertVisible:
+    text: '10 min'
+    selected: true
 - tapOn:
     text: 'Voz'
     checked: false

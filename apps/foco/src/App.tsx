@@ -8,7 +8,7 @@ import { prepareChimes } from './chimes';
 import { FocoProvider } from './data/FocoProvider';
 import { openAppStore } from './data/openAppStore';
 import type { Store } from './data/store';
-import { Shell } from './Shell';
+import { Root } from './Root';
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -37,7 +37,7 @@ export function App() {
       <ThemeProvider>
         <StatusBar style="auto" />
         <FocoProvider store={store}>
-          <Shell />
+          <Root />
         </FocoProvider>
       </ThemeProvider>
     </SafeAreaProvider>

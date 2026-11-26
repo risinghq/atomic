@@ -28,6 +28,8 @@ export interface Foco {
   switchTo: (intent: Intent) => Promise<void>;
   stop: () => Promise<void>;
   changePlan: (change: Partial<PlanSettings>) => Promise<void>;
+  /** Saves the plan chosen on the welcome screen and leaves it for good. */
+  finishOnboarding: (plan: Partial<PlanSettings>) => Promise<void>;
   /** When the last event was recorded; 0 before any in this run. */
   lastChange: number;
 }
@@ -93,6 +95,12 @@ export function FocoProvider({ store, children }: { store: Store; children: Reac
     [store]
   );
 
+  const finishOnboarding = useCallback(
+    async (plan: Partial<PlanSettings>) =>
+      setSettings(await store.updateSettings({ ...plan, onboarded: true })),
+    [store]
+  );
+
   const value = useMemo(
     () =>
       settings && {
@@ -102,9 +110,10 @@ export function FocoProvider({ store, children }: { store: Store; children: Reac
         switchTo: (intent: Intent) => begin('switch', intent),
         stop,
         changePlan,
+        finishOnboarding,
         lastChange,
       },
-    [settings, store, begin, stop, changePlan, lastChange]
+    [settings, store, begin, stop, changePlan, finishOnboarding, lastChange]
   );
 
   if (!value) return null;

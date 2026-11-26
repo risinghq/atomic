@@ -52,7 +52,7 @@ export function TodayScreen() {
           {segments.map((segment) => (
             <ListRow
               key={segment.from}
-              title={segment.label || 'Sin tarea'}
+              title={segment.label || 'Foco'}
               subtitle={`${clockTime(segment.from)} – ${segment.running ? 'ahora' : clockTime(segment.to)}`}
               value={`${elapsed(segment.from, segment.to)} min`}
             />
