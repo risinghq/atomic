@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { chimeFor, chimeTimes, clockTime, nextOpening, type Plan } from '../src/plan';
+import { chimeFor, chimeTimes, clockTime, nextOpening, spokenTime, type Plan } from '../src/plan';
 
 // The test script pins TZ to America/Lima, which keeps no daylight saving time.
 const at = (text: string) => new Date(text).getTime();
@@ -77,7 +77,7 @@ describe('chimeFor', () => {
       at: at('2026-11-23T10:05:00'),
       title: 'Son las 10:05',
       body: '¿Sigues en lo que querías hacer?',
-      spoken: 'Son las 10:05. ¿Sigues en lo que querías hacer?',
+      spoken: 'Diez y cinco. ¿Sigues en lo que querías hacer?',
       over: false,
     });
   });
@@ -86,10 +86,10 @@ describe('chimeFor', () => {
     const focus = { label: 'correo', budget: null, since };
     expect(chimeFor(at('2026-11-23T10:12:30'), focus)).toMatchObject({
       body: '12 min en correo',
-      spoken: 'Son las 10:12. 12 minutos en correo',
+      spoken: 'Diez y doce. 12 minutos en correo',
     });
     expect(chimeFor(at('2026-11-23T10:01:00'), focus).spoken).toBe(
-      'Son las 10:01. 1 minuto en correo'
+      'Diez y uno. 1 minuto en correo'
     );
   });
 
@@ -97,7 +97,7 @@ describe('chimeFor', () => {
     const focus = { label: 'correo', budget: 25, since };
     expect(chimeFor(at('2026-11-23T10:12:00'), focus)).toMatchObject({
       body: '12 de 25 min en correo',
-      spoken: 'Son las 10:12. 12 de 25 minutos en correo',
+      spoken: 'Diez y doce. 12 de 25 minutos en correo',
     });
     expect(chimeFor(at('2026-11-23T10:25:00'), focus).over).toBe(false);
   });
@@ -106,11 +106,26 @@ describe('chimeFor', () => {
     const focus = { label: '', budget: 25, since };
     expect(chimeFor(at('2026-11-23T10:40:00'), focus)).toMatchObject({
       body: '15 min más de lo previsto',
-      spoken: 'Son las 10:40. 15 minutos más de lo previsto',
+      spoken: 'Diez y cuarenta. 15 minutos más de lo previsto',
       over: true,
     });
     expect(chimeFor(at('2026-11-23T10:26:00'), focus).spoken).toBe(
-      'Son las 10:26. 1 minuto más de lo previsto'
+      'Diez y veintiséis. 1 minuto más de lo previsto'
     );
+  });
+});
+
+describe('spokenTime', () => {
+  it.each([
+    ['08:16', 'Ocho y dieciséis'],
+    ['20:16', 'Ocho y dieciséis'],
+    ['13:00', 'Una en punto'],
+    ['00:15', 'Doce y cuarto'],
+    ['12:30', 'Doce y media'],
+    ['09:45', 'Nueve y cuarenta y cinco'],
+    ['19:21', 'Siete y veintiuno'],
+    ['23:59', 'Once y cincuenta y nueve'],
+  ])('reads %s as %s', (time, words) => {
+    expect(spokenTime(at(`2026-11-23T${time}:00`))).toBe(words);
   });
 });

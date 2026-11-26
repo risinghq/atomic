@@ -130,6 +130,74 @@ export function clockTime(at: number): string {
   return `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
+const hourWords = [
+  'doce',
+  'una',
+  'dos',
+  'tres',
+  'cuatro',
+  'cinco',
+  'seis',
+  'siete',
+  'ocho',
+  'nueve',
+  'diez',
+  'once',
+];
+
+const smallNumbers = [
+  '',
+  'uno',
+  'dos',
+  'tres',
+  'cuatro',
+  'cinco',
+  'seis',
+  'siete',
+  'ocho',
+  'nueve',
+  'diez',
+  'once',
+  'doce',
+  'trece',
+  'catorce',
+  'quince',
+  'dieciséis',
+  'diecisiete',
+  'dieciocho',
+  'diecinueve',
+  'veinte',
+  'veintiuno',
+  'veintidós',
+  'veintitrés',
+  'veinticuatro',
+  'veinticinco',
+  'veintiséis',
+  'veintisiete',
+  'veintiocho',
+  'veintinueve',
+];
+
+const tens = ['', '', '', 'treinta', 'cuarenta', 'cincuenta'];
+
+function minuteWords(minutes: number): string {
+  if (minutes === 0) return 'en punto';
+  if (minutes === 15) return 'y cuarto';
+  if (minutes === 30) return 'y media';
+  if (minutes < 30) return `y ${smallNumbers[minutes]}`;
+
+  const unit = minutes % 10;
+  const ten = tens[Math.floor(minutes / 10)];
+  return unit === 0 ? `y ${ten}` : `y ${ten} y ${smallNumbers[unit]}`;
+}
+
+/** The time as people say it on a 12-hour clock: "Ocho y dieciséis". */
+export function spokenTime(at: number): string {
+  const date = new Date(at);
+  const words = `${hourWords[date.getHours() % 12]} ${minuteWords(date.getMinutes())}`;
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
 /** Whole minutes from `since` to `at`. */
 export function elapsed(since: number, at: number): number {
   return Math.max(0, Math.floor((at - since) / minute));
@@ -143,7 +211,7 @@ export interface Chime {
   at: number;
   title: string;
   body: string;
-  /** The title and body as a voice reads them, with units in full. */
+  /** The time in words and the body with units in full, as a voice reads them. */
   spoken: string;
   over: boolean;
 }
@@ -152,7 +220,7 @@ export interface Chime {
 export function chimeFor(at: number, focus: Focus | null): Chime {
   const title = `Son las ${clockTime(at)}`;
   const { body, over } = progress(at, focus, () => 'min');
-  const spoken = `${title}. ${progress(at, focus, (count) => (count === 1 ? 'minuto' : 'minutos')).body}`;
+  const spoken = `${spokenTime(at)}. ${progress(at, focus, (count) => (count === 1 ? 'minuto' : 'minutos')).body}`;
 
   return { at, title, body, spoken, over };
 }
