@@ -1,7 +1,9 @@
 appId: com.risinghq.foco
 name: Screenshot Ahora, the task sheet and Hoy in the ${SCHEME} scheme
 ---
-- launchApp
+- launchApp:
+    permissions:
+      notifications: allow
 - tapOn: 'Ahora'
 - waitForAnimationToEnd
 - takeScreenshot: ahora-${SCHEME}

@@ -5,6 +5,7 @@ name: Start the first task of the day on a fresh install
     clearState: true
     permissions:
       notifications: allow
+- tapOn: 'Continuar'
 - tapOn: 'Empezar'
 - tapOn: 'Tarea'
 - inputText: 'Correo'

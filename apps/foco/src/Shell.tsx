@@ -6,20 +6,22 @@ import { allowChimes } from './chimes';
 import { useFoco, type Intent } from './data/FocoProvider';
 import { FocusForm } from './FocusForm';
 import { NowScreen } from './screens/NowScreen';
+import { SettingsScreen } from './screens/SettingsScreen';
 import { TodayScreen } from './screens/TodayScreen';
 import { useSheet } from './useSheet';
 import { useSwitchRequest } from './useSwitchRequest';
 
-type TabKey = 'now' | 'today';
+type TabKey = 'now' | 'today' | 'settings';
 
 const tabs: Tab<TabKey>[] = [
   { key: 'now', label: 'Ahora', icon: 'timer-outline', activeIcon: 'timer' },
   { key: 'today', label: 'Hoy', icon: 'today-outline', activeIcon: 'today' },
+  { key: 'settings', label: 'Ajustes', icon: 'settings-outline', activeIcon: 'settings' },
 ];
 
 type FormKind = 'start' | 'switch';
 
-/** The two tabs and the sheet that asks what comes next. */
+/** The tabs and the sheet that asks what comes next. */
 export function Shell() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -61,6 +63,7 @@ export function Shell() {
           <NowScreen onStart={() => form.show('start')} onSwitch={() => form.show('switch')} />
         )}
         {tab === 'today' && <TodayScreen />}
+        {tab === 'settings' && <SettingsScreen />}
       </View>
 
       <TabBar tabs={tabs} active={tab} onChange={setTab} bottomInset={insets.bottom} />

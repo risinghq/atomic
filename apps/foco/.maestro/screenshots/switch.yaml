@@ -1,7 +1,9 @@
 appId: com.risinghq.foco
 name: Switch to ${TASK} with a timebox of ${TIMEBOX}
 ---
-- launchApp
+- launchApp:
+    permissions:
+      notifications: allow
 - tapOn: 'Cambiar'
 - tapOn: 'Tarea'
 - inputText: ${TASK}

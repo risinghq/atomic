@@ -16,6 +16,8 @@ export interface Settings extends Plan {
   voice: boolean;
   active: boolean;
   focus: Focus | null;
+  /** Whether the person has passed the welcome screen. */
+  onboarded: boolean;
 }
 
 export const defaultSettings: Settings = {
@@ -25,6 +27,7 @@ export const defaultSettings: Settings = {
   voice: false,
   active: false,
   focus: null,
+  onboarded: false,
 };
 
 // Each entry moves the schema one version forward. Append; never edit an entry
