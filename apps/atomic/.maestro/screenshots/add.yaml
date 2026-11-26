@@ -1,0 +1,19 @@
+appId: com.empiricalhq.atomic
+name: Record one transaction from four pad keys, a note and a category
+---
+- tapOn: 'Agregar'
+- runFlow:
+    when:
+      true: ${KIND == 'Ingreso'}
+    commands:
+      - tapOn: 'Ingreso'
+- tapOn: ${K1}
+- tapOn: ${K2}
+- tapOn: ${K3}
+- tapOn: ${K4}
+- tapOn: 'Confirmar'
+- tapOn: 'Nota (opcional)'
+- inputText: ${NOTE}
+- hideKeyboard
+- tapOn: ${CATEGORY}
+- assertNotVisible: 'Nota (opcional)'

@@ -1,0 +1,80 @@
+appId: com.empiricalhq.atomic
+name: Fill a fresh install with a month's worth of entries and a budget
+---
+- launchApp:
+    clearState: true
+- tapOn: 'Empezar'
+
+- runFlow:
+    file: add.yaml
+    env:
+      {
+        KIND: Ingreso,
+        K1: '3',
+        K2: '2',
+        K3: '0',
+        K4: '0',
+        NOTE: 'Pago mensual',
+        CATEGORY: 'Sueldo',
+      }
+- runFlow:
+    file: add.yaml
+    env:
+      { K1: '0', K2: '9', K3: '5', K4: '0', NOTE: 'Alquiler', CATEGORY: 'Casa' }
+- runFlow:
+    file: add.yaml
+    env:
+      {
+        K1: '0',
+        K2: '1',
+        K3: '8',
+        K4: '4',
+        NOTE: 'Mercado',
+        CATEGORY: 'Comida',
+      }
+- runFlow:
+    file: add.yaml
+    env:
+      {
+        K1: '0',
+        K2: '0',
+        K3: '8',
+        K4: '5',
+        NOTE: 'Luz y agua',
+        CATEGORY: 'Servicios',
+      }
+- runFlow:
+    file: add.yaml
+    env: { K1: '0', K2: '0', K3: '6', K4: '2', NOTE: 'Cine', CATEGORY: 'Ocio' }
+- runFlow:
+    file: add.yaml
+    env:
+      {
+        K1: '0',
+        K2: '0',
+        K3: '3',
+        K4: '5',
+        NOTE: 'Taxi',
+        CATEGORY: 'Transporte',
+      }
+- runFlow:
+    file: add.yaml
+    env:
+      {
+        K1: '0',
+        K2: '0',
+        K3: '1',
+        K4: '8',
+        NOTE: 'Almuerzo',
+        CATEGORY: 'Comida',
+      }
+
+- tapOn: 'Presupuestos'
+- tapOn: 'Nuevo'
+- tapOn: 'General'
+- tapOn: '2'
+- tapOn: '0'
+- tapOn: '0'
+- tapOn: '0'
+- tapOn: 'Confirmar'
+- assertVisible: 'restante'

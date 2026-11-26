@@ -1,0 +1,13 @@
+appId: com.empiricalhq.foco
+name: Start the first task of the day on a fresh install
+---
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: allow
+- tapOn: 'Empezar'
+- tapOn: 'Tarea'
+- inputText: 'Correo'
+- tapOn: 'Sin límite'
+- tapOn: 'Listo'
+- assertVisible: 'Correo'

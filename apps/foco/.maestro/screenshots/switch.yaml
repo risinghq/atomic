@@ -1,0 +1,10 @@
+appId: com.empiricalhq.foco
+name: Switch to ${TASK} with a timebox of ${TIMEBOX}
+---
+- launchApp
+- tapOn: 'Cambiar'
+- tapOn: 'Tarea'
+- inputText: ${TASK}
+- tapOn: ${TIMEBOX}
+- tapOn: 'Listo'
+- assertVisible: ${TASK}

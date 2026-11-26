@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { screen, userEvent, waitFor, within } from '@testing-library/react-native';
 import { Shell } from '../src/Shell';
 import { recorderOf } from './native';
@@ -92,6 +92,37 @@ describe('a focus session', () => {
 });
 
 describe('today', () => {
+  // Hoy starts at local midnight, so a wall clock just past it would put the
+  // sessions on yesterday. Only Date is faked; the screen's timers stay real.
+  beforeEach(() => {
+    const morning = new Date();
+    morning.setHours(10, 0, 0, 0);
+
+    jest.useFakeTimers({
+      now: morning,
+      doNotFake: [
+        'hrtime',
+        'nextTick',
+        'performance',
+        'queueMicrotask',
+        'requestAnimationFrame',
+        'cancelAnimationFrame',
+        'requestIdleCallback',
+        'cancelIdleCallback',
+        'setImmediate',
+        'clearImmediate',
+        'setInterval',
+        'clearInterval',
+        'setTimeout',
+        'clearTimeout',
+      ],
+    });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   it('lists what the day was spent on', async () => {
     const user = userEvent.setup();
     const clock = { at: Date.now() - 90 * minute };

@@ -1,0 +1,15 @@
+appId: com.empiricalhq.atomic
+name: Screenshot Registro, Resumen and Presupuestos in the ${SCHEME} scheme
+---
+- launchApp
+- tapOn: 'Registro'
+- waitForAnimationToEnd
+- takeScreenshot: registro-${SCHEME}
+
+- tapOn: 'Resumen'
+- waitForAnimationToEnd
+- takeScreenshot: resumen-${SCHEME}
+
+- tapOn: 'Presupuestos'
+- waitForAnimationToEnd
+- takeScreenshot: presupuestos-${SCHEME}
