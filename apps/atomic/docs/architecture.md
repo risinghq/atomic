@@ -27,10 +27,10 @@ index.ts ─► App ─► DataProvider ─► AccountProvider ─► Root ─�
 | [`src/account/AccountProvider.tsx`](../src/account/AccountProvider.tsx) | The session, the sync status and the account actions, through `useAccount()`.                    |
 | [`src/account/api.ts`](../src/account/api.ts)                           | The Worker's routes. `EXPO_PUBLIC_API_URL` points a build at another Worker.                     |
 | [`src/account/signIn.ts`](../src/account/signIn.ts)                     | The browser sign-in with PKCE, ending in a session.                                              |
-| [`src/account/session.ts`](../src/account/session.ts)                   | Keeps the session in the keystore. The web build has no accounts (`session.web.ts`).             |
+| [`src/account/session.ts`](../src/account/session.ts)                   | Keeps the session in the keystore.                                                               |
 | [`src/account/syncStore.ts`](../src/account/syncStore.ts)               | One sync: sends the store's changes and applies the Worker's, page by page.                      |
 | [`src/account/AccountSection.tsx`](../src/account/AccountSection.tsx)   | Ajustes' Cuenta rows: sign in, or the email, sign out and account deletion.                      |
-| [`src/data/shareCsv.ts`](../src/data/shareCsv.ts)                       | Hands the CSV to the share sheet, or to a download on the web (`shareCsv.web.ts`).               |
+| [`src/data/shareCsv.ts`](../src/data/shareCsv.ts)                       | Hands the CSV to the share sheet.                                                                |
 | [`src/Root.tsx`](../src/Root.tsx)                                       | Shows `Onboarding` until `settings.onboarded`, then `Shell` behind `AppLock`.                    |
 | [`src/lock/`](../src/lock)                                              | The lock screen over the app, and the device's screen lock it asks for.                          |
 | [`src/Shell.tsx`](../src/Shell.tsx)                                     | The tab bar, the active tab and the entry sheet. Android back returns to Registro first.         |

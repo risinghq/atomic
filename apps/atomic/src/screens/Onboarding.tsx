@@ -57,7 +57,7 @@ export function Onboarding() {
     }
   }
 
-  const offerSignIn = account.supported && account.email === null;
+  const offerSignIn = account.email === null;
 
   return (
     <ScrollView

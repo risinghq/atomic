@@ -43,17 +43,17 @@ plain style objects.
 | `radii`       | [`layout.ts`](../packages/ui/src/theme/layout.ts)         | Corner radii, from 6 for chips to `full` for pills.                                       |
 | `springs`     | [`motion.ts`](../packages/ui/src/theme/motion.ts)         | `snappy` for presses, `smooth` for things moving into place, `gentle` for large surfaces. |
 | `durations`   | [`motion.ts`](../packages/ui/src/theme/motion.ts)         | 150, 200 and 300 ms for timed fades.                                                      |
-| `haptic()`    | [`haptics.ts`](../packages/ui/src/theme/haptics.ts)       | Feedback on a press, a selection or a result. Does nothing on web.                        |
+| `haptic()`    | [`haptics.ts`](../packages/ui/src/theme/haptics.ts)       | Feedback on a press, a selection or a result.                                             |
 
 ### Type
 
 Every platform draws Inter, one family per weight, so a screen looks the same on
-iOS, Android and web. The text variants follow the iOS Dynamic Type sizes, plus
-three for money: `hero` (65) for the month's total, `display` (56) for the
-amount being typed and `amount` (34) for a total inside a card. Each variant
-carries Inter's [dynamic tracking](https://rsms.me/inter/dynmetrics/) for its
-size: neutral at caption size, tighter as the text grows. Apply `tabularNumbers`
-to any amount so its digits keep the same width.
+iOS and Android. The text variants follow the iOS Dynamic Type sizes, plus three
+for money: `hero` (65) for the month's total, `display` (56) for the amount
+being typed and `amount` (34) for a total inside a card. Each variant carries
+Inter's [dynamic tracking](https://rsms.me/inter/dynmetrics/) for its size:
+neutral at caption size, tighter as the text grows. Apply `tabularNumbers` to
+any amount so its digits keep the same width.
 
 ### Haptics
 
@@ -117,9 +117,7 @@ have no swipe actions, so the package needs no gesture library.
 washes and the chart tracks use it.
 
 Interactive components expose their state (selected, checked, disabled,
-progress) through `aria-*` props. React Native reads them on every platform, and
-`react-native-web` drops the older `accessibilityState` and `accessibilityValue`
-objects.
+progress) through `aria-*` props, which React Native reads on both platforms.
 
 Labels a component draws itself, such as the number pad's "Confirmar" and the
 tab bar's "Agregar", default to Spanish and can be overridden by prop where the
@@ -132,17 +130,11 @@ scrolling screen, with the tab bar and toasts live. Change a component and check
 it there before an app uses it:
 
 ```bash
-bun run --cwd apps/catalog web
+bun run --cwd apps/catalog start
 ```
 
-`start` opens it in Expo Go instead. On web, `?scheme=light` or `?scheme=dark`
-in the URL fixes the scheme, which makes screenshots repeatable. The header's
-Claro/Oscuro control switches it at runtime.
-
-Chrome's headless `--screenshot` advances virtual time without running
-Reanimated's frames, so it captures springs mid-flight. Take screenshots of the
-exported site (`bun run --cwd apps/catalog build`, then serve `dist/`) with a
-browser driver that waits in real time, such as Playwright.
+Scan the QR code with Expo Go, or press <kbd>a</kbd> for a running Android
+emulator. The header's Claro/Oscuro control switches the scheme.
 
 ## Testing
 

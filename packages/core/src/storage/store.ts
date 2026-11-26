@@ -159,8 +159,7 @@ export async function openStore(db: Database, { newId, now = Date.now }: StoreOp
   await db.execAsync('PRAGMA foreign_keys = ON');
 
   // WAL syncs the disk at checkpoints instead of twice per commit, and NORMAL
-  // keeps every commit across an app crash. A VFS without WAL, like the web
-  // build's OPFS, keeps its rollback journal.
+  // keeps every commit across an app crash.
   await db.execAsync('PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL');
 
   await migrate(db, migrations);

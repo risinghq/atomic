@@ -46,10 +46,7 @@
       "permissions": ["android.permission.SCHEDULE_EXACT_ALARM"],
       "package": "com.empiricalhq.foco"
     },
-    "web": {
-      "bundler": "metro",
-      "output": "single"
-    },
+    "platforms": ["ios", "android"],
     "owner": "risinghq",
     "extra": {
       "eas": {

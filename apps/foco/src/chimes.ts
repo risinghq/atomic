@@ -12,8 +12,6 @@ export const switchAction = 'cambie';
 // alarms, and a longer window keeps chimes coming when the app stays closed.
 const windowSize = Platform.OS === 'ios' ? 60 : 144;
 
-export const supported = Platform.OS !== 'web';
-
 interface VoiceModule {
   schedule(times: number[], texts: string[]): Promise<void>;
   speak(text: string): Promise<void>;
@@ -29,8 +27,6 @@ const voiceDelay = 1500;
 
 /** Registers the channels, the check-in actions and the foreground handler. Call once at start. */
 export async function prepareChimes(): Promise<void> {
-  if (!supported) return;
-
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowBanner: true,
@@ -63,8 +59,6 @@ export async function prepareChimes(): Promise<void> {
  * keep a chime on its minute. Resolves to whether chimes can show at all.
  */
 export async function allowChimes(): Promise<boolean> {
-  if (!supported) return false;
-
   const current = await Notifications.getPermissionsAsync();
   const allowed = current.granted || (await Notifications.requestPermissionsAsync()).granted;
 
@@ -82,8 +76,6 @@ export async function allowChimes(): Promise<boolean> {
  * a full window asks the person to open the app, which schedules the next.
  */
 export async function scheduleChimes(settings: Settings, now: number): Promise<number> {
-  if (!supported) return 0;
-
   await Notifications.cancelAllScheduledNotificationsAsync();
 
   const times = settings.active ? chimeTimes(settings, now, windowSize) : [];
@@ -123,5 +115,5 @@ export async function speakNow(settings: Settings, now: number): Promise<void> {
 
 /** Clears chimes already shown, so the shade holds only the newest. */
 export async function clearShownChimes(): Promise<void> {
-  if (supported) await Notifications.dismissAllNotificationsAsync();
+  await Notifications.dismissAllNotificationsAsync();
 }

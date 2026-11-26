@@ -8,12 +8,11 @@
     "dev": "expo start --clear",
     "ios": "expo run:ios",
     "android": "expo run:android",
-    "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "test": "TZ=America/Lima jest",
     "apk": "expo prebuild -p android --no-install && cd android && ./gradlew assembleRelease -PreactNativeArchitectures=x86_64",
     "e2e": "android --no-metrics install android/app/build/outputs/apk/release/app-release.apk && maestro test .maestro",
-    "build": "expo export --platform web",
+    "build": "expo export --platform android",
     "build-preview": "eas build -p android --profile preview",
     "doctor": "expo-doctor && expo install --check"
   },
@@ -36,12 +35,10 @@
     "expo-system-ui": "~58.0.7",
     "expo-web-browser": "~58.1.0",
     "react": "19.3.0",
-    "react-dom": "19.3.0",
     "react-native": "0.88.1",
     "react-native-android-widget": "0.26.0",
     "react-native-reanimated": "4.7.1",
     "react-native-safe-area-context": "~5.11.1",
-    "react-native-web": "~0.21.4",
     "react-native-worklets": "0.13.0"
   },
   "devDependencies": {

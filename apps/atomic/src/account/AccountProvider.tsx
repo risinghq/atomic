@@ -13,7 +13,7 @@ import {
 import { AppState } from 'react-native';
 import { useData } from '../data/DataProvider';
 import * as api from './api';
-import { accountsSupported, clearSession, loadSession, saveSession } from './session';
+import { clearSession, loadSession, saveSession } from './session';
 import { signIn as browserSignIn } from './signIn';
 import { syncStore } from './syncStore';
 
@@ -24,7 +24,6 @@ export type SyncStatus = 'idle' | 'syncing' | 'offline';
 export type SignInResult = 'returning' | 'new' | 'cancelled';
 
 export type Account = {
-  supported: boolean;
   email: string | null;
   status: SyncStatus;
   signIn: (provider: api.Provider) => Promise<SignInResult>;
@@ -194,7 +193,6 @@ export function AccountProvider({ store, children }: { store: Store; children: R
 
   const account = useMemo<Account>(
     () => ({
-      supported: accountsSupported,
       email: session?.email ?? null,
       status,
       signIn,
